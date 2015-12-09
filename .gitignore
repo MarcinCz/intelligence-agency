@@ -1,0 +1,6 @@
+.settings/
+.project
+APDescription.txt
+MTPs-Main-Container.txt
+target/
+logs/
