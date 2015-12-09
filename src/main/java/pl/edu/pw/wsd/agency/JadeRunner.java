@@ -19,7 +19,7 @@ public class JadeRunner {
 	private static final Logger LOGGER = LogManager.getLogger();
 	
 	public static void main( String[] args ) {
-		LOGGER.info("Attemping to init Jade.Boot");
+		LOGGER.info("Attempting to init Jade.Boot");
         String[] jadeBootInitArguments = getJadeBootInitArguments();
         LOGGER.debug("Jade.Boot init arguments: " + Arrays.toString(jadeBootInitArguments));
 		jade.Boot.main(jadeBootInitArguments);
