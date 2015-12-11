@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agents.meta;
+package pl.edu.pw.wsd.agency.agent.meta;
 
 /**
  * Jade agent description.
