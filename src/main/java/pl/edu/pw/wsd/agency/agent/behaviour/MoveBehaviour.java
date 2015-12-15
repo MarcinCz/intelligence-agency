@@ -16,13 +16,13 @@ public class MoveBehaviour extends TickerBehaviour {
     }
 
     private static final long serialVersionUID = -8221711531932126745L;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
     
     @Override
     protected void onTick() {
         BaseAgent agent = (BaseAgent)getAgent();
         agent.setPosx(agent.getPosx()+1);
-        LOGGER.info("Agent moved. Current position X:" + agent.getPosx());
+        log.info("Agent moved. Current position X:" + agent.getPosx());
         
     }
 

@@ -9,11 +9,11 @@ import jade.core.Agent;
 public class SampleTransmitterAgent extends Agent {
 
 	private static final long serialVersionUID = 7620776141345324567L;
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 	
 	@Override
 	protected void setup() {
 		super.setup();
-		LOGGER.info(getLocalName() + " says Hello World");
+		log.info(getLocalName() + " says Hello World");
 	}
 }

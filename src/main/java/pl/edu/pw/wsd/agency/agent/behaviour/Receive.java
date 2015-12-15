@@ -16,14 +16,14 @@ import jade.lang.acl.ACLMessage;
 public class Receive extends Behaviour{
 
     private static final long serialVersionUID = 4463025011000946515L;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
     private boolean done = false;
     @Override
     public void action() {
-        LOGGER.info("Czekam na wiadomosc.");
+        log.info("Czekam na wiadomosc.");
         ACLMessage msg = myAgent.receive();
         if (msg != null) {
-          LOGGER.info("Otrzymalem wiadomosc.");
+          log.info("Otrzymalem wiadomosc.");
           String content = msg.getContent();
           ObjectMapper mapper = new ObjectMapper();
           try {

@@ -21,7 +21,7 @@ import jade.lang.acl.ACLMessage;
 public class PropagateMessageBehaviour extends CyclicBehaviour{
 
     private static final long serialVersionUID = -4865095272921712993L;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
 
     @Override
     public void action() {
@@ -47,8 +47,8 @@ public class PropagateMessageBehaviour extends CyclicBehaviour{
                         msg.addReceiver(aid);
                         msg.setContent(value);
                         agent.send(msg);
-                        LOGGER.info("Wyslalem wiadomosc: " + value);
-                        LOGGER.info("Do agenta: " + aid);
+                        log.info("Wyslalem wiadomosc: " + value);
+                        log.info("Do agenta: " + aid);
                         break;
                     }
                 }

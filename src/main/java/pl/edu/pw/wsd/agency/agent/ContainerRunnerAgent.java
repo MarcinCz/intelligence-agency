@@ -18,12 +18,12 @@ import pl.edu.pw.wsd.agency.config.ContainerConfig;
 public class ContainerRunnerAgent extends Agent {
 
 	private static final long serialVersionUID = -9037610317545055037L;
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
 	@Override
 	protected void setup() {
 		super.setup();
-		LOGGER.debug("Main container agent here");
+		log.debug("Main container agent here");
 		jade.core.Runtime jadeRuntime = jade.core.Runtime.instance();
 		ProfileImpl profile = new ProfileImpl();
 		profile.setParameter(Profile.CONTAINER_NAME, "ContainerFromCode");
@@ -33,7 +33,7 @@ public class ContainerRunnerAgent extends Agent {
 		try {
 			c.acceptNewAgent("testAgent", new AgentFromContainerRunner());
 		} catch (StaleProxyException e) {
-			LOGGER.error("Could not add agent to dynamically created container", e);
+			log.error("Could not add agent to dynamically created container", e);
 		}
 	}
 	
@@ -42,7 +42,7 @@ public class ContainerRunnerAgent extends Agent {
 		@Override
 		protected void setup() {
 			super.setup();
-			LOGGER.debug("Agent from container runner");
+			log.debug("Agent from container runner");
 		}
 	}
 }

@@ -17,17 +17,17 @@ import pl.edu.pw.wsd.agency.config.ContainerConfig;
  */
 abstract class ContainerLauncher {
 
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 	
 	protected static void runContainer(RunnableContainer container) {
 
 		if(container == null) {
 			throw new IllegalStateException("Could not run container. It's not initialized");
 		}
-		LOGGER.info("Attempting to init jade.Boot");
+		log.info("Attempting to init jade.Boot");
 		String[] jadeBootInitArguments = getJadeBootInitArguments(container);
 		jade.Boot.main(jadeBootInitArguments);
-		LOGGER.info("Jade.Boot started");
+		log.info("Jade.Boot started");
 
 	}
 
@@ -48,7 +48,7 @@ abstract class ContainerLauncher {
 			
 		arguments.append("-agents " + StringUtils.join(agentsToRun, ";"));
 		
-        LOGGER.debug("Jade.Boot init arguments: " + arguments.toString());
+        log.debug("Jade.Boot init arguments: " + arguments.toString());
         return StringUtils.split(arguments.toString());
 	}
 }

@@ -11,7 +11,7 @@ import jade.core.Agent;
 public class BaseAgent extends Agent {
 
     private static final long serialVersionUID = 851946783328690212L;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
     protected Configuration CFG;
     protected float posx;
     protected float posy;
@@ -34,25 +34,25 @@ public class BaseAgent extends Agent {
 
     @Override
     protected void setup() {
-        LOGGER.info("Agent starting.");
-        LOGGER.info("Loading configuration.");
+        log.info("Agent starting.");
+        log.info("Loading configuration.");
         Object[] args = getArguments();
         if(args != null && args.length == 1) {
             String propertiesFileName = (String) args[0];
             try {
                 loadConfiguration(propertiesFileName);
             } catch (ConfigurationException e) {
-                LOGGER.info("Could not load configuration. Agent terminating");
+                log.info("Could not load configuration. Agent terminating");
                 doDelete();
             }
         } else {
-            LOGGER.info("No properties file passed to agent. Agent terminating.");
+            log.info("No properties file passed to agent. Agent terminating.");
             doDelete();
         }
         //pozycja startowa agenta
         posx = Float.valueOf(CFG.getString("posx"));
         posy = Float.valueOf(CFG.getString("posy"));
-        LOGGER.info("Agent starting position. X:" + posx + " Y:" + posy);
+        log.info("Agent starting position. X:" + posx + " Y:" + posy);
     }
     
     private void loadConfiguration(String propertiesFielName) throws ConfigurationException {

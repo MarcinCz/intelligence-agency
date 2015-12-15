@@ -1,16 +1,15 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.PropagateMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.Receive;
@@ -19,7 +18,7 @@ import pl.edu.pw.wsd.agency.message.content.PropagateMyMessage;
 public class TransmitterAgent extends BaseAgent {
 
     private static final long serialVersionUID = 4131616609061841238L;
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger();
     private List<PropagateMyMessage> propagate = new ArrayList<PropagateMyMessage>();
     
 
