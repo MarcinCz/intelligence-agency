@@ -9,10 +9,12 @@ package pl.edu.pw.wsd.agency.agent.meta;
 public class JadeAgentDescription {
 	private final String localName;
 	private final String qualifiedName;
+	private final String propertiesFileName;
 	
-	public JadeAgentDescription(String localName, String qualifiedName) {
+	public JadeAgentDescription(String localName, String qualifiedName, String propertiesFileName) {
 		this.localName = localName;
 		this.qualifiedName = qualifiedName;
+		this.propertiesFileName = propertiesFileName;
 	}
 	
 	public String getLocalName() {
@@ -21,6 +23,10 @@ public class JadeAgentDescription {
 
 	public String getQualifiedName() {
 		return qualifiedName;
+	}
+	
+	public String getPropertiesFileName() {
+	    return propertiesFileName;
 	}
 	
 	@Override

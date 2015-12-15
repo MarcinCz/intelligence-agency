@@ -43,7 +43,7 @@ abstract class ContainerLauncher {
 		}
 		List<String> agentsToRun = container.getAgentsToRun()
 				.stream()
-				.map(d -> d.getLocalName() + ":" + d.getQualifiedName())
+				.map(d -> d.getLocalName() + ":" + d.getQualifiedName() + "(" + d.getPropertiesFileName() + ")")
 				.collect(Collectors.toList());
 			
 		arguments.append("-agents " + StringUtils.join(agentsToRun, ";"));

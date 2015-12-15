@@ -20,6 +20,8 @@ public class MainContainer extends RunnableContainer {
 
 	@Override
 	public List<JadeAgentDescription> getAgentsToRun() {
-		return Arrays.asList(new JadeAgentDescription("containerRunnerAgent", ContainerRunnerAgent.class.getName()));
+	    createAgentDescription(ContainerRunnerAgent.class, "container.properties");
+		//return Arrays.asList(new JadeAgentDescription("containerRunnerAgent", ContainerRunnerAgent.class.getName(), "container.properties"));
+	    return Arrays.asList(createAgentDescription(ContainerRunnerAgent.class, "container.properties"));
 	}
 }
