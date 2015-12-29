@@ -37,7 +37,7 @@ public class TransmitterAgent extends BaseAgent {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-		addBehaviour(new MoveBehaviour(null, 10000, null));
+		addBehaviour(new MoveBehaviour(null, mbp));
 		addBehaviour(new Receive());
 		addBehaviour(new PropagateMessageBehaviour());
 		
