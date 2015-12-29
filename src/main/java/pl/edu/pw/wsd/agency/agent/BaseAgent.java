@@ -1,8 +1,7 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.awt.geom.Point2D;
 import java.util.List;
-
-import javafx.geometry.Point2D;
 
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -62,7 +61,7 @@ public class BaseAgent extends Agent {
     }
 
     public Point2D getPosition() {
-        return new Point2D(posX, posY);
+        return new Point2D.Double(posX, posY);
     }
 
     @Override
@@ -125,7 +124,7 @@ public class BaseAgent extends Agent {
         for (int i = 0; i < points.size(); i++) {
             String s = (String) points.get(i);
             String[] s2 = s.split(COORDINATE_SEPARATOR);
-            Point2D _point = new Point2D(Double.valueOf(s2[0]), Double.valueOf(s2[1]));
+            Point2D _point = new Point2D.Double(Double.valueOf(s2[0]), Double.valueOf(s2[1]));
             path[i] = _point;
         }
 
