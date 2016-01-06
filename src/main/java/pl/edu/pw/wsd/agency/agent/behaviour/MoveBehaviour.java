@@ -1,13 +1,13 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.awt.geom.Point2D;
+import javafx.geometry.Point2D;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.pw.wsd.agency.agent.BaseAgent;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
-import pl.edu.pw.wsd.agency.agent.BaseAgent;
 
 public class MoveBehaviour extends TickerBehaviour {
 
