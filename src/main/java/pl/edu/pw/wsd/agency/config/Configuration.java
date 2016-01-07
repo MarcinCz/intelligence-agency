@@ -49,6 +49,10 @@ public class Configuration {
         return mapper;
     }
     
+    /**
+     * Contains Location of only Transmitter Agents.
+     * @return
+     */
     public Map<AID, Point2D> getAgentsLocation() {
         return agentsLocation;
     }
@@ -56,6 +60,7 @@ public class Configuration {
     /**
      * Returns Agents Location information without information about Agent it ask for.
      * Agent doesn't need information about its own location.
+     * Contains Location of only Transmitter Agents.
      * @param aid
      * @return
      */

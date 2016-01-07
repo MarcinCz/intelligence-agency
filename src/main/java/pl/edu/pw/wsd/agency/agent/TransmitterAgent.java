@@ -6,14 +6,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jade.core.behaviours.SequentialBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.PropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.Receive;
 import pl.edu.pw.wsd.agency.agent.behaviour.DetectAgentsBehaviour;
 import pl.edu.pw.wsd.agency.message.content.PropagateMyMessage;
 
@@ -29,7 +27,7 @@ public class TransmitterAgent extends BaseAgent {
     protected void setup() {
         super.setup();
         registerAgent();
-        addBehaviour(new MoveBehaviour(null, mbp));
+        addBehaviour(new MoveBehaviour(null, mbp, true));
         addBehaviour(new DetectAgentsBehaviour(null, mbp));
         // addBehaviour(new Receive());
         addBehaviour(new PropagateMessageBehaviour());

@@ -18,19 +18,24 @@ import jade.core.behaviours.TickerBehaviour;
  */
 public class MoveBehaviour extends TickerBehaviour {
 
-    public MoveBehaviour(Agent a, long period) {
+    public MoveBehaviour(Agent a, long period, boolean save) {
         super(a, period);
+        this.save = save;
     }
 
     private static final long serialVersionUID = -8221711531932126745L;
 
     private static final Logger log = LogManager.getLogger();
 
+    private boolean save;
+
     @Override
     protected void onTick() {
         BaseAgent agent = (BaseAgent) getAgent();
         updatePosition(agent);
-        savePosition(agent);
+        if (save) {
+            savePosition(agent);
+        }
         log.debug("Agent moved:" + agent.getPosition());
         log.debug("Agent target: " + agent.getCurrentTarget());
     }
