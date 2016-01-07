@@ -6,9 +6,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.pw.wsd.agency.agent.BaseAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 
+/**
+ * Simulates Agents moving.
+ * 
+ * @author Adrian Sidor
+ *
+ */
 public class MoveBehaviour extends TickerBehaviour {
 
     public MoveBehaviour(Agent a, long period) {
@@ -16,16 +23,24 @@ public class MoveBehaviour extends TickerBehaviour {
     }
 
     private static final long serialVersionUID = -8221711531932126745L;
+
     private static final Logger log = LogManager.getLogger();
-    
+
     @Override
     protected void onTick() {
-        BaseAgent agent = (BaseAgent)getAgent();
+        BaseAgent agent = (BaseAgent) getAgent();
         updatePosition(agent);
+        savePosition(agent);
         log.debug("Agent moved:" + agent.getPosition());
         log.debug("Agent target: " + agent.getCurrentTarget());
     }
-    
+
+    /**
+     * Updates Agents Position.
+     * Agent is moving.
+     * 
+     * @param agent
+     */
     private void updatePosition(BaseAgent agent) {
         double direction = getDirection(agent);
         log.debug("Direction: " + direction);
@@ -35,18 +50,18 @@ public class MoveBehaviour extends TickerBehaviour {
         Point2D target = agent.getCurrentTarget();
         double distance = target.distance(agent.getPosition());
         log.debug("Distance: " + distance);
-        if(distance < speed) {
+        if (distance < speed) {
             Point2D[] path = agent.getPath();
             int tpi = agent.getTargetPointNumber();
-            if(agent.getDirection()) {
-                if(tpi == path.length - 1) {
+            if (agent.getDirection()) {
+                if (tpi == path.length - 1) {
                     agent.decrementTargetPointNumber();
                     agent.setDirection(false);
                 } else {
                     agent.incrementTargetPointNumber();
                 }
             } else {
-                if(tpi == 0) {
+                if (tpi == 0) {
                     agent.incrementTargetPointNumber();
                     agent.setDirection(true);
                 } else {
@@ -56,12 +71,22 @@ public class MoveBehaviour extends TickerBehaviour {
             log.debug("Moving to next target: " + agent.getCurrentTarget());
         }
     }
-    
+
+    /**
+     * Agent updates its position in Configuration.
+     * 
+     * @param agent
+     */
+    private void savePosition(BaseAgent agent) {
+        Configuration conf = Configuration.getInstance();
+        conf.updateAgentLocation(agent.getAID(), agent.getPosition());
+    }
+
     private double getDirection(BaseAgent agent) {
         Point2D target = agent.getCurrentTarget();
         double deltaX = target.getX() - agent.getX();
         double deltaY = target.getY() - agent.getY();
-        
+
         return Math.atan2(deltaY, deltaX);
     }
 

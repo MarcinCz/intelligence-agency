@@ -19,7 +19,7 @@ public class TransmitterContainer extends RunnableContainer {
 	public List<JadeAgentDescription> getAgentsToRun() {
 		List<JadeAgentDescription> descriptions = new ArrayList<>();
 		descriptions.add(createAgentDescription(TransmitterAgent.class, "TransmitterAgent1.properties"));
-		//descriptions.add(createAgentDescription(TransmitterAgent.class, "TransmitterAgent2.properties"));
+		descriptions.add(createAgentDescription(TransmitterAgent.class, "TransmitterAgent2.properties"));
 		return descriptions;
 	}
 

@@ -10,6 +10,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import jade.core.AID;
 import jade.core.Agent;
 
 public class BaseAgent extends Agent {
@@ -17,6 +18,11 @@ public class BaseAgent extends Agent {
     private static final long serialVersionUID = 851946783328690212L;
 
     private static final Logger log = LogManager.getLogger();
+    
+    /**
+     * List of Agents in range of this Agent
+     */
+    private List<AID> agentsInRange;
 
     protected AbstractConfiguration CFG;
 
@@ -162,6 +168,14 @@ public class BaseAgent extends Agent {
 
     public void decrementTargetPointNumber() {
         --tpi;
+    }
+
+    public List<AID> getAgentsInRange() {
+        return agentsInRange;
+    }
+
+    public void setAgentsInRange(List<AID> agentsInRange) {
+        this.agentsInRange = agentsInRange;
     }
 
 }
