@@ -8,23 +8,28 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.message.content.PropagateMyMessage;
 import jade.core.AID;
-import jade.core.behaviours.CyclicBehaviour;
+import jade.core.Agent;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.message.content.PropagateMyMessage;
 
-public class PropagateMessageBehaviour extends CyclicBehaviour{
+public class PropagateMessageBehaviour extends TickerBehaviour{
 
-    private static final long serialVersionUID = -4865095272921712993L;
+    public PropagateMessageBehaviour(Agent a, long period) {
+		super(a, period);
+	}
+
+	private static final long serialVersionUID = -4865095272921712993L;
     private static final Logger log = LogManager.getLogger();
 
     @Override
-    public void action() {
+    public void onTick() {
         TransmitterAgent agent = (TransmitterAgent)getAgent();
         List<PropagateMyMessage> propagate = agent.getPropagateMyMessageList();
         if(!agent.getPropagateMyMessageList().isEmpty()) {
