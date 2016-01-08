@@ -7,9 +7,9 @@ addons:
   apt:
     packages:
       - oracle-java8-installer
-	  
+
 notifications:
-  slack:
+  slack: 
+    wsdpw: SvjgjHg3QQ90GxmCpvfKAD8j
     on_success: change
-	wsdpw:SvjgjHg3QQ90GxmCpvfKAD8j
   email: false
