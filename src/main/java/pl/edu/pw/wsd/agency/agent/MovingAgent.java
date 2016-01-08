@@ -7,10 +7,12 @@ import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
 
 import jade.core.AID;
 import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 public class MovingAgent extends BaseAgent {
 
@@ -80,15 +82,10 @@ public class MovingAgent extends BaseAgent {
     protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
         agentsInRange = new ArrayList<AID>();
         MovingAgentConfiguration cfg = configProvider.getMovingAgentConfiguration(propertiesFileName);
-        // set MoveBehaviour tick period
         mbp = cfg.getMoveBehaviourPeriod();
-        // set agent path
         path = cfg.getPath();
-        // set agent moving speed
         speed = cfg.getSpeed();
-        // set agent path direction
         ad = cfg.getAgentDirection();
-        // set agent starting position
         int spi = cfg.getStartingPositionIndex();
         Point2D startingPoint = cfg.getStartingPosition();
         setX(startingPoint.getX());
@@ -149,6 +146,15 @@ public class MovingAgent extends BaseAgent {
 
     public void setAgentsInRange(List<AID> agentsInRange) {
         this.agentsInRange = agentsInRange;
+    }
+    
+    public AgentStatus getAgentStatus() {
+    	AgentStatus status = new AgentStatus();
+    	status.setLocation(getPosition());
+    	status.setSenderId(getAgentState().getName());
+    	status.setTimestamp(DateTime.now());
+    	status.setStatistics(getAgentStatistics());
+    	return status;
     }
 
 }

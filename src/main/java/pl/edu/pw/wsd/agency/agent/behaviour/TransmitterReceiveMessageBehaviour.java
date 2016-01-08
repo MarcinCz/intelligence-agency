@@ -1,20 +1,19 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 
-public class ReceiveClientMessageBehaviour extends Behaviour {
+/**
+ *	Behaviour for receiving all the messages from other agents.
+ *	Messages are saved in transmitter for later propagation or other actions.
+ */
+public class TransmitterReceiveMessageBehaviour extends Behaviour {
 
     private static final long serialVersionUID = -4355343485797591490L;
 
@@ -24,8 +23,6 @@ public class ReceiveClientMessageBehaviour extends Behaviour {
 
     private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
 
-    private static final String CONVERSATION_ID = "client-message";
-
     @Override
     public void action() {
         MessageTemplate mt2 = MessageTemplate.and(
@@ -34,19 +31,21 @@ public class ReceiveClientMessageBehaviour extends Behaviour {
         /*MessageTemplate mt = MessageTemplate.and(
                 MessageTemplate.MatchConversationId(CONVERSATION_ID), 
                 mt2);*/
-        ACLMessage msg = myAgent.receive(mt2);
+        TransmitterAgent agent = (TransmitterAgent) myAgent;
+        ACLMessage msg = agent.receiveAndUpdateStatistics(mt2);
         if (msg != null) {
-            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-            String content = msg.getContent();
-            try {
-                ClientMessage cm = mapper.readValue(content, ClientMessage.class);
-                TransmitterAgent agent = (TransmitterAgent) myAgent;
-                agent.addClientMessage(cm);
-                log.info("Odebralem wiadomosc ClientMessage");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        	switch(ConversationId.resolveConversationType(msg.getConversationId())) {
+        	case AGENT_STATUS:
+        		agent.addAgentStatusMessage(msg);
+        		log.debug("Transmitter received new agent status.");
+        		break;
+        	case CLIENT_MESSAGE:
+        		agent.addClientMessage(msg);
+        		log.debug("Transmitter received new client message.");
+        		break;
+        	default:
+        		throw new IllegalStateException("Unknown conversation type for conversation id [" + msg.getConversationId() + "]");
+        	}
         } else {
             block();
         }

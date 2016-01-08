@@ -7,12 +7,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import pl.edu.pw.wsd.agency.agent.ClientAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import pl.edu.pw.wsd.agency.agent.ClientAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 /**
  * User can send to Client messages which will be propagated by Client as Client message.
@@ -33,13 +33,13 @@ public class UserInputMessageBehaviour extends CyclicBehaviour{
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
         log.debug("Czekam na wiadomosc od Uzytkownika.");
-        ACLMessage msg = myAgent.receive(mt);
+        ClientAgent agent = (ClientAgent)myAgent;
+        ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content = msg.getContent();
             try {
                 ClientMessage cm = mapper.readValue(content, ClientMessage.class);
-                ClientAgent agent = (ClientAgent)myAgent;
                 agent.queueClientMessage(cm);
                 log.info("Odebralem wiadomosc od uzytkownika");
             } catch (IOException e) {

@@ -5,17 +5,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
-import pl.edu.pw.wsd.agency.agent.ClientAgent;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -48,25 +42,17 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
         // I assume for now that can be only one Agent in range
         AID receiver = transmitters.get(0);
         if (receiver != null) {
-            List<ClientMessage> messages = agent.getClientMessages();
+            List<ACLMessage> messages = agent.getClientMessages();
             // send one message by behaviour cycle or all ?
             // I choosed one by behaviour cycle
-            ClientMessage message = messages.remove(0);
+            ACLMessage message = messages.remove(0);
             if (message != null) {
-                ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-                try {
-                    String content = mapper.writeValueAsString(message);
-                    ACLMessage aclm = new ACLMessage(PERFORMATIVE);
-                    aclm.addReceiver(receiver);
-                    aclm.setContent(content);
-                    aclm.setLanguage(LANGUAGE);
-                    aclm.setConversationId(CONVERSATION_ID);
-                } catch (JsonProcessingException e) {
-                    log.error("Could not parse ClientMessage");
-                    // we lost message this way because we removed it from the list
-                    // we can add it again agent.queueClientMessage(message)
-                    // but do we want message that we cant send?
-                }
+                ACLMessage aclm = new ACLMessage(PERFORMATIVE);
+                aclm.addReceiver(receiver);
+                aclm.setContent(message.getContent());
+                aclm.setLanguage(message.getLanguage());
+                aclm.setConversationId(message.getConversationId());
+                //TODO: propagate message
             }
         }
     }

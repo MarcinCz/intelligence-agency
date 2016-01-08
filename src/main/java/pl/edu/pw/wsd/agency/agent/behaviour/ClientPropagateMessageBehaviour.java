@@ -15,6 +15,8 @@ import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.ClientAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
 public class ClientPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -22,11 +24,7 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String LANGUAGE = "JSON";
-
     private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
-
-    private static final String CONVERSATION_ID = "client-message";
 
     public ClientPropagateMessageBehaviour(Agent a, long period) {
         super(a, period);
@@ -51,9 +49,9 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
                     ACLMessage aclm = new ACLMessage(PERFORMATIVE);
                     aclm.addReceiver(receiver);
                     aclm.setContent(content);
-                    aclm.setLanguage(LANGUAGE);
-                    aclm.setConversationId(CONVERSATION_ID);
-                    agent.send(aclm);
+                    aclm.setLanguage(Language.JSON);
+                    aclm.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
+                    agent.sendAndUpdateStatistics(aclm);
                     log.info("Wyslalem wiadomosc do Transmitera");
                 } catch (JsonProcessingException e) {
                     log.error("Could not parse ClientMessage");
