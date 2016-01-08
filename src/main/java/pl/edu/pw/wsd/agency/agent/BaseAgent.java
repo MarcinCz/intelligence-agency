@@ -1,5 +1,6 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.util.ArrayList;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -10,6 +10,7 @@ import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 /**
  * Contains global configuration.
@@ -33,6 +34,7 @@ public class Configuration {
         SimpleModule simple = new SimpleModule();
         simple.addDeserializer(Point2D.class, new Point2dDeserializer());
         mapper.registerModule(simple);
+        mapper.registerModule(new JodaModule());
         agentsLocation = new HashMap<AID, Point2D>();
     }
     

@@ -1,6 +1,7 @@
 package pl.edu.pw.wsd.agency.agent;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -73,6 +74,7 @@ public class MovingAgent extends BaseAgent {
 
     @Override
     protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+        agentsInRange = new ArrayList<AID>();
         MovingAgentConfiguration cfg = configProvider.getMovingAgentConfiguration(propertiesFileName);
         // set MoveBehaviour tick period
         mbp = cfg.getMoveBehaviourPeriod();

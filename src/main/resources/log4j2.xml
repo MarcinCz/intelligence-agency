@@ -20,7 +20,7 @@
 	</Appenders>
 	
 	<Loggers>
-		<Logger name="pl.edu.pw.wsd.agency" level="debug" additivity="false">
+		<Logger name="pl.edu.pw.wsd.agency" level="info" additivity="false">
 			<appender-ref ref="CONSOLE" level="debug" />
 			<appender-ref ref="FILE" level="debug" />
 		</Logger>

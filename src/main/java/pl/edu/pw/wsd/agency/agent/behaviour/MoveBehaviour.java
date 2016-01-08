@@ -6,9 +6,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import pl.edu.pw.wsd.agency.config.Configuration;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.lang.acl.ACLMessage;
 
 /**
  * Simulates Agents moving.
@@ -34,7 +44,7 @@ public class MoveBehaviour extends TickerBehaviour {
         MovingAgent agent = (MovingAgent) getAgent();
         updatePosition(agent);
         if (save) {
-            savePosition(agent);
+            sendInfoToLocationRegistry(agent);
         }
         log.debug("Agent moved:" + agent.getPosition());
         log.debug("Agent target: " + agent.getCurrentTarget());
@@ -78,13 +88,42 @@ public class MoveBehaviour extends TickerBehaviour {
     }
 
     /**
-     * Agent updates its position in Configuration.
+     * Agent sends information to LocationRegistry Agent about its new Position.
      * 
      * @param agent
      */
-    private void savePosition(MovingAgent agent) {
-        Configuration conf = Configuration.getInstance();
-        conf.updateAgentLocation(agent.getAID(), agent.getPosition());
+    private void sendInfoToLocationRegistry(MovingAgent agent) {
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("Registry");
+        sd.setName("LocationRegistry");
+        template.addServices(sd);
+        AID locationRegistry = null;
+        try {
+            DFAgentDescription[] result = DFService.search(myAgent, template);
+            if (result.length == 1) {
+                locationRegistry = result[0].getName();
+            }
+        } catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+        if (locationRegistry != null) {
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.setConversationId("Agents-Location");
+            Point2D position = agent.getPosition();
+            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+            String content;
+            try {
+                content = mapper.writeValueAsString(position);
+                msg.setContent(content);
+                msg.addReceiver(locationRegistry);
+                agent.send(msg);
+            } catch (JsonProcessingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+        }
     }
 
     private double getDirection(MovingAgent agent) {
