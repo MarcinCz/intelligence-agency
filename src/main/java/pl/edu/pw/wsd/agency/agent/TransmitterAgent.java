@@ -15,7 +15,7 @@ import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.PropagateMessageBehaviour;
 import pl.edu.pw.wsd.agency.message.content.PropagateMyMessage;
 
-public class TransmitterAgent extends BaseAgent {
+public class TransmitterAgent extends MovingAgent {
 
     private static final long serialVersionUID = 4131616609061841238L;
 

@@ -5,7 +5,7 @@ import javafx.geometry.Point2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.pw.wsd.agency.agent.BaseAgent;
+import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
@@ -31,7 +31,7 @@ public class MoveBehaviour extends TickerBehaviour {
 
     @Override
     protected void onTick() {
-        BaseAgent agent = (BaseAgent) getAgent();
+        MovingAgent agent = (MovingAgent) getAgent();
         updatePosition(agent);
         if (save) {
             savePosition(agent);
@@ -46,7 +46,7 @@ public class MoveBehaviour extends TickerBehaviour {
      * 
      * @param agent
      */
-    private void updatePosition(BaseAgent agent) {
+    private void updatePosition(MovingAgent agent) {
         double direction = getDirection(agent);
         log.debug("Direction: " + direction);
         double speed = agent.getSpeed();
@@ -82,12 +82,12 @@ public class MoveBehaviour extends TickerBehaviour {
      * 
      * @param agent
      */
-    private void savePosition(BaseAgent agent) {
+    private void savePosition(MovingAgent agent) {
         Configuration conf = Configuration.getInstance();
         conf.updateAgentLocation(agent.getAID(), agent.getPosition());
     }
 
-    private double getDirection(BaseAgent agent) {
+    private double getDirection(MovingAgent agent) {
         Point2D target = agent.getCurrentTarget();
         double deltaX = target.getX() - agent.getX();
         double deltaY = target.getY() - agent.getY();
