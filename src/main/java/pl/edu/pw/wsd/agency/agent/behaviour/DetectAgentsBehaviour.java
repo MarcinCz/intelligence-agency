@@ -10,7 +10,7 @@ import javafx.geometry.Point2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.pw.wsd.agency.agent.BaseAgent;
+import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import jade.core.AID;
 import jade.core.Agent;
@@ -45,7 +45,7 @@ public class DetectAgentsBehaviour extends TickerBehaviour {
                 agentsInRange.add(entry.getKey());
             }
         }
-        BaseAgent agent = (BaseAgent) getAgent();
+        MovingAgent agent = (MovingAgent) getAgent();
         agent.setAgentsInRange(agentsInRange);
         log.debug("Agents in range: " + agent.getAgentsInRange());
     }
@@ -57,7 +57,7 @@ public class DetectAgentsBehaviour extends TickerBehaviour {
      * @return
      */
     private boolean isInRange(Point2D location) {
-        BaseAgent agent = (BaseAgent) this.getAgent();
+        MovingAgent agent = (MovingAgent) this.getAgent();
         Point2D agentPosition = agent.getPosition();
         double distance = agentPosition.distance(location);
         if (distance > range) {
