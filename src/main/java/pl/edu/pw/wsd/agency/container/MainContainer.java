@@ -1,10 +1,8 @@
 package pl.edu.pw.wsd.agency.container;
 
-import java.util.Arrays;
 import java.util.List;
 
-import pl.edu.pw.wsd.agency.agent.ContainerRunnerAgent;
-import pl.edu.pw.wsd.agency.agent.meta.JadeAgentDescription;
+import jade.core.Agent;
 import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
 
 /**
@@ -19,9 +17,7 @@ public class MainContainer extends RunnableContainer {
 	}
 
 	@Override
-	public List<JadeAgentDescription> getAgentsToRun() {
-	    createAgentDescription(ContainerRunnerAgent.class, "container.properties");
-		//return Arrays.asList(new JadeAgentDescription("containerRunnerAgent", ContainerRunnerAgent.class.getName(), "container.properties"));
-	    return Arrays.asList(createAgentDescription(ContainerRunnerAgent.class, "container.properties"));
+	public List<Agent> getAgentsToRun() {
+	    return null;
 	}
 }

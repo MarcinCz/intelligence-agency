@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientPropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.DetectAgentsBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
@@ -21,12 +20,16 @@ import pl.edu.pw.wsd.agency.message.content.ClientMessage;
  */
 public class ClientAgent extends MovingAgent {
 
-    private static final long serialVersionUID = 8776284258546308595L;
+	private static final long serialVersionUID = 8776284258546308595L;
 
     private static final Logger log = LogManager.getLogger();
     
     private List<ClientMessage> clientMessages;
 
+    public ClientAgent(String propertiesFileName) {
+		super(propertiesFileName);
+	}
+    
     @Override
     protected void setup() {
         super.setup();

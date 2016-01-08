@@ -16,6 +16,10 @@ public class SupervisorAgent extends BaseAgent {
 
 	private static final Logger log = LogManager.getLogger();
 	
+	public SupervisorAgent(String propertiesFileName) {
+		super(propertiesFileName);
+	}
+	
 	@Override
     protected void setup() {
         super.setup();
