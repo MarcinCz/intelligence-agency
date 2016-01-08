@@ -20,7 +20,7 @@ public class TransmitterAgent extends MovingAgent {
 
     private List<ACLMessage> clientMessages = new ArrayList<>();
     private List<ACLMessage> agentStatusMessages = new ArrayList<>();
-
+    
     public TransmitterAgent(String propertiesFileName) {
 		super(propertiesFileName);
 	}
