@@ -6,6 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.pw.wsd.agency.config.Configuration;
@@ -90,7 +92,7 @@ public class MoveBehaviour extends TickerBehaviour {
      * 
      * @param agent
      */
-    private void sendInfoToLocationRegistry(BaseAgent agent) {
+    private void sendInfoToLocationRegistry(MovingAgent agent) {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
         sd.setType("Registry");

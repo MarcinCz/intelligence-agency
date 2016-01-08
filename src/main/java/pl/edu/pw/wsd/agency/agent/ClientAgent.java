@@ -19,7 +19,7 @@ import pl.edu.pw.wsd.agency.message.content.ClientMessage;
  * @author Adrian Sidor
  *
  */
-public class ClientAgent extends BaseAgent {
+public class ClientAgent extends MovingAgent {
 
     private static final long serialVersionUID = 8776284258546308595L;
 
