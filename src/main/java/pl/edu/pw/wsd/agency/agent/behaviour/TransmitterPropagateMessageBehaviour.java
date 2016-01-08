@@ -13,10 +13,11 @@ import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.ClientAgent;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
-public class ClientPropagateMessageBehaviour extends TickerBehaviour {
+public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
     private static final long serialVersionUID = -4865095272921712993L;
 
@@ -25,26 +26,33 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
     private static final String LANGUAGE = "JSON";
 
     private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
-
+    
     private static final String CONVERSATION_ID = "client-message";
-
-    public ClientPropagateMessageBehaviour(Agent a, long period) {
+    
+    public TransmitterPropagateMessageBehaviour(Agent a, long period) {
         super(a, period);
     }
 
     @Override
     public void onTick() {
-        ClientAgent agent = (ClientAgent) myAgent;
+        TransmitterAgent agent = (TransmitterAgent) myAgent;
         List<AID> transmitters = agent.getAgentsInRange();
-        if (!transmitters.isEmpty()) {
-            // we dont want to send message to all possible transmitters, only to one
-            // I choose the first on the list
-            AID receiver = transmitters.get(0);
+        // we want to propagate message to all possible Transmitters
+        // try to send to all at once or one by behaviour cycle ?
+        // which behaviour would be closest to reality
+        
+        // Transmitter needs to remember to which Transmitter it send message
+        // or it will send message to the same Transmitter multiple times
+        // or mayby we want that behaviour
+        
+        // I assume for now that can be only one Agent in range
+        AID receiver = transmitters.get(0);
+        if (receiver != null) {
             List<ClientMessage> messages = agent.getClientMessages();
-            if (!messages.isEmpty()) {
-                // send one message by behaviour cycle or all ?
-                // I choosed one by behaviour cycle
-                ClientMessage message = messages.remove(0);
+            // send one message by behaviour cycle or all ?
+            // I choosed one by behaviour cycle
+            ClientMessage message = messages.remove(0);
+            if (message != null) {
                 ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                 try {
                     String content = mapper.writeValueAsString(message);
@@ -53,8 +61,6 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
                     aclm.setContent(content);
                     aclm.setLanguage(LANGUAGE);
                     aclm.setConversationId(CONVERSATION_ID);
-                    agent.send(aclm);
-                    log.info("Wyslalem wiadomosc do Transmitera");
                 } catch (JsonProcessingException e) {
                     log.error("Could not parse ClientMessage");
                     // we lost message this way because we removed it from the list
