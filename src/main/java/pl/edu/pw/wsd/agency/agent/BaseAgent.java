@@ -1,5 +1,6 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.util.ArrayList;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +42,7 @@ public abstract class BaseAgent extends Agent {
     protected void setup() {
         log.info("Agent starting.");
         log.info("Loading configuration.");
+        agentsInRange = new ArrayList<AID>();
         Object[] args = getArguments();
         if (args != null && args.length == 1) {
             String propertiesFileName = (String) args[0];
