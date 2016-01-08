@@ -3,9 +3,11 @@ package pl.edu.pw.wsd.agency.message.content;
 import org.joda.time.DateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import javafx.geometry.Point2D;
 
+@JsonRootName("AgentStatus")
 public class AgentStatus {
 
     @JsonProperty("sender-id")

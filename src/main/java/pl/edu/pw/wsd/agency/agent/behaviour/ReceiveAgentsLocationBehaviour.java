@@ -6,25 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javafx.geometry.Point2D;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.pw.wsd.agency.agent.BaseAgent;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
-import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.agent.MovingAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 /**
  * Behaviour that receive massage from LocationRegistry Agent about all Agents Positions.
@@ -44,7 +38,8 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
     @Override
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchConversationId("Agents-Location");
-        ACLMessage msg = myAgent.receive(mt);
+        MovingAgent agent = (MovingAgent) getAgent();
+        ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
             String content = msg.getContent();
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
@@ -58,7 +53,6 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
                         agentsInRange.add(entry.getKey());
                     }
                 }
-                MovingAgent agent = (MovingAgent) getAgent();
                 agent.setAgentsInRange(agentsInRange);
                 log.debug("Agents in range: " + agent.getAgentsInRange());
             } catch (IOException e) {

@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import pl.edu.pw.wsd.agency.config.AgentConfigurationProvider;
 import pl.edu.pw.wsd.agency.config.AgentConfigurationProviderImpl;
 import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
@@ -62,6 +63,14 @@ public abstract class BaseAgent extends Agent {
     
     public ACLMessage receiveAndUpdateStatistics() {
     	ACLMessage message = super.receive();
+    	if(message != null) {
+    		statistics.incrementMessagesReceived();
+    	}
+    	return message;
+    }
+    
+    public ACLMessage receiveAndUpdateStatistics(MessageTemplate mt) {
+    	ACLMessage message = super.receive(mt);
     	if(message != null) {
     		statistics.incrementMessagesReceived();
     	}

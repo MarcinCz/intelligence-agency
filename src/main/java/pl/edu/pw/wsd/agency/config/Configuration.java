@@ -1,16 +1,15 @@
 package pl.edu.pw.wsd.agency.config;
 
-import jade.core.AID;
-
 import java.util.HashMap;
 import java.util.Map;
-
-import javafx.geometry.Point2D;
-import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
+
+import jade.core.AID;
+import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
 
 /**
  * Contains global configuration.

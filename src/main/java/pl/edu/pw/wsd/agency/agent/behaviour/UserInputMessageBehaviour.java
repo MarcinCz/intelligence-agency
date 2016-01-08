@@ -34,7 +34,7 @@ public class UserInputMessageBehaviour extends CyclicBehaviour{
         MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
         log.debug("Czekam na wiadomosc od Uzytkownika.");
         ClientAgent agent = (ClientAgent)myAgent;
-        ACLMessage msg = agent.receive(mt);
+        ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content = msg.getContent();
