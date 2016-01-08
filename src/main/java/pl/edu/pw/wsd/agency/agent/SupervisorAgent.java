@@ -1,5 +1,6 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -7,6 +8,7 @@ import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import pl.edu.pw.wsd.agency.config.BaseAgentConfiguration;
 
 public class SupervisorAgent extends BaseAgent {
 
@@ -50,4 +52,9 @@ public class SupervisorAgent extends BaseAgent {
             doDelete();
         }
     }
+
+	@Override
+	protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+		BaseAgentConfiguration cfg = configProvider.getBaseAgentConfiguration(propertiesFileName);
+	}
 }
