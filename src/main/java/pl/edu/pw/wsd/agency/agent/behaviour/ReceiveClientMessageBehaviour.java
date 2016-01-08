@@ -5,16 +5,14 @@ import java.io.IOException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 public class ReceiveClientMessageBehaviour extends Behaviour {
 

@@ -14,7 +14,7 @@ import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 
 public class MovingAgent extends BaseAgent {
 
-    private static final long serialVersionUID = 851946783328690212L;
+	private static final long serialVersionUID = 851946783328690212L;
 
     private static final Logger log = LogManager.getLogger();
     
@@ -65,6 +65,10 @@ public class MovingAgent extends BaseAgent {
     public Point2D getPosition() {
         return new Point2D(posX, posY);
     }
+    
+    public MovingAgent(String propertiesFileName) {
+		super(propertiesFileName);
+	}
     
     @Override
     protected void setup() {
