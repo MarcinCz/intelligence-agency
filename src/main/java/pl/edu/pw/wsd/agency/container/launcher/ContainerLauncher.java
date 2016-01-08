@@ -15,29 +15,15 @@ import pl.edu.pw.wsd.agency.config.ContainerConfig;
 
 /**
  * Base class for container launcher.
- * It starts new jade.Boot instance, based on container properties.
+ * It creates new containers based on container properties.
  * @author marcin.czerwinski
  *
  */
-abstract class ContainerLauncher {
+public class ContainerLauncher {
 
 	private static final Logger log = LogManager.getLogger();
 	
-	protected static void runContainer(RunnableContainer container) {
-
-		if(container == null) {
-			throw new IllegalStateException("Could not run container. It's not initialized");
-		}
-		
-		if(container.isMainContainer()) {
-			runMainContainer(container);
-		} else {
-			runRemoteContainer(container);
-		}
-
-	}
-
-	private static void runMainContainer(RunnableContainer container) {
+	public static void runMainContainer() {
 		
 		log.info("Attempting to init jade.Boot");
 		StringBuilder arguments = new StringBuilder();
@@ -49,7 +35,7 @@ abstract class ContainerLauncher {
 		log.info("Jade.Boot started");
 	}
 	
-	private static void runRemoteContainer(RunnableContainer container) {
+	public static void runRemoteContainer(RunnableContainer container) {
 		jade.core.Runtime jadeRuntime = jade.core.Runtime.instance();
 		String containerName = container.getClass().getSimpleName() + "-" + RandomStringUtils.randomAlphanumeric(8);		
 		
