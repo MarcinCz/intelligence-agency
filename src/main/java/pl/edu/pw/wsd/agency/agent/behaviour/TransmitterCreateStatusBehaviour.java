@@ -15,16 +15,16 @@ import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 
 /**
  * Behaviour which sends new agent status from transmitter.
- * To do that it just and new agent status message to the propagation queue of the owner transmitter.
+ * To do that it just add new agent status message to the propagation queue of the sending transmitter.
  * @author marcin.czerwinski
  *
  */
-public class SendTransmitterStatusBehaviour extends TickerBehaviour {
+public class TransmitterCreateStatusBehaviour extends TickerBehaviour {
 
 	private static final long serialVersionUID = -2519821743610253964L;
     private static final Logger log = LogManager.getLogger();
 
-	public SendTransmitterStatusBehaviour(TransmitterAgent a, long period) {
+	public TransmitterCreateStatusBehaviour(TransmitterAgent a, long period) {
 		super(a, period);
 	}
 
