@@ -7,10 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import jade.lang.acl.ACLMessage;
-import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.*;
 
 public class TransmitterAgent extends MovingAgent {
 
@@ -34,7 +31,7 @@ public class TransmitterAgent extends MovingAgent {
         addBehaviour(new ReceiveAgentsLocationBehaviour());
         addBehaviour(new RequestAgentsLocationBehaviour(null, mbp));
         // addBehaviour(new Receive());
-        //addBehaviour(new PropagateMessageBehaviour(this, 1000));
+//        addBehaviour(new TransmitterPropagateMessageBehaviour(this, 1000));
 
     }
 
