@@ -1,30 +1,26 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import javafx.geometry.Point2D;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import pl.edu.pw.wsd.agency.config.Configuration;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
+import javafx.geometry.Point2D;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
+import pl.edu.pw.wsd.agency.agent.MovingAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
 
 /**
  * Simulates Agents moving.
- * 
- * @author Adrian Sidor
  *
+ * @author Adrian Sidor
  */
 public class MoveBehaviour extends TickerBehaviour {
 
@@ -46,6 +42,8 @@ public class MoveBehaviour extends TickerBehaviour {
         if (save) {
             sendInfoToLocationRegistry(agent);
         }
+
+        sendInfoToEntityLocationRegistry(agent);
         log.debug("Agent moved:" + agent.getPosition());
         log.debug("Agent target: " + agent.getCurrentTarget());
     }
@@ -53,7 +51,7 @@ public class MoveBehaviour extends TickerBehaviour {
     /**
      * Updates Agents Position.
      * Agent is moving.
-     * 
+     *
      * @param agent
      */
     private void updatePosition(MovingAgent agent) {
@@ -89,7 +87,7 @@ public class MoveBehaviour extends TickerBehaviour {
 
     /**
      * Agent sends information to LocationRegistry Agent about its new Position.
-     * 
+     *
      * @param agent
      */
     private void sendInfoToLocationRegistry(MovingAgent agent) {
@@ -119,10 +117,43 @@ public class MoveBehaviour extends TickerBehaviour {
                 msg.addReceiver(locationRegistry);
                 agent.send(msg);
             } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void sendInfoToEntityLocationRegistry(MovingAgent agent) {
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType(EntityLocationAgent.SERVICE_TYPE);
+        sd.setName(EntityLocationAgent.SERVICE_NAME);
+        template.addServices(sd);
+        AID locationRegistry = null;
+        try {
+            DFAgentDescription[] result = DFService.search(myAgent, template);
+            if (result.length == 1) {
+                locationRegistry = result[0].getName();
+            }
+        } catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+        if (locationRegistry != null) {
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.setConversationId(EntityLocationAgent.CONVERSATION_ID);
+            Point2D position = agent.getPosition();
+            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+            String content;
+            try {
+                content = mapper.writeValueAsString(position);
+                msg.setContent(content);
+                msg.addReceiver(locationRegistry);
+                agent.send(msg);
+            } catch (JsonProcessingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
         }
     }
 
