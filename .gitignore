@@ -5,3 +5,7 @@ MTPs-Main-Container.txt
 target/
 logs/
 .classpath
+
+# IntelliJ files
+*.iml
+.idea/
