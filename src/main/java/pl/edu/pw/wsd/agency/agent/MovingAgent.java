@@ -1,25 +1,43 @@
 package pl.edu.pw.wsd.agency.agent;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
+import jade.core.AID;
+import javafx.geometry.Point2D;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
-
-import jade.core.AID;
-import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentSkipListSet;
+
+
+// fixme zmienic nazwę  - teraz bardziej hcodzi ze jest to podstawa dla agentow
+// fixme ktore sie ruszaja maja wiadomosci etc
 public class MovingAgent extends BaseAgent {
 
-	private static final long serialVersionUID = 851946783328690212L;
+    private static final long serialVersionUID = 851946783328690212L;
 
     private static final Logger log = LogManager.getLogger();
-    
+
+    /**
+     * List of messages identifiers that are held by agent (Client or transmitter)
+     */
+    @Getter
+    protected ConcurrentSkipListSet<String> storedMessageId = new ConcurrentSkipListSet<>();
+
+    /**
+     * Signal range.
+     */
+    @Getter
+    protected double signalRange = 0.0d;
+
+
     /**
      * List of Agents in range of this Agent
      */
@@ -67,11 +85,11 @@ public class MovingAgent extends BaseAgent {
     public Point2D getPosition() {
         return new Point2D(posX, posY);
     }
-    
+
     public MovingAgent(String propertiesFileName) {
-		super(propertiesFileName);
-	}
-    
+        super(propertiesFileName);
+    }
+
     @Override
     protected void setup() {
         super.setup();
@@ -106,6 +124,8 @@ public class MovingAgent extends BaseAgent {
                 tpi = spi - 1;
             }
         }
+
+        this.signalRange = cfg.getSignalRange();
     }
 
     public Point2D[] getPath() {
@@ -147,14 +167,14 @@ public class MovingAgent extends BaseAgent {
     public void setAgentsInRange(List<AID> agentsInRange) {
         this.agentsInRange = agentsInRange;
     }
-    
+
     public AgentStatus getAgentStatus() {
-    	AgentStatus status = new AgentStatus();
-    	status.setLocation(getPosition());
-    	status.setSenderId(getAgentState().getName());
-    	status.setTimestamp(DateTime.now());
-    	status.setStatistics(getAgentStatistics());
-    	return status;
+        AgentStatus status = new AgentStatus();
+        status.setLocation(getPosition());
+        status.setSenderId(getAgentState().getName());
+        status.setTimestamp(DateTime.now());
+        status.setStatistics(getAgentStatistics());
+        return status;
     }
 
 }

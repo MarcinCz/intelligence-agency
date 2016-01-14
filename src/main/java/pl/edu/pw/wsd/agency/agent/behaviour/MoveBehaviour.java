@@ -2,8 +2,8 @@ package pl.edu.pw.wsd.agency.agent.behaviour;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Preconditions;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -11,11 +11,13 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import javafx.geometry.Point2D;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.Point;
 
 /**
  * Simulates Agents moving.
@@ -23,9 +25,13 @@ import pl.edu.pw.wsd.agency.config.Configuration;
  * @author Adrian Sidor
  */
 public class MoveBehaviour extends TickerBehaviour {
+    @Getter
+    private MovingAgent movingAgent;
 
-    public MoveBehaviour(Agent a, long period, boolean save) {
-        super(a, period);
+    public MoveBehaviour(MovingAgent movingAgent, long period, boolean save) {
+        super(movingAgent, period);
+        Preconditions.checkNotNull(movingAgent);
+        this.movingAgent = movingAgent;
         this.save = save;
     }
 
@@ -37,7 +43,7 @@ public class MoveBehaviour extends TickerBehaviour {
 
     @Override
     protected void onTick() {
-        MovingAgent agent = (MovingAgent) getAgent();
+        MovingAgent agent = movingAgent;
         updatePosition(agent);
         if (save) {
             sendInfoToLocationRegistry(agent);
@@ -141,11 +147,15 @@ public class MoveBehaviour extends TickerBehaviour {
         if (locationRegistry != null) {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.setConversationId(EntityLocationAgent.CONVERSATION_ID);
-            Point2D position = agent.getPosition();
+
+            // create point
+            Point point = new Point(agent.getPosition(), agent.getSignalRange());
+            point.setMessageIdList(agent.getStoredMessageId());
+
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content;
             try {
-                content = mapper.writeValueAsString(position);
+                content = mapper.writeValueAsString(point);
                 msg.setContent(content);
                 msg.addReceiver(locationRegistry);
                 agent.send(msg);

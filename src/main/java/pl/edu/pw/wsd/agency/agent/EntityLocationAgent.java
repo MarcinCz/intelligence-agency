@@ -1,6 +1,10 @@
 package pl.edu.pw.wsd.agency.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
@@ -10,15 +14,14 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import javafx.geometry.Point2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.visualization.LocationFrame;
 import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.LocationFrame;
+import pl.edu.pw.wsd.agency.location.Point;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Store location of ALL entities in system ( transmitters and clients0
@@ -27,8 +30,7 @@ import java.util.Map;
  */
 public class EntityLocationAgent extends Agent {
 
-    private Map<AID, Point2D> entityLocationMap;
-
+    private Cache<AID, Point> entityLocationCache;
     private LocationFrame locationFrame;
 
     public static final String CONVERSATION_ID = "Entity-Location";
@@ -39,9 +41,14 @@ public class EntityLocationAgent extends Agent {
 
     @Override
     protected void setup() {
+        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<AID, Point>() {
+            @Override
+            public void onRemoval(RemovalNotification<AID, Point> removalNotification) {
+                locationFrame.updateAgentsLocations();
+            }
+        }).build();
 
-        entityLocationMap = new HashMap<>();
-        locationFrame = new LocationFrame(entityLocationMap);
+        locationFrame = new LocationFrame(entityLocationCache);
 
         // create agent description and service description
         DFAgentDescription dfd = new DFAgentDescription();
@@ -62,8 +69,8 @@ public class EntityLocationAgent extends Agent {
     }
 
 
-    public void updateEntityLocation(AID aid, Point2D location) {
-        entityLocationMap.put(aid, location);
+    public void updateEntityLocation(AID aid, Point location) {
+        entityLocationCache.put(aid, location);
         locationFrame.updateAgentsLocations();
     }
 
@@ -82,9 +89,9 @@ public class EntityLocationAgent extends Agent {
                     String content = msg.getContent();
                     ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                     try {
-                        Point2D position = mapper.readValue(content, Point2D.class);
+                        Point point = mapper.readValue(content, Point.class);
                         AID sender = msg.getSender();
-                        agent.updateEntityLocation(sender, position);
+                        agent.updateEntityLocation(sender, point);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

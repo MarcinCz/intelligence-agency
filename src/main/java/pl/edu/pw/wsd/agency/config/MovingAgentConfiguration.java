@@ -9,4 +9,6 @@ public interface MovingAgentConfiguration extends BaseAgentConfiguration {
 	boolean getAgentDirection();
 	int getMoveBehaviourPeriod();
 	int getStartingPositionIndex();
+
+	double getSignalRange();
 }
