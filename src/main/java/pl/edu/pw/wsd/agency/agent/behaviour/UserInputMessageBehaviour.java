@@ -32,7 +32,7 @@ public class UserInputMessageBehaviour extends CyclicBehaviour{
     @Override
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
-        log.debug("Czekam na wiadomosc od Uzytkownika.");
+        log.trace("Czekam na wiadomosc od Uzytkownika.");
         ClientAgent agent = (ClientAgent)myAgent;
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {

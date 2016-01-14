@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientPropagateMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
@@ -35,7 +36,7 @@ public class ClientAgent extends MovingAgent {
         super.setup();
         clientMessages = new LinkedList<ClientMessage>();
         addBehaviour(new MoveBehaviour(null, mbp, false));
-        //addBehaviour(new DetectAgentsBehaviour(null, mbp));
+//        addBehaviour(new DetectAgentsBehaviour(this, mbp));
         addBehaviour(new UserInputMessageBehaviour());
         addBehaviour(new ClientPropagateMessageBehaviour(null, mbp));
         addBehaviour(new ReceiveAgentsLocationBehaviour());
@@ -45,7 +46,12 @@ public class ClientAgent extends MovingAgent {
         // addBehaviour(new Receive());
         addBehaviour(new PropagateMessageBehaviour(this, 1000));*/
 
+        addStatusesBehaviours();
     }
+
+    private void addStatusesBehaviours() {
+		addBehaviour(new ClientCreateStatusBehaviour(this, 2000));
+	}
 
 /*    @Override
     protected void takeDown() {

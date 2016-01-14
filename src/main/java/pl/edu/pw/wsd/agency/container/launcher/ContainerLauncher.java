@@ -1,7 +1,6 @@
 package pl.edu.pw.wsd.agency.container.launcher;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,17 +21,19 @@ import pl.edu.pw.wsd.agency.config.ContainerConfig;
 public class ContainerLauncher {
 
 	private static final Logger log = LogManager.getLogger();
+
+	public static void runMainContainer(boolean withGUI) {
+		jade.core.Runtime jadeRuntime = jade.core.Runtime.instance();
+		ProfileImpl profile = new ProfileImpl();
+		profile.setParameter(Profile.CONTAINER_NAME, "MainContainer");
+		if(withGUI) {
+			profile.setParameter(Profile.GUI, "true");
+		}
+		jadeRuntime.createMainContainer(profile);
+	}
 	
 	public static void runMainContainer() {
-		
-		log.info("Attempting to init jade.Boot");
-		StringBuilder arguments = new StringBuilder();
-		arguments.append("-gui ");
-		
-        log.debug("Jade.Boot init arguments: " + arguments.toString());
-        String[] jadeBootInitArguments = StringUtils.split(arguments.toString());
-        jade.Boot.main(jadeBootInitArguments);
-		log.info("Jade.Boot started");
+		runMainContainer();
 	}
 	
 	public static void runRemoteContainer(RunnableContainer container) {

@@ -14,4 +14,9 @@ public class AgentConfigurationProviderImpl implements AgentConfigurationProvide
 		return new BaseAgentConfigurationImpl(propertiesFileName);
 	}
 
+	@Override
+	public SupervisorConfiguration geSupervisorAgentConfiguration(String propertiesFileName) throws ConfigurationException {
+		return new SupervisorConfigurationImpl(propertiesFileName);
+	}
+
 }

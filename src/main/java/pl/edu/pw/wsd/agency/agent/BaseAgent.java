@@ -12,7 +12,7 @@ import pl.edu.pw.wsd.agency.config.AgentConfigurationProviderImpl;
 import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
 
 /**
- * Base class for all agents.
+ * Base class for all "real world" agents.
  * @author marcin.czerwinski
  *
  */
@@ -26,10 +26,7 @@ public abstract class BaseAgent extends Agent {
 
 	private static final Logger log = LogManager.getLogger();
 
-	/**
-     * Default constructor, called by JADE.
-     */
-    public BaseAgent(String propertiesFileName) {
+	public BaseAgent(String propertiesFileName) {
     	this(new AgentConfigurationProviderImpl());
     	
     	this.statistics = new AgentStatistics();
@@ -52,7 +49,7 @@ public abstract class BaseAgent extends Agent {
         try {
             loadConfiguration(propertiesFileName);
         } catch (ConfigurationException e) {
-            log.info("Could not load configuration. Agent terminating");
+            log.info("Could not load configuration. Agent terminating", e);
             doDelete();
         }
     }

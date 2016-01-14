@@ -1,24 +1,26 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import javafx.geometry.Point2D;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.visualization.LocationFrame;
 import pl.edu.pw.wsd.agency.config.Configuration;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import pl.edu.pw.wsd.agency.visualization.LocationFrame;
 
 /**
  * Store location of ALL entities in system ( transmitters and clients0
@@ -42,7 +44,7 @@ public class EntityLocationAgent extends Agent {
 
         entityLocationMap = new HashMap<>();
         locationFrame = new LocationFrame(entityLocationMap);
-
+        
         // create agent description and service description
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -72,10 +74,10 @@ public class EntityLocationAgent extends Agent {
         @Override
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
-            log.debug("Czekam na wiadomosc.");
+            log.trace("Czekam na wiadomosc.");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                log.debug("Nowa wiadomość o lokalizacji");
+                log.trace("Nowa wiadomość o lokalizacji");
                 EntityLocationAgent agent = (EntityLocationAgent) getAgent();
 
                 if (msg.getPerformative() == ACLMessage.INFORM) {

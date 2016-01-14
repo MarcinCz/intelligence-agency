@@ -1,18 +1,20 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import javafx.geometry.Point2D;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
@@ -44,8 +46,8 @@ public class MoveBehaviour extends TickerBehaviour {
         }
 
         sendInfoToEntityLocationRegistry(agent);
-        log.debug("Agent moved:" + agent.getPosition());
-        log.debug("Agent target: " + agent.getCurrentTarget());
+        log.trace("Agent moved:" + agent.getPosition());
+        log.trace("Agent target: " + agent.getCurrentTarget());
     }
 
     /**
@@ -56,13 +58,13 @@ public class MoveBehaviour extends TickerBehaviour {
      */
     private void updatePosition(MovingAgent agent) {
         double direction = getDirection(agent);
-        log.debug("Direction: " + direction);
+        log.trace("Direction: " + direction);
         double speed = agent.getSpeed();
         agent.setX(agent.getX() + (speed * Math.cos(direction)));
         agent.setY(agent.getY() + (speed * Math.sin(direction)));
         Point2D target = agent.getCurrentTarget();
         double distance = target.distance(agent.getPosition());
-        log.debug("Distance: " + distance);
+        log.trace("Distance: " + distance);
         if (distance < speed) {
             Point2D[] path = agent.getPath();
             int tpi = agent.getTargetPointNumber();
@@ -81,7 +83,7 @@ public class MoveBehaviour extends TickerBehaviour {
                     agent.decrementTargetPointNumber();
                 }
             }
-            log.debug("Moving to next target: " + agent.getCurrentTarget());
+            log.trace("Moving to next target: " + agent.getCurrentTarget());
         }
     }
 

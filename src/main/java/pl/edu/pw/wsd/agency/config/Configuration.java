@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 
 import jade.core.AID;
 import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.json.deserializer.AIDDeserializer;
 import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
 
 /**
@@ -32,6 +33,7 @@ public class Configuration {
         mapper = new ObjectMapper();
         SimpleModule simple = new SimpleModule();
         simple.addDeserializer(Point2D.class, new Point2dDeserializer());
+        simple.addDeserializer(AID.class, new AIDDeserializer());
         mapper.registerModule(simple);
         mapper.registerModule(new JodaModule());
         agentsLocation = new HashMap<AID, Point2D>();

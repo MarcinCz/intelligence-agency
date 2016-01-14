@@ -35,7 +35,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchConversationId("Agents-Location");
         MovingAgent agent = (MovingAgent) getAgent();
-        ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
+        ACLMessage msg = agent.receive(mt);
         if (msg != null) {
             try {
                 Map<AID, java.awt.geom.Point2D> al = (Map<AID, java.awt.geom.Point2D>) msg.getContentObject();

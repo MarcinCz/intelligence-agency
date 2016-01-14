@@ -23,7 +23,7 @@ public class MovingAgent extends BaseAgent {
     /**
      * List of Agents in range of this Agent
      */
-    private List<AID> agentsInRange;
+    private List<AID> agentsInRange = new ArrayList<AID>();;
 
     // MoveBehaviour period
     protected int mbp;
@@ -80,7 +80,6 @@ public class MovingAgent extends BaseAgent {
 
     @Override
     protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-        agentsInRange = new ArrayList<AID>();
         MovingAgentConfiguration cfg = configProvider.getMovingAgentConfiguration(propertiesFileName);
         mbp = cfg.getMoveBehaviourPeriod();
         path = cfg.getPath();
@@ -151,7 +150,7 @@ public class MovingAgent extends BaseAgent {
     public AgentStatus getAgentStatus() {
     	AgentStatus status = new AgentStatus();
     	status.setLocation(getPosition());
-    	status.setSenderId(getAgentState().getName());
+    	status.setSenderId(getLocalName());
     	status.setTimestamp(DateTime.now());
     	status.setStatistics(getAgentStatistics());
     	return status;

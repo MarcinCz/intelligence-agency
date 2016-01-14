@@ -35,16 +35,16 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt2);
         if (msg != null) {
         	switch(ConversationId.resolveConversationType(msg.getConversationId())) {
-        	case AGENT_STATUS:
+        	case PROPAGATE_AGENT_STATUS:
         		agent.addAgentStatusMessage(msg);
-        		log.debug("Transmitter received new agent status.");
+        		log.debug("Transmitter received new agent status from [" + msg.getSender().getLocalName() + "]");
         		break;
         	case CLIENT_MESSAGE:
         		agent.addClientMessage(msg);
         		log.debug("Transmitter received new client message.");
         		break;
         	default:
-        		throw new IllegalStateException("Unknown conversation type for conversation id [" + msg.getConversationId() + "]");
+        		log.warn("Unknown conversation type for conversation id [" + msg.getConversationId() + "]");
         	}
         } else {
             block();
