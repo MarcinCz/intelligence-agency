@@ -1,18 +1,20 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
 import javafx.geometry.Point2D;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.AgentsLocationServiceBehaviour;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class LocationRegistryAgent extends Agent {
 
@@ -63,9 +65,12 @@ public class LocationRegistryAgent extends Agent {
      * @param aid
      * @return
      */
-    public Map<AID, Point2D> getAgentsLocationWithout(AID aid) {
-        Map<AID, Point2D> agentsLocation = new HashMap<AID, Point2D>();
-        agentsLocation.putAll(getAgentsLocation());
+    public HashMap<AID, java.awt.geom.Point2D> getAgentsLocationWithout(AID aid) {
+    	HashMap<AID, java.awt.geom.Point2D> agentsLocation = new HashMap<>();
+    	for (Entry<AID, Point2D> location : getAgentsLocation().entrySet()) {
+			Point2D value = location.getValue();
+			agentsLocation.put(location.getKey(), new java.awt.geom.Point2D.Double(value.getX(), value.getY()));
+		}
         agentsLocation.remove(aid);
 
         return agentsLocation;

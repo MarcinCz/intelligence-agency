@@ -1,6 +1,5 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,16 +8,13 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 /**
  * Behaviour that receive massage from LocationRegistry Agent about all Agents Positions.
@@ -41,21 +37,19 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
         MovingAgent agent = (MovingAgent) getAgent();
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
-            String content = msg.getContent();
-            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             try {
-                AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
-                Map<AID, Point2D> al = alm.getAgentsLocation();
+                Map<AID, java.awt.geom.Point2D> al = (Map<AID, java.awt.geom.Point2D>) msg.getContentObject();
                 List<AID> agentsInRange = new ArrayList<AID>();
-                for (Entry<AID, Point2D> entry : al.entrySet()) {
-                    Point2D location = entry.getValue();
+                for (Entry<AID, java.awt.geom.Point2D> entry : al.entrySet()) {
+                    java.awt.geom.Point2D value = entry.getValue();
+					Point2D location = new Point2D(value.getX(), value.getY());
                     if (isInRange(location)) {
                         agentsInRange.add(entry.getKey());
                     }
                 }
                 agent.setAgentsInRange(agentsInRange);
                 log.debug("Agents in range: " + agent.getAgentsInRange());
-            } catch (IOException e) {
+            } catch (UnreadableException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
