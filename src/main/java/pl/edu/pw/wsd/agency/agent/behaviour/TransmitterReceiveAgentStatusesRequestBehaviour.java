@@ -16,6 +16,7 @@ import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
+import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
 
 /**
@@ -69,7 +70,8 @@ public class TransmitterReceiveAgentStatusesRequestBehaviour extends CyclicBehav
 	
 	private String createContent() {
 		try {
-			List<MessageToPropagate<AgentStatus>> statuses = agent.getAgentStatusMessages();
+			AgentStatusMessageQueue queue = agent.getAgentStatusQueue();
+			List<MessageToPropagate<AgentStatus>> statuses = queue.getQueuedMessages();
 			List<AgentStatus> content = new ArrayList<>();
 			for (MessageToPropagate<AgentStatus> messageToPropagate : statuses) {
 				content.add(messageToPropagate.getContentObject());

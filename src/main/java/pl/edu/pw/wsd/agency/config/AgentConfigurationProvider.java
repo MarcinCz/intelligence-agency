@@ -12,4 +12,6 @@ public interface AgentConfigurationProvider {
 	BaseAgentConfiguration getBaseAgentConfiguration(String propertiesFileName) throws ConfigurationException;
 	MovingAgentConfiguration getMovingAgentConfiguration(String propertiesFileName) throws ConfigurationException;
 	SupervisorConfiguration geSupervisorAgentConfiguration(String propertiesFileName) throws ConfigurationException;
+	TransmitterAgentConfiguration getTransmitterAgentConfiguration(String propertiesFileName) throws ConfigurationException;
+	ClientAgentConfiguration getClientAgentConfiguration(String propertiesFileName) throws ConfigurationException;
 }

@@ -10,6 +10,7 @@ import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
+import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
 
 /**
@@ -40,13 +41,21 @@ public class TransmitterPropagateAgentStatusBehaviour extends TickerBehaviour {
 
 	private void propagateAgentStatuses(AID receiver) {
 		if (receiver != null) {
-            List<MessageToPropagate<AgentStatus>> messages = agent.getAgentStatusMessages();
+			AgentStatusMessageQueue queue = agent.getAgentStatusQueue();
+            List<MessageToPropagate<AgentStatus>> messages = queue.getQueuedMessages();
             
             //try to send all the statuses
             //if sending of any status fails then end
             for (MessageToPropagate<AgentStatus> message : messages) {
             	try {
+            		//dont propagate message to message sender or to itself
+            		if(receiver.getLocalName().equals(message.getACLMessage().getSender().getLocalName())
+            				|| receiver.getLocalName().equals(agent.getLocalName())) {
+            			continue;
+            		}
+            		
             		propagateMessage(receiver, message.getACLMessage());
+            		queue.remove(message); //in real world it probably should be stored longer
             	} catch (Exception e) {
             		log.warn("Error while propagating message to receiver [" + receiver.getLocalName() + "]"
             				+ "It may have gone out of range. Not attempting to send more messages to this receiver.", e);

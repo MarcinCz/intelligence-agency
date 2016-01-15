@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.config.Configuration;
 
@@ -37,11 +36,24 @@ public abstract class MessageToPropagateQueue<T> {
 			return;
 		}
 		
-		if(contentObject != null && checkIfUnique(msg)) {
-			messages.add(new MessageToPropagate<T>(contentObject, msg));
+		MessageToPropagate<T> acquiredMsg = new MessageToPropagate<T>(contentObject, msg);
+		if(contentObject != null && checkIfUnique(acquiredMsg)) {
+			removeMessageToBeReplaced(acquiredMsg);
+			messages.add(acquiredMsg);
 		}
 	}
 	
+	private void removeMessageToBeReplaced(MessageToPropagate<T> acquiredMsg) {
+		Iterator<MessageToPropagate<T>> iterator = messages.iterator();
+		while(iterator.hasNext()) {
+			MessageToPropagate<T> msg = iterator.next();
+			if(shouldReplaceObject(msg.getContentObject(), acquiredMsg.getContentObject())) {
+				iterator.remove();
+				return;
+			}
+		}
+	}
+
 	/**
 	 * Return queued messages as list.
 	 * Expired messages are not returned.
@@ -49,7 +61,11 @@ public abstract class MessageToPropagateQueue<T> {
 	 */
 	public List<MessageToPropagate<T>> getQueuedMessages() {
 		removeExpiredMessages();
-		return messages;
+		return new ArrayList<>(messages);
+	}
+	
+	public void remove(MessageToPropagate<T> msg) {
+		messages.remove(msg);
 	}
 	
 	private void removeExpiredMessages() {
@@ -61,18 +77,11 @@ public abstract class MessageToPropagateQueue<T> {
 		}
 	}
 	
-	protected abstract boolean isExpired(T contentObject);
-	
-	private boolean checkIfUnique(ACLMessage msg) {
+	private boolean checkIfUnique(MessageToPropagate<T> acquiredMsg) {
 		for (MessageToPropagate<T> queuedMsg : messages) {
-			if(queuedMsg.getACLMessage().getConversationId().equals(msg.getConversationId())) {
+			boolean sameConversationID = queuedMsg.getACLMessage().getConversationId().equals(acquiredMsg.getACLMessage().getConversationId());
+			if(sameConversationID) {
 				return false;
-			} else {
-				AID sender = queuedMsg.getACLMessage().getSender();
-				AID sender2 = msg.getSender();
-				if (sender != null && sender.getLocalName().equals(sender2.getLocalName())) {
-					return false;
-				}
 			}
 		}
 		return true;
@@ -86,4 +95,14 @@ public abstract class MessageToPropagateQueue<T> {
 		}
 		return null;
 	}
+	
+	protected abstract boolean isExpired(T contentObject);
+	
+	/**
+	 * Compares new object with currently queued object to check if the new one should be stored.
+	 * May be helpful if for example we don't want to store to objects with the same attribute set in content object.
+	 * @retun true if the new object should be ignored
+	 */
+	protected abstract boolean shouldReplaceObject(T currentObject, T newObject);
+	
 }

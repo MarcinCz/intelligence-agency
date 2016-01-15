@@ -8,11 +8,17 @@ public class SupervisorConfigurationImpl extends MovingAgentConfigurationImpl im
 		super(propertiesFileName);
 	}
 
-	private static final String KEY_AGENT_HEARTBEAT_MAX_PERIOD = "agent-heartbeat";
+	private static final String KEY_AGENT_HEARTBEAT_MAX_PERIOD = "period.max.agent.heartbeat";
+	private static final String KEY_REQUEST_STATUSES_HEARTBEAT = "period.request.statuses";
 
 	@Override
 	public int getAgentHeartbeatMaxPeriod() {
 		return cfg.getInt(KEY_AGENT_HEARTBEAT_MAX_PERIOD);
+	}
+
+	@Override
+	public int getRequestStatusesPeriod() {
+		return cfg.getInt(KEY_REQUEST_STATUSES_HEARTBEAT);
 	}
 
 }

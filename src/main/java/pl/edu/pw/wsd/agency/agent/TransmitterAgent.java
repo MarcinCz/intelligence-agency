@@ -3,6 +3,7 @@ package pl.edu.pw.wsd.agency.agent;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,9 +15,8 @@ import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
-import pl.edu.pw.wsd.agency.message.content.AgentStatus;
+import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
-import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
 
 public class TransmitterAgent extends MovingAgent {
 
@@ -24,6 +24,9 @@ public class TransmitterAgent extends MovingAgent {
 
     private static final Logger log = LogManager.getLogger();
 
+    private int createStatusPeriod;
+    private int propagateStatusPeriod;
+    
     private List<ACLMessage> clientMessages = new ArrayList<>();
     private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
     
@@ -45,13 +48,21 @@ public class TransmitterAgent extends MovingAgent {
         addStatusesBehaviours();
 
     }
-
+    
     private void addStatusesBehaviours() {
-		addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, 1000));
-		addBehaviour(new TransmitterCreateStatusBehaviour(this, 2000));
+		addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
+		addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
 		addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
 	}
 
+    @Override
+    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+    	super.loadConfiguration(propertiesFileName);
+    	TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
+    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
+    	propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
+    }
+    
 	public void addClientMessage(ACLMessage cm) {
         clientMessages.add(cm);
     }
@@ -64,7 +75,7 @@ public class TransmitterAgent extends MovingAgent {
     	agentStatusQueue.queueMessage(msg);
     }
     
-    public List<MessageToPropagate<AgentStatus>> getAgentStatusMessages() {
-    	return agentStatusQueue.getQueuedMessages();
+    public AgentStatusMessageQueue getAgentStatusQueue() {
+    	return agentStatusQueue;
     }
 }

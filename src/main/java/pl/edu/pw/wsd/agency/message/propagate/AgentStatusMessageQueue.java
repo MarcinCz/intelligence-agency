@@ -19,4 +19,15 @@ public class AgentStatusMessageQueue extends MessageToPropagateQueue<AgentStatus
 		return Seconds.secondsBetween(contentObject.getTimestamp(), DateTime.now()).getSeconds() > SECONDS_TO_EXPIRE;
 	}
 
+	@Override
+	protected boolean shouldReplaceObject(AgentStatus currentObject, AgentStatus newObject) {
+		boolean sameSenderId = currentObject.getSenderId().equals(newObject.getSenderId());
+		boolean newerDate = newObject.getTimestamp().isAfter(currentObject.getTimestamp());
+		if(sameSenderId && newerDate) {
+			return true;
+		}
+		
+		return false;
+	}
+
 }

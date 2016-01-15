@@ -21,6 +21,7 @@ public class SupervisorAgent extends MovingAgent {
 	//map of agent statuses, agent id is the key
 	private Map<String, AgentStatus> agentStatuses = new HashMap<>();
 	private int agentHeartbeatMaxPeriod;
+	private int requestAgentStatusesPeriod;
 	
 	public SupervisorAgent(String propertiesFileName) {
 		super(propertiesFileName);
@@ -32,7 +33,7 @@ public class SupervisorAgent extends MovingAgent {
 		addBehaviour(new ReceiveAgentsLocationBehaviour());
 	    addBehaviour(new RequestAgentsLocationBehaviour(null, mbp));
 		addBehaviour(new SupervisorReceiveAgentStatuses(this));
-		addBehaviour(new SupervisorRequestAgentStatuses(this, 1000));
+		addBehaviour(new SupervisorRequestAgentStatuses(this, requestAgentStatusesPeriod));
 		addBehaviour(new MoveBehaviour(this, mbp, false));
 	}
 
@@ -41,6 +42,7 @@ public class SupervisorAgent extends MovingAgent {
 		super.loadConfiguration(propertiesFileName);
 		SupervisorConfiguration cfg = configProvider.geSupervisorAgentConfiguration(propertiesFileName);
 		agentHeartbeatMaxPeriod = cfg.getAgentHeartbeatMaxPeriod();
+		requestAgentStatusesPeriod = cfg.getRequestStatusesPeriod();
 	}
 
 	public int getAgentHeartbeatMaxPeriod() {

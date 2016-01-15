@@ -3,6 +3,7 @@ package pl.edu.pw.wsd.agency.agent;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,6 +13,7 @@ import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.UserInputMessageBehaviour;
+import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 /**
@@ -22,9 +24,9 @@ import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 public class ClientAgent extends MovingAgent {
 
 	private static final long serialVersionUID = 8776284258546308595L;
-
     private static final Logger log = LogManager.getLogger();
-    
+
+    private int createStatusPeriod;
     private List<ClientMessage> clientMessages;
 
     public ClientAgent(String propertiesFileName) {
@@ -50,8 +52,15 @@ public class ClientAgent extends MovingAgent {
     }
 
     private void addStatusesBehaviours() {
-		addBehaviour(new ClientCreateStatusBehaviour(this, 2000));
+		addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
 	}
+    
+    @Override
+    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+    	super.loadConfiguration(propertiesFileName);
+    	ClientAgentConfiguration cfg = configProvider.getClientAgentConfiguration(propertiesFileName);
+    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
+    }
 
 /*    @Override
     protected void takeDown() {

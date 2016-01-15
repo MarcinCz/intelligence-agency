@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ public class AgentStatusMessageQueueTest {
 		assertEquals(converstationId, queuedMessages.get(0).getACLMessage().getConversationId());
 		
 		queue.queueMessage(createTestMessage("id", DateTime.now()));
-		assertEquals(2, queuedMessages.size());
+		assertEquals(2, queue.getQueuedMessages().size());
 	}
 	
 	@Test
@@ -53,9 +54,24 @@ public class AgentStatusMessageQueueTest {
 		assertEquals(0, queue.getQueuedMessages().size());
 	}
 	
+	@Test
+	public void shouldRemoveMessage() throws JsonProcessingException {
+		AgentStatusMessageQueue queue = new AgentStatusMessageQueue();
+		
+		ACLMessage testMessage = createTestMessage("converstationId", DateTime.now());
+		queue.queueMessage(testMessage);
+
+		List<MessageToPropagate<AgentStatus>> messages = queue.getQueuedMessages();
+		assertEquals(1, messages.size());
+		queue.remove(messages.get(0));
+		assertEquals(1, messages.size());
+		assertEquals(0, queue.getQueuedMessages().size());
+	}
+	
 	private ACLMessage createTestMessage(String converstationId, DateTime timeStamp) throws JsonProcessingException {
 		AgentStatus status = new AgentStatus();
 		status.setTimestamp(timeStamp);
+		status.setSenderId(RandomStringUtils.randomAlphabetic(8));
 		
 		ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
 		msg.setContent(Configuration.getInstance().getObjectMapper().writeValueAsString(status));

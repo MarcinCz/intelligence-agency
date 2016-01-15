@@ -78,6 +78,8 @@ public class MovingAgent extends BaseAgent {
         log.info("Agent starting position: " + getPosition());
     }
 
+    //Doing it this way is really bad because configuration is loaded from file as many times as we override this method to get more specific configuration.
+    //Should be done with generics, but it works so it stays.
     @Override
     protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
         MovingAgentConfiguration cfg = configProvider.getMovingAgentConfiguration(propertiesFileName);
