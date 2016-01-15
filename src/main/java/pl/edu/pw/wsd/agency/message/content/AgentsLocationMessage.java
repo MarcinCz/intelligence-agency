@@ -1,29 +1,23 @@
 package pl.edu.pw.wsd.agency.message.content;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jade.core.AID;
+import lombok.Getter;
+import lombok.Setter;
+import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
 
 import java.util.Map;
 
-import javafx.geometry.Point2D;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class AgentsLocationMessage {
 
-    @JsonProperty("agents-placement") 
-    private Map<AID, Point2D> agentsLocation;
-    
+    @JsonProperty("agents-placement")
+    @Getter
+    @Setter
+    private Map<AID, PhisicalDeviceLocation> agentsLocation;
+
     @JsonCreator
-    public AgentsLocationMessage(@JsonProperty("agents-placement") Map<AID, Point2D> agentsLocation) {
-        this.agentsLocation = agentsLocation;
-    }
-    
-    public Map<AID, Point2D> getAgentsLocation() {
-        return agentsLocation;
-    }
-    
-    public void setAgentsLocation(Map<AID, Point2D> agentsLocation) {
+    public AgentsLocationMessage(@JsonProperty("agents-placement") Map<AID, PhisicalDeviceLocation> agentsLocation) {
         this.agentsLocation = agentsLocation;
     }
 

@@ -4,22 +4,23 @@ package pl.edu.pw.wsd.agency.agent;
 import jade.core.AID;
 import javafx.geometry.Point2D;
 import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Set;
 
 
 // fixme zmienic nazwę  - teraz bardziej hcodzi ze jest to podstawa dla agentow
 // fixme ktore sie ruszaja maja wiadomosci etc
-public class MovingAgent extends BaseAgent {
+public abstract class MovingAgent extends BaseAgent {
 
     private static final long serialVersionUID = 851946783328690212L;
 
@@ -28,8 +29,7 @@ public class MovingAgent extends BaseAgent {
     /**
      * List of messages identifiers that are held by agent (Client or transmitter)
      */
-    @Getter
-    protected ConcurrentSkipListSet<String> storedMessageId = new ConcurrentSkipListSet<>();
+    public abstract Set<MessageId> getStoredMessageId();
 
     /**
      * Signal range.
@@ -82,8 +82,9 @@ public class MovingAgent extends BaseAgent {
         this.posY = posy;
     }
 
-    public Point2D getPosition() {
-        return new Point2D(posX, posY);
+
+    public PhisicalDeviceLocation getPosition() {
+        return new PhisicalDeviceLocation(posX, posY, signalRange);
     }
 
     public MovingAgent(String propertiesFileName) {
@@ -170,7 +171,8 @@ public class MovingAgent extends BaseAgent {
 
     public AgentStatus getAgentStatus() {
         AgentStatus status = new AgentStatus();
-        status.setLocation(getPosition());
+        // fixme poin2D
+        status.setLocation(getPosition().toPoint2D());
         status.setSenderId(getAgentState().getName());
         status.setTimestamp(DateTime.now());
         status.setStatistics(getAgentStatistics());

@@ -1,5 +1,6 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -8,9 +9,14 @@ import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 public class TransmitterAgent extends MovingAgent {
@@ -23,6 +29,26 @@ public class TransmitterAgent extends MovingAgent {
 
     private List<ACLMessage> agentStatusMessages = new ArrayList<>();
 
+    private ObjectMapper mapper = new ObjectMapper();
+
+    @Override
+    public Set<MessageId> getStoredMessageId() {
+        Set<MessageId> tmpSet = new HashSet<>();
+        for (ACLMessage clientMessage : clientMessages) {
+            // FIXME :: OMG
+            String content = clientMessage.getContent();
+            try {
+                ClientMessage clientMessage1 = mapper.readValue(content, ClientMessage.class);
+                MessageId messageId = clientMessage1.getMessageId();
+                tmpSet.add(messageId);
+            } catch (IOException e) {
+                log.error("Could not read JSON=" + content, e);
+                e.printStackTrace();
+            }
+        }
+        return tmpSet;
+    }
+
     public TransmitterAgent(String propertiesFileName) {
         super(propertiesFileName);
 
@@ -32,12 +58,9 @@ public class TransmitterAgent extends MovingAgent {
     protected void setup() {
         super.setup();
         addBehaviour(new MoveBehaviour(this, mbp, true));
-        //addBehaviour(new DetectAgentsBehaviour(null, mbp));
         addBehaviour(new TransmitterReceiveMessageBehaviour(this));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, mbp));
-        // addBehaviour(new Receive());
-//        addBehaviour(new TransmitterPropagateMessageBehaviour(this, 1000));
 
     }
 

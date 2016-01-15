@@ -19,13 +19,18 @@ public class Point {
 
     @JsonProperty
     private double x;
+
     @JsonProperty
     private double y;
+
     @JsonProperty("signal_range")
     private Double signalRange;
 
     @JsonProperty("message_id_list")
-    private Set<String> messageIdList;
+    private Set<MessageId> messageIdList;
+
+    @JsonProperty
+    private boolean isClient;
 
     public Point() {
 
@@ -33,20 +38,23 @@ public class Point {
 
     // FIXME :: na chwię, w ogóle ten Point2D trzeba wyrzucic
     public Point(Point2D point, Double signalRange) {
-        this.x = point.getX();
-        this.y = point.getY();
-        this.signalRange = signalRange;
+        this(point.getX(), point.getY(), signalRange);
     }
+
+    public Point(PhisicalDeviceLocation l) {
+        this(l.getX(), l.getY(), l.getSignalRange());
+    }
+
 
     public Point(double x, double y, Double signalRange) {
         this.x = x;
         this.y = y;
         this.signalRange = signalRange;
+        // FIXME :: dirty hack
+        isClient = signalRange != 0;
     }
 
     public static MessageId createMessageId(String clientId, String messageId) {
         return new MessageId(clientId, messageId);
     }
-
-
 }

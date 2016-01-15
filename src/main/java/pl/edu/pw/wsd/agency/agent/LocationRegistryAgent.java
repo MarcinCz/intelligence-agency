@@ -1,15 +1,16 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import com.google.common.collect.Maps;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
-import javafx.geometry.Point2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.AgentsLocationServiceBehaviour;
+import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +21,11 @@ public class LocationRegistryAgent extends Agent {
 
     private static final Logger log = LogManager.getLogger();
 
-    private Map<AID, Point2D> agentsLocation;
+    private Map<AID, PhisicalDeviceLocation> agentsLocation;
 
     @Override
     protected void setup() {
-        setAgentsLocation(new HashMap<AID, Point2D>());
+        this.agentsLocation = Maps.newHashMap();
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
@@ -52,10 +53,6 @@ public class LocationRegistryAgent extends Agent {
         }
     }
 
-    public Map<AID, Point2D> getAgentsLocation() {
-        return agentsLocation;
-    }
-
     /**
      * Returns Agents Location information without information about Agent it ask for.
      * Agent doesn't need information about its  own location.
@@ -63,19 +60,15 @@ public class LocationRegistryAgent extends Agent {
      * @param aid
      * @return
      */
-    public Map<AID, Point2D> getAgentsLocationWithout(AID aid) {
-        Map<AID, Point2D> agentsLocation = new HashMap<AID, Point2D>();
-        agentsLocation.putAll(getAgentsLocation());
+    public Map<AID, PhisicalDeviceLocation> getAgentsLocationWithout(AID aid) {
+        Map<AID, PhisicalDeviceLocation> agentsLocation = new HashMap<>();
+        agentsLocation.putAll(this.agentsLocation);
         agentsLocation.remove(aid);
 
         return agentsLocation;
     }
 
-    public void setAgentsLocation(Map<AID, Point2D> agentsLocation) {
-        this.agentsLocation = agentsLocation;
-    }
-
-    public void updateAgentLocation(AID aid, Point2D location) {
+    public void updateAgentLocation(AID aid, PhisicalDeviceLocation location) {
         agentsLocation.put(aid, location);
     }
 

@@ -10,11 +10,11 @@ import javax.swing.*;
  */
 public class LocationFrame extends JFrame {
 
-    private LocationMainPanel jPanel;
+    private LocationMainPanel mainPanel;
 
     public void updateAgentsLocations() {
-        jPanel.validate();
-        jPanel.repaint();
+        mainPanel.validate();
+        mainPanel.repaint();
     }
 
 
@@ -22,10 +22,11 @@ public class LocationFrame extends JFrame {
         super("Agency");
         // tricky
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        jPanel = new LocationMainPanel(agentsLocation);
-        add(jPanel);
+        mainPanel = new LocationMainPanel(agentsLocation);
+        add(mainPanel);
         pack();
         setVisible(true);
+        setResizable(false);
 
     }
 

@@ -60,7 +60,7 @@ public class MovingAgentConfigurationImpl extends BaseAgentConfigurationImpl imp
 
     @Override
     public double getSignalRange() {
-        return cfg.getDouble(SIGNAL_RANGE_KEY, 0.0);
+        return cfg.getDouble(SIGNAL_RANGE_KEY, -1.0d);
     }
 
 }

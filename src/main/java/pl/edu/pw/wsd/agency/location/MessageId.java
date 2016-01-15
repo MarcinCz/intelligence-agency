@@ -18,4 +18,8 @@ public class MessageId {
 
     @JsonProperty("message_id")
     private String messageId;
+
+    public String prettyToString() {
+        return clientId + ":" + messageId;
+    }
 }

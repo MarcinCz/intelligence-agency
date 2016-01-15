@@ -67,7 +67,7 @@ public class MoveBehaviour extends TickerBehaviour {
         agent.setX(agent.getX() + (speed * Math.cos(direction)));
         agent.setY(agent.getY() + (speed * Math.sin(direction)));
         Point2D target = agent.getCurrentTarget();
-        double distance = target.distance(agent.getPosition());
+        double distance = target.distance(agent.getPosition().toPoint2D());
         log.debug("Distance: " + distance);
         if (distance < speed) {
             Point2D[] path = agent.getPath();
@@ -114,7 +114,7 @@ public class MoveBehaviour extends TickerBehaviour {
         if (locationRegistry != null) {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.setConversationId("Agents-Location");
-            Point2D position = agent.getPosition();
+            Point2D position = agent.getPosition().toPoint2D();
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content;
             try {
@@ -149,7 +149,7 @@ public class MoveBehaviour extends TickerBehaviour {
             msg.setConversationId(EntityLocationAgent.CONVERSATION_ID);
 
             // create point
-            Point point = new Point(agent.getPosition(), agent.getSignalRange());
+            Point point = new Point(agent.getPosition());
             point.setMessageIdList(agent.getStoredMessageId());
 
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();

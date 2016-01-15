@@ -5,11 +5,11 @@ import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import javafx.geometry.Point2D;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
@@ -47,11 +47,11 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             try {
                 AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
-                Map<AID, Point2D> al = alm.getAgentsLocation();
+                Map<AID, PhisicalDeviceLocation> al = alm.getAgentsLocation();
                 List<AID> agentsInRange = new ArrayList<AID>();
-                for (Entry<AID, Point2D> entry : al.entrySet()) {
-                    Point2D location = entry.getValue();
-                    if (isInRange(location)) {
+                for (Entry<AID, PhisicalDeviceLocation> entry : al.entrySet()) {
+                    PhisicalDeviceLocation location = entry.getValue();
+                    if (amIInRange(location)) {
                         agentsInRange.add(entry.getKey());
                     }
                 }
@@ -78,15 +78,9 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
      * @param location
      * @return
      */
-    private boolean isInRange(Point2D location) {
-        MovingAgent agent = (MovingAgent) this.getAgent();
-        Point2D agentPosition = agent.getPosition();
-        double distance = agentPosition.distance(location);
-        if (distance > movingAgent.getSignalRange()) {
-            return false;
-        } else {
-            return true;
-        }
+    private boolean amIInRange(PhisicalDeviceLocation location) {
+        double distance = movingAgent.getPosition().distance(location);
+        return distance <= movingAgent.getSignalRange();
     }
 
 }
