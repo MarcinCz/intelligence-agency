@@ -33,7 +33,7 @@ public class ContainerLauncher {
 	}
 	
 	public static void runMainContainer() {
-		runMainContainer();
+		runMainContainer(true);
 	}
 	
 	public static void runRemoteContainer(RunnableContainer container) {
