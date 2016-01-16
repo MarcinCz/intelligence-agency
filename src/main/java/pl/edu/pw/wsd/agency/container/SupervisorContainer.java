@@ -5,8 +5,9 @@ import java.util.List;
 
 import jade.core.Agent;
 import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
+import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
 
-public class SupervisorContainer extends BaseContainer {
+public class SupervisorContainer extends RunnableContainer {
 
 	@Override
 	public List<Agent> getAgentsToRun() {

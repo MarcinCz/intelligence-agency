@@ -3,6 +3,10 @@ package pl.edu.pw.wsd.agency.agent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
@@ -17,6 +21,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import jade.lang.acl.ACLMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
+import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 @Getter
 public class TransmitterAgent extends PhysicalAgent {
@@ -24,6 +38,9 @@ public class TransmitterAgent extends PhysicalAgent {
     private static final long serialVersionUID = 4131616609061841238L;
 
     private static final Logger log = LogManager.getLogger();
+
+    private int createStatusPeriod;
+    private int propagateStatusPeriod;
 
     private List<ACLMessage> clientMessages = new ArrayList<>();
 
@@ -62,6 +79,21 @@ public class TransmitterAgent extends PhysicalAgent {
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
+        addStatusesBehaviours();
+    }
+
+    private void addStatusesBehaviours() {
+		addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
+		addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
+		addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
+	}
+
+    @Override
+    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+    	super.loadConfiguration(propertiesFileName);
+    	TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
+    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
+    	propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
     }
 
     public void addClientMessage(ACLMessage cm) {
@@ -72,4 +104,8 @@ public class TransmitterAgent extends PhysicalAgent {
         agentStatusMessages.add(msg);
     }
 
+
+    public AgentStatusMessageQueue getAgentStatusQueue() {
+    	return agentStatusQueue;
+    }
 }

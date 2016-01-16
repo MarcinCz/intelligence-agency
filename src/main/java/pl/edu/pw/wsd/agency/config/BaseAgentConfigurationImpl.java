@@ -17,6 +17,7 @@ public class BaseAgentConfigurationImpl implements BaseAgentConfiguration {
 	public BaseAgentConfigurationImpl(String propertiesFileName) throws ConfigurationException {
 		cfg = new PropertiesConfiguration(propertiesFileName);
 	}
+	
 	@Override
 	public Point2D getStartingPosition() {
 		String[] position = cfg.getString(KEY_POSITION).split(POSITION_SEPARATOR);

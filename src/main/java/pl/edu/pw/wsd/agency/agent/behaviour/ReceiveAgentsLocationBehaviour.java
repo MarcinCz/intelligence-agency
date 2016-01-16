@@ -1,6 +1,15 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -12,6 +21,9 @@ import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
+import jade.lang.acl.UnreadableException;
+import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.agent.MovingAgent;
 
 import java.io.IOException;
 import java.util.ArrayList;

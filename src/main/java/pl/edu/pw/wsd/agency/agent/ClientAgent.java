@@ -49,6 +49,19 @@ public class ClientAgent extends PhysicalAgent {
         addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+
+        addStatusesBehaviours();
+    }
+
+    private void addStatusesBehaviours() {
+        addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
+    }
+
+    @Override
+    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+        super.loadConfiguration(propertiesFileName);
+        ClientAgentConfiguration cfg = configProvider.getClientAgentConfiguration(propertiesFileName);
+        createStatusPeriod = cfg.getCreateNewStatusPeriod();
     }
 
     public void queueClientMessage(ClientMessage cm) {

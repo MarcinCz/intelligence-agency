@@ -12,7 +12,16 @@ import org.apache.commons.lang.StringUtils;
 public enum ConversationId {
 	
 	CLIENT_MESSAGE,
-	AGENT_STATUS,
+	/**
+	 * Conversation between client/transmitter and transmitter.
+	 * Transmitter is asked to propagate agent status so it can be delivered to supervisor.
+	 */
+	PROPAGATE_AGENT_STATUS,
+	/**
+	 * Conversation between supervisor and transmitter.
+	 * Supervisor asks for agent status stored by transmitter.
+	 */
+	DELIVER_AGENT_STATUSES,
 	UNKOWN
 	;
 	

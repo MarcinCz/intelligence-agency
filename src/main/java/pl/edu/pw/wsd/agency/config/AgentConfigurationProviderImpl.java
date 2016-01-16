@@ -14,4 +14,19 @@ public class AgentConfigurationProviderImpl implements AgentConfigurationProvide
 		return new BaseAgentConfigurationImpl(propertiesFileName);
 	}
 
+	@Override
+	public SupervisorConfiguration geSupervisorAgentConfiguration(String propertiesFileName) throws ConfigurationException {
+		return new SupervisorConfigurationImpl(propertiesFileName);
+	}
+
+	@Override
+	public TransmitterAgentConfiguration getTransmitterAgentConfiguration(String propertiesFileName) throws ConfigurationException {
+		return new TransmitterAgentConfigurationImpl(propertiesFileName);
+	}
+
+	@Override
+	public ClientAgentConfiguration getClientAgentConfiguration(String propertiesFileName) throws ConfigurationException {
+		return new ClientAgentConfigurationImpl(propertiesFileName);
+	}
+
 }
