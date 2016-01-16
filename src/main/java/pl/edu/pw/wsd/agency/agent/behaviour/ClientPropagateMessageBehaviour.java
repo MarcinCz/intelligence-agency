@@ -41,7 +41,6 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
                 try {
                     String content = mapper.writeValueAsString(message);
                     ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
-                    msg.setDefaultEnvelope();
                     msg.addReceiver(transmitterId.toAID());
                     msg.setContent(content);
                     msg.setLanguage(Language.JSON);

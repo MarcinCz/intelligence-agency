@@ -1,16 +1,14 @@
 package pl.edu.pw.wsd.agency.container.launcher;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.config.ContainerConfig;
 
 /**
@@ -52,7 +50,7 @@ public class ContainerLauncher {
 
 		for(Agent agent: container.getAgentsToRun()) {
 			try {
-				String agentName = agent.getClass().getSimpleName() + "-" + RandomStringUtils.randomAlphanumeric(4);
+				String agentName = agent.getClass().getSimpleName() + "_" + RandomStringUtils.randomNumeric(4);
 				AgentController agentController = c.acceptNewAgent(agentName, agent);
 				agentController.start();
 				log.debug("Added agent [" + agentName + "]");

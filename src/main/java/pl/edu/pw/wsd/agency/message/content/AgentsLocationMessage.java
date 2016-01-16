@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
-import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdDeserializer;
+import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdKeyDeserializer;
 import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdSerializer;
 import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
 
@@ -21,7 +21,7 @@ public class AgentsLocationMessage {
     @JsonProperty("agents_placement")
     @Getter
     @Setter
-    @JsonDeserialize(keyUsing = TransmitterIdDeserializer.class)
+    @JsonDeserialize(keyUsing = TransmitterIdKeyDeserializer.class)
     @JsonSerialize(keyUsing = TransmitterIdSerializer.class)
 //    @JsonSerialize(keyUsing = Tra)
     private Map<TransmitterId, PhysicalDeviceLocation> agentsLocation;

@@ -73,13 +73,13 @@ public class LocationRegistryAgent extends Agent {
      * Returns Agents Location information without information about Agent it ask for.
      * Agent doesn't need information about its  own location.
      *
-     * @param aid
+     * @param transmitterId
      * @return
      */
-    public Map<TransmitterId, PhysicalDeviceLocation> getAgentsLocationWithout(AID aid) {
+    public Map<TransmitterId, PhysicalDeviceLocation> getAgentsLocationWithout(TransmitterId transmitterId) {
         Map<TransmitterId, PhysicalDeviceLocation> agentsLocation = new HashMap<>();
         agentsLocation.putAll(this.agentsLocation.asMap());
-        agentsLocation.remove(aid);
+        agentsLocation.remove(transmitterId);
 
         return agentsLocation;
     }
@@ -114,7 +114,8 @@ public class LocationRegistryAgent extends Agent {
                 if (msg.getPerformative() == ACLMessage.REQUEST) {
                     ACLMessage reply = msg.createReply();
                     ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-                    AgentsLocationMessage alm = new AgentsLocationMessage(locationRegistryAgent.getAgentsLocationWithout(msg.getSender()));
+                    TransmitterId tid = new TransmitterId(msg.getSender());
+                    AgentsLocationMessage alm = new AgentsLocationMessage(locationRegistryAgent.getAgentsLocationWithout(tid));
                     try {
                         String content = mapper.writeValueAsString(alm);
                         reply.setContent(content);

@@ -1,7 +1,7 @@
 package pl.edu.pw.wsd.agency.location;
 
 import com.google.common.cache.Cache;
-import jade.core.AID;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,10 +15,10 @@ class LocationMainPanel extends JPanel {
     /**
      * Map of entities that holds its coordinates.
      */
-    protected final Cache<AID, ViewEntity> pointsMap;
+    protected final Cache<TransmitterId, ViewEntity> pointsMap;
 
 
-    public LocationMainPanel(Cache<AID, ViewEntity> agentsLocation) {
+    public LocationMainPanel(Cache<TransmitterId, ViewEntity> agentsLocation) {
         this.pointsMap = agentsLocation;
         setBorder(BorderFactory.createLineBorder(Color.black));
         setPreferredSize(new Dimension(700, 700));
@@ -32,8 +32,8 @@ class LocationMainPanel extends JPanel {
 
 //        g.translate((int)size.getWidth()/2, (int)size.getHeight()/2);
 
-        ConcurrentMap<AID, ViewEntity> aidPointConcurrentMap = pointsMap.asMap();
-        aidPointConcurrentMap.forEach((aid, point) -> {
+        ConcurrentMap<TransmitterId, ViewEntity> aidPointConcurrentMap = pointsMap.asMap();
+        aidPointConcurrentMap.forEach((transmitterId, point) -> {
             final int x = mapX(size, point);
             final int y = mapY(size, point);
             final int signalRangeX = 2 * mapSignalRangeX(size, point.getSignalRange());
@@ -41,15 +41,13 @@ class LocationMainPanel extends JPanel {
 
 
             // FIXME :: dirty hack
-            String name = null;
             Color pointColor = null;
-            if (point.getSignalRange() < 0) {
+            if (point.getSignalRange() <= 0) {
                 pointColor = Color.BLUE;
-                name = "Client";
             } else {
                 pointColor = Color.RED;
-                name = "Transmitter";
             }
+            String name = transmitterId.getLocalName();
             // print name
             g.drawString(name, x - 20, y - 5);
 

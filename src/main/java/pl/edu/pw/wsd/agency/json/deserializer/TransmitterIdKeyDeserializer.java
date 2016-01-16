@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * @author apapros
  */
-public class TransmitterIdDeserializer extends KeyDeserializer {
+public class TransmitterIdKeyDeserializer extends KeyDeserializer {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

@@ -1,16 +1,18 @@
 package pl.edu.pw.wsd.agency.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-
 import jade.core.AID;
 import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.json.deserializer.AIDDeserializer;
 import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
+import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdKeyDeserializer;
+import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contains global configuration.
@@ -34,6 +36,8 @@ public class Configuration {
         SimpleModule simple = new SimpleModule();
         simple.addDeserializer(Point2D.class, new Point2dDeserializer());
         simple.addDeserializer(AID.class, new AIDDeserializer());
+        simple.addSerializer(TransmitterId.class, new TransmitterIdSerializer());
+        simple.addKeyDeserializer(TransmitterId.class, new TransmitterIdKeyDeserializer());
         mapper.registerModule(simple);
         mapper.registerModule(new JodaModule());
         agentsLocation = new HashMap<AID, Point2D>();

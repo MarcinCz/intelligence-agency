@@ -57,7 +57,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
                     if (amIInRange(location)) {
                         // create transmitter id with local nam
                         // FIXME
-                        agentsInRange.add(new TransmitterId(entry.getKey().getLocalName()));
+                        agentsInRange.add(entry.getKey());
                     }
                 }
                 agent.setAgentsInRange(agentsInRange);
