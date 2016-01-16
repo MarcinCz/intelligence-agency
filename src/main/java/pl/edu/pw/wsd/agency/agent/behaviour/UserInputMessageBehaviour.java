@@ -30,17 +30,23 @@ public class UserInputMessageBehaviour extends CyclicBehaviour {
     private static final String CONVERSATION_ID = "user-input";
 
     // for test purpose
-    private boolean test = true;
+    private boolean test = false;
     // for test purpose
     private long lastSentTime = System.currentTimeMillis();
     // for test purpose
     private long nextMessageId = 1;
 
+    ClientAgent clientAgent;
+
+    public UserInputMessageBehaviour(ClientAgent clientAgent) {
+        this.clientAgent = clientAgent;
+    }
+
     @Override
     public void action() {
         MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
         log.trace("Czekam na wiadomosc od Uzytkownika.");
-        ClientAgent agent = (ClientAgent) myAgent;
+        ClientAgent agent = clientAgent;
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
 
         ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
@@ -49,7 +55,7 @@ public class UserInputMessageBehaviour extends CyclicBehaviour {
             if (msg == null) {
                 try {
                     msg = new ACLMessage(ACLMessage.PROPAGATE);
-                    ClientMessage testMessage = new ClientMessage(new MessageId("client_1", Long.toString(nextMessageId++)), "client_2", "Hello WSD", System.currentTimeMillis() + 100 * 1000l);
+                    ClientMessage testMessage = new ClientMessage(new MessageId(clientAgent.getLocalName(), Long.toString(nextMessageId++)), "client_2", "Hello WSD", System.currentTimeMillis() + 100 * 1000l);
                     msg.setContent(mapper.writeValueAsString(testMessage));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();

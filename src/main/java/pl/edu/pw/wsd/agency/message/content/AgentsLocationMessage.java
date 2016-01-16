@@ -23,7 +23,6 @@ public class AgentsLocationMessage {
     @Setter
     @JsonDeserialize(keyUsing = TransmitterIdKeyDeserializer.class)
     @JsonSerialize(keyUsing = TransmitterIdSerializer.class)
-//    @JsonSerialize(keyUsing = Tra)
     private Map<TransmitterId, PhysicalAgentLocation> agentsLocation;
 
     @JsonCreator

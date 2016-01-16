@@ -2,10 +2,10 @@ package pl.edu.pw.wsd.agency.message.content;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
+import lombok.Data;
 import pl.edu.pw.wsd.agency.location.MessageId;
 
-@Getter
+@Data
 public class ClientMessage {
 
     @JsonProperty("message_id")

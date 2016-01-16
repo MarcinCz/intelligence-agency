@@ -17,9 +17,9 @@ public class UserInputMessageBehaviourTest {
         // when
 
         // JSON
-        // {"message_id":{"client_id":"client_1","message_id":"asd"},"end-client":"client_2","message":"Hello WSD","message-life":1452786321172}
+        // {"message_id":{"client_id":"client_1","message_id":"asd"},"end-client":"ClientAgent_3083","message":"Hello WSD","message-life":1452786321172}
 
-        ClientMessage clientMessage = new ClientMessage(new MessageId("client_1", "asd"), "client_2", "Hello WSD", System.currentTimeMillis());
+        ClientMessage clientMessage = new ClientMessage(new MessageId("client_1", "asd"), "ClientAgent_3083", "Hello WSD", System.currentTimeMillis());
 
         ObjectMapper m = new ObjectMapper();
         System.out.println(m.writeValueAsString(clientMessage));

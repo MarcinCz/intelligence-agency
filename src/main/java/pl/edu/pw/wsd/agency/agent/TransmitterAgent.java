@@ -15,6 +15,7 @@ import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehav
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterDeliverMessageBehaviour;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -75,6 +76,8 @@ public class TransmitterAgent extends PhysicalAgent {
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
         addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
+        addBehaviour(new TransmitterDeliverMessageBehaviour(this, moveBehaviourPeriod / 2));
+
 
         addStatusesBehaviours();
     }

@@ -36,6 +36,8 @@ public abstract class PhysicalAgent extends BaseAgent {
     /**
      * List of Agents in range of this Agent
      */
+
+    // FIXME : A nie tylko transmittery ?
     @Getter
     @Setter
     private List<TransmitterId> agentsInRange;

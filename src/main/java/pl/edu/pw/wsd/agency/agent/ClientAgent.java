@@ -9,6 +9,8 @@ import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.UserInputMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientRequestDeliveryMessageBehaviour;
 import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
@@ -50,8 +52,10 @@ public class ClientAgent extends PhysicalAgent {
         super.setup();
         clientMessages = new LinkedList<>();
         addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
-        addBehaviour(new UserInputMessageBehaviour());
+        addBehaviour(new UserInputMessageBehaviour(this));
         addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
+        addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
+        addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
