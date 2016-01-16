@@ -1,5 +1,6 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -28,8 +29,12 @@ public class UserInputMessageBehaviour extends CyclicBehaviour {
 
     private static final String CONVERSATION_ID = "user-input";
 
+    // for test purpose
     private boolean test = true;
+    // for test purpose
     private long lastSentTime = System.currentTimeMillis();
+    // for test purpose
+    private long nextMessageId = 1;
 
     @Override
     public void action() {
@@ -37,15 +42,24 @@ public class UserInputMessageBehaviour extends CyclicBehaviour {
         log.trace("Czekam na wiadomosc od Uzytkownika.");
         ClientAgent agent = (ClientAgent) myAgent;
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
-        if (msg != null || (test && lastSentTime + 5000 < System.currentTimeMillis())) {
-            try {
-                ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-                String content = null;
-                if (test) {
-                    content = mapper.writeValueAsString(new ClientMessage(new MessageId("client_1", lastSentTime + ""), "client_2", "Hello WSD", System.currentTimeMillis() + 1000l));
-                } else {
-                    content = msg.getContent();
+
+        ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+
+        if (test && lastSentTime + 5000 < System.currentTimeMillis()) {
+            if (msg == null) {
+                try {
+                    msg = new ACLMessage(ACLMessage.PROPAGATE);
+                    ClientMessage testMessage = new ClientMessage(new MessageId("client_1", Long.toString(nextMessageId++)), "client_2", "Hello WSD", System.currentTimeMillis() + 100 * 1000l);
+                    msg.setContent(mapper.writeValueAsString(testMessage));
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
                 }
+            }
+        }
+        if (msg != null) {
+            try {
+                String content = msg.getContent();
+
                 ClientMessage cm = mapper.readValue(content, ClientMessage.class);
                 agent.queueClientMessage(cm);
                 lastSentTime = System.currentTimeMillis();

@@ -1,6 +1,5 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +8,8 @@ import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -16,43 +17,44 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String LANGUAGE = "JSON";
+    private TransmitterAgent transmitterAgent;
 
-    private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
-    
-    private static final String CONVERSATION_ID = "client-message";
-    
-    public TransmitterPropagateMessageBehaviour(Agent a, long period) {
-        super(a, period);
+    private final static int NUMBER_OF_MESSAGES_AT_ONCE = 5;
+
+    public TransmitterPropagateMessageBehaviour(TransmitterAgent transmitterAgent, long period) {
+        super(transmitterAgent, period);
+        this.transmitterAgent = transmitterAgent;
     }
+
 
     @Override
     public void onTick() {
         TransmitterAgent agent = (TransmitterAgent) myAgent;
         List<TransmitterId> transmitters = agent.getAgentsInRange();
-        // we want to propagate message to all possible Transmitters
-        // try to send to all at once or one by behaviour cycle ?
-        // which behaviour would be closest to reality
-        
-        // Transmitter needs to remember to which Transmitter it send message
-        // or it will send message to the same Transmitter multiple times
-        // or mayby we want that behaviour
-        
-        // I assume for now that can be only one Agent in range
-        TransmitterId receiver = transmitters.get(0);
-        if (receiver != null) {
-            List<ACLMessage> messages = agent.getClientMessages();
-            // send one message by behaviour cycle or all ?
-            // I choosed one by behaviour cycle
-            ACLMessage message = messages.remove(0);
-            if (message != null) {
-                ACLMessage aclm = new ACLMessage(PERFORMATIVE);
-                aclm.addReceiver(receiver.toAID());
-                aclm.setContent(message.getContent());
-                aclm.setLanguage(message.getLanguage());
-                aclm.setConversationId(message.getConversationId());
-                //TODO: propagate message
+        Map<ACLMessage, Set<TransmitterId>> clientMessages = agent.getClientMessages();
+
+        for (TransmitterId receiver : transmitters) {
+            for (Map.Entry<ACLMessage, Set<TransmitterId>> entry : clientMessages.entrySet()) {
+
+                Set<TransmitterId> transmitterIds = entry.getValue();
+                ACLMessage aclMessage = entry.getKey();
+                // check if message was sent
+                if (!transmitterIds.contains(receiver)) {
+                    // send message
+                    ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
+                    msg.addReceiver(receiver.toAID());
+                    msg.setContent(aclMessage.getContent());
+                    msg.setLanguage(aclMessage.getLanguage());
+                    msg.setConversationId(aclMessage.getConversationId());
+
+                    // FIXME stats ?
+                    transmitterAgent.send(msg);
+
+                    transmitterIds.add(receiver);
+
+                }
             }
+
         }
     }
 

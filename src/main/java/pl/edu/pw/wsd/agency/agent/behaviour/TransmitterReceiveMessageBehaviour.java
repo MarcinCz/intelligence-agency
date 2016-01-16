@@ -41,7 +41,7 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
                     log.debug("Transmitter received new agent status.");
                     break;
                 case CLIENT_MESSAGE:
-                    agent.addClientMessage(msg);
+                    agent.addNewClientMessage(msg);
                     log.debug("Transmitter received new client message.");
                     break;
                 default:

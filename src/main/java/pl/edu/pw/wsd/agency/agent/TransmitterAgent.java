@@ -1,6 +1,7 @@
 package pl.edu.pw.wsd.agency.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.commons.configuration.ConfigurationException;
@@ -11,17 +12,19 @@ import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -34,7 +37,7 @@ public class TransmitterAgent extends PhysicalAgent {
     private int createStatusPeriod;
     private int propagateStatusPeriod;
 
-    private List<ACLMessage> clientMessages = new ArrayList<>();
+    private Map<ACLMessage, Set<TransmitterId>> clientMessages = new HashMap<>();
 
     private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
 
@@ -43,7 +46,8 @@ public class TransmitterAgent extends PhysicalAgent {
     @Override
     public Set<MessageId> getStoredMessageId() {
         Set<MessageId> tmpSet = new HashSet<>();
-        for (ACLMessage clientMessage : clientMessages) {
+        Set<ACLMessage> aclMessages = clientMessages.keySet();
+        for (ACLMessage clientMessage : aclMessages) {
             // FIXME :: OMG
             String content = clientMessage.getContent();
             try {
@@ -70,6 +74,7 @@ public class TransmitterAgent extends PhysicalAgent {
         addBehaviour(new TransmitterReceiveMessageBehaviour(this));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
         addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+        addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
 
         addStatusesBehaviours();
     }
@@ -88,8 +93,8 @@ public class TransmitterAgent extends PhysicalAgent {
         propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
     }
 
-    public void addClientMessage(ACLMessage cm) {
-        clientMessages.add(cm);
+    public void addNewClientMessage(ACLMessage cm) {
+        clientMessages.put(cm, Sets.newHashSet());
     }
 
     public void addAgentStatusMessage(ACLMessage msg) {
