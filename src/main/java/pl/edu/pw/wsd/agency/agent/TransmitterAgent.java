@@ -3,26 +3,10 @@ package pl.edu.pw.wsd.agency.agent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
-import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import jade.lang.acl.ACLMessage;
-import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
@@ -30,7 +14,15 @@ import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehav
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
 import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 public class TransmitterAgent extends PhysicalAgent {
@@ -44,7 +36,7 @@ public class TransmitterAgent extends PhysicalAgent {
 
     private List<ACLMessage> clientMessages = new ArrayList<>();
 
-    private List<ACLMessage> agentStatusMessages = new ArrayList<>();
+    private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -83,17 +75,17 @@ public class TransmitterAgent extends PhysicalAgent {
     }
 
     private void addStatusesBehaviours() {
-		addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
-		addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
-		addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
-	}
+        addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
+        addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
+        addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
+    }
 
     @Override
     protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-    	super.loadConfiguration(propertiesFileName);
-    	TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
-    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
-    	propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
+        super.loadConfiguration(propertiesFileName);
+        TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
+        createStatusPeriod = cfg.getCreateNewStatusPeriod();
+        propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
     }
 
     public void addClientMessage(ACLMessage cm) {
@@ -101,11 +93,10 @@ public class TransmitterAgent extends PhysicalAgent {
     }
 
     public void addAgentStatusMessage(ACLMessage msg) {
-        agentStatusMessages.add(msg);
+        agentStatusQueue.queueMessage(msg);
     }
 
-
     public AgentStatusMessageQueue getAgentStatusQueue() {
-    	return agentStatusQueue;
+        return agentStatusQueue;
     }
 }

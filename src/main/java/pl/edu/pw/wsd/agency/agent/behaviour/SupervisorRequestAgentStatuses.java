@@ -1,52 +1,51 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
 
+import java.util.List;
+
 /**
  * Request agent statuses from transmitters in range.
- * @author marcin.czerwinski
  *
+ * @author marcin.czerwinski
  */
 public class SupervisorRequestAgentStatuses extends TickerBehaviour {
 
-	private static final long serialVersionUID = 7418981641032427166L;
+    private static final long serialVersionUID = 7418981641032427166L;
     private static final Logger log = LogManager.getLogger();
 
-	private SupervisorAgent agent;
-	
-	public SupervisorRequestAgentStatuses(SupervisorAgent a, long period) {
-		super(a, period);
-		this.agent = a;
-	}
+    private SupervisorAgent agent;
 
-	@Override
-	protected void onTick() {
-		List<AID> transmitters = agent.getAgentsInRange();
+    public SupervisorRequestAgentStatuses(SupervisorAgent a, long period) {
+        super(a, period);
+        this.agent = a;
+    }
 
-        for(AID receiver: transmitters) {
-        	requestAgentStatuses(receiver);
+    @Override
+    protected void onTick() {
+        List<TransmitterId> transmitters = agent.getAgentsInRange();
+
+        for (TransmitterId receiver : transmitters) {
+            requestAgentStatuses(receiver);
         }
-	}
+    }
 
-	private void requestAgentStatuses(AID receiver) {
-		log.debug("Attempting to request agent statuses from transmitter [" + receiver.getName() + "]");
-	    ACLMessage aclm = new ACLMessage(ACLMessage.REQUEST);
-	    aclm.addReceiver(receiver);
-	    aclm.setLanguage(Language.JSON);
-	    aclm.setConversationId(ConversationId.DELIVER_AGENT_STATUSES.generateId());
-	    aclm.setSender(agent.getAID());
-	    agent.sendAndUpdateStatistics(aclm);
-	    log.debug("Agent statuses from transmitter [" + receiver.getName() + "] requested");
-	}
+    private void requestAgentStatuses(TransmitterId receiver) {
+        log.debug("Attempting to request agent statuses from transmitter [" + receiver.getLocalName() + "]");
+        ACLMessage aclm = new ACLMessage(ACLMessage.REQUEST);
+        aclm.addReceiver(receiver.toAID());
+        aclm.setLanguage(Language.JSON);
+        aclm.setConversationId(ConversationId.DELIVER_AGENT_STATUSES.generateId());
+        aclm.setSender(agent.getAID());
+        agent.sendAndUpdateStatistics(aclm);
+        log.debug("Agent statuses from transmitter [" + receiver.getLocalName() + "] requested");
+    }
 
 }

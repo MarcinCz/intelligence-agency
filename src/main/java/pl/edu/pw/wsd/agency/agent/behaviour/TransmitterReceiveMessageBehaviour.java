@@ -36,7 +36,7 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
         ACLMessage msg = agent.receiveAndUpdateStatistics(template);
         if (msg != null) {
             switch (ConversationId.resolveConversationType(msg.getConversationId())) {
-                case AGENT_STATUS:
+                case PROPAGATE_AGENT_STATUS:
                     agent.addAgentStatusMessage(msg);
                     log.debug("Transmitter received new agent status.");
                     break;

@@ -1,18 +1,14 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
-
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -20,9 +16,6 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 import pl.edu.pw.wsd.agency.agent.ViewAgent;
-import javafx.geometry.Point2D;
-import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
 import pl.edu.pw.wsd.agency.location.ViewEntity;
