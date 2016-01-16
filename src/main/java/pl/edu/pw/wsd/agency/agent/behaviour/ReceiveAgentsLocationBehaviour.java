@@ -1,15 +1,16 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
+import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
+import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
@@ -30,35 +31,40 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private MovingAgent movingAgent;
+    private PhysicalAgent physicalAgent;
 
-    public ReceiveAgentsLocationBehaviour(MovingAgent movingAgent) {
-        super(movingAgent);
-        this.movingAgent = movingAgent;
+    public ReceiveAgentsLocationBehaviour(PhysicalAgent physicalAgent) {
+        super(physicalAgent);
+        this.physicalAgent = physicalAgent;
     }
 
     @Override
     public void action() {
-        MessageTemplate mt = MessageTemplate.MatchConversationId("Agents-Location");
-        MovingAgent agent = (MovingAgent) getAgent();
+        MessageTemplate mt = MessageTemplate.MatchConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
+        PhysicalAgent agent = physicalAgent;
         ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
-            String content = msg.getContent();
-            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             try {
+                String content = msg.getContent();
+                ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+
                 AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
-                Map<AID, PhisicalDeviceLocation> al = alm.getAgentsLocation();
-                List<AID> agentsInRange = new ArrayList<AID>();
-                for (Entry<AID, PhisicalDeviceLocation> entry : al.entrySet()) {
-                    PhisicalDeviceLocation location = entry.getValue();
+                Map<TransmitterId, PhysicalDeviceLocation> al = alm.getAgentsLocation();
+
+                List<TransmitterId> agentsInRange = new ArrayList<>();
+                for (Entry<TransmitterId, PhysicalDeviceLocation> entry : al.entrySet()) {
+                    PhysicalDeviceLocation location = entry.getValue();
                     if (amIInRange(location)) {
-                        agentsInRange.add(entry.getKey());
+                        // create transmitter id with local nam
+                        // FIXME
+                        agentsInRange.add(new TransmitterId(entry.getKey().getLocalName()));
                     }
                 }
                 agent.setAgentsInRange(agentsInRange);
-                log.debug("Agents in range: " + agent.getAgentsInRange());
+                if (log.isDebugEnabled()) {
+                    log.debug(agentsInRange.size() + " agents in range: " + agentsInRange);
+                }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         } else {
@@ -78,9 +84,9 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
      * @param location
      * @return
      */
-    private boolean amIInRange(PhisicalDeviceLocation location) {
-        double distance = movingAgent.getPosition().distance(location);
-        return distance <= movingAgent.getSignalRange();
+    private boolean amIInRange(PhysicalDeviceLocation location) {
+        double distance = physicalAgent.getLocation().distance(location);
+        return distance <= location.getSignalRange();
     }
 
 }

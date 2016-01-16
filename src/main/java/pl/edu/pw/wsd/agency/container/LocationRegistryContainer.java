@@ -1,7 +1,7 @@
 package pl.edu.pw.wsd.agency.container;
 
 import jade.core.Agent;
-import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
+import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
 
@@ -15,7 +15,7 @@ public class LocationRegistryContainer extends RunnableContainer {
         List<Agent> descriptions = new ArrayList<>();
         descriptions.add(new LocationRegistryAgent());
 
-        descriptions.add(new EntityLocationAgent());
+        descriptions.add(new ViewAgent());
 
         //descriptions.add(createAgentDescription(TransmitterAgent.class, "TransmitterAgent2.properties"));
         return descriptions;

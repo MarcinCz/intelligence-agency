@@ -5,7 +5,7 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-public class TransmitterAgent extends MovingAgent {
+public class TransmitterAgent extends PhysicalAgent {
 
     private static final long serialVersionUID = 4131616609061841238L;
 
@@ -57,10 +57,10 @@ public class TransmitterAgent extends MovingAgent {
     @Override
     protected void setup() {
         super.setup();
-        addBehaviour(new MoveBehaviour(this, mbp, true));
+        addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, true));
         addBehaviour(new TransmitterReceiveMessageBehaviour(this));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-        addBehaviour(new RequestAgentsLocationBehaviour(this, mbp));
+        addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
     }
 

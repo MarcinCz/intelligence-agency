@@ -15,7 +15,7 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class Point {
+public class ViewEntity {
 
     @JsonProperty
     private double x;
@@ -32,21 +32,21 @@ public class Point {
     @JsonProperty
     private boolean isClient;
 
-    public Point() {
+    public ViewEntity() {
 
     }
 
     // FIXME :: na chwię, w ogóle ten Point2D trzeba wyrzucic
-    public Point(Point2D point, Double signalRange) {
+    public ViewEntity(Point2D point, Double signalRange) {
         this(point.getX(), point.getY(), signalRange);
     }
 
-    public Point(PhisicalDeviceLocation l) {
+    public ViewEntity(PhysicalDeviceLocation l) {
         this(l.getX(), l.getY(), l.getSignalRange());
     }
 
 
-    public Point(double x, double y, Double signalRange) {
+    public ViewEntity(double x, double y, Double signalRange) {
         this.x = x;
         this.y = y;
         this.signalRange = signalRange;

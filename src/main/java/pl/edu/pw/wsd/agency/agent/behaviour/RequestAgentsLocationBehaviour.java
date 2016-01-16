@@ -1,19 +1,18 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
+import jade.core.AID;
+import jade.core.Agent;
+import jade.core.behaviours.TickerBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import jade.core.AID;
-import jade.core.Agent;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.TickerBehaviour;
-import jade.domain.DFService;
-import jade.domain.FIPAException;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.lang.acl.ACLMessage;
-
 /**
+ * FIXME :: CHYBA nie do końca
  * Detects Agents that are in range.
  * 
  * @author Adrian Sidor
@@ -23,7 +22,6 @@ public class RequestAgentsLocationBehaviour extends TickerBehaviour {
 
     public RequestAgentsLocationBehaviour(Agent a, long period) {
         super(a, period);
-        // TODO Auto-generated constructor stub
     }
 
     private static final long serialVersionUID = -3739242813837955331L;

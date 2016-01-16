@@ -1,7 +1,6 @@
 package pl.edu.pw.wsd.agency.location;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javafx.geometry.Point2D;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhisicalDeviceLocation {
+public class PhysicalDeviceLocation {
 
     @JsonProperty
     private double x;
@@ -28,11 +27,8 @@ public class PhisicalDeviceLocation {
         return Math.sqrt(a * a + b * b);
     }
 
-    public double distance(PhisicalDeviceLocation other) {
+    public double distance(PhysicalDeviceLocation other) {
         return distance(other.getX(), other.getY());
     }
 
-    public Point2D toPoint2D() {
-        return new Point2D(x, y);
-    }
 }

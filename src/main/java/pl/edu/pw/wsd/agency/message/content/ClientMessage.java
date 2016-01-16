@@ -10,18 +10,18 @@ public class ClientMessage {
 
     @JsonProperty("message_id")
     private MessageId messageId;
-    @JsonProperty("end-client")
+    @JsonProperty("end_client")
     private String endClient;
     @JsonProperty("message")
     private String message;
-    @JsonProperty("message-life")
+    @JsonProperty("message_life")
     private long messageLife;
 
     @JsonCreator
     public ClientMessage(@JsonProperty("message_id") MessageId messageId,
-                         @JsonProperty("end-client") String endClient,
+                         @JsonProperty("end_client") String endClient,
                          @JsonProperty("message") String message,
-                         @JsonProperty("message-life") long messageLife) {
+                         @JsonProperty("message_life") long messageLife) {
         this.messageId = messageId;
         this.endClient = endClient;
         this.message = message;

@@ -1,15 +1,14 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
+
+import java.util.List;
 
 public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -30,7 +29,7 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
     @Override
     public void onTick() {
         TransmitterAgent agent = (TransmitterAgent) myAgent;
-        List<AID> transmitters = agent.getAgentsInRange();
+        List<TransmitterId> transmitters = agent.getAgentsInRange();
         // we want to propagate message to all possible Transmitters
         // try to send to all at once or one by behaviour cycle ?
         // which behaviour would be closest to reality
@@ -40,7 +39,7 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
         // or mayby we want that behaviour
         
         // I assume for now that can be only one Agent in range
-        AID receiver = transmitters.get(0);
+        TransmitterId receiver = transmitters.get(0);
         if (receiver != null) {
             List<ACLMessage> messages = agent.getClientMessages();
             // send one message by behaviour cycle or all ?
@@ -48,7 +47,7 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
             ACLMessage message = messages.remove(0);
             if (message != null) {
                 ACLMessage aclm = new ACLMessage(PERFORMATIVE);
-                aclm.addReceiver(receiver);
+                aclm.addReceiver(receiver.toAID());
                 aclm.setContent(message.getContent());
                 aclm.setLanguage(message.getLanguage());
                 aclm.setConversationId(message.getConversationId());

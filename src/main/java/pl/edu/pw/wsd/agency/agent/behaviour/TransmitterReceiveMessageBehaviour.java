@@ -5,9 +5,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
 /**
  * Behaviour for receiving all the messages from other agents.
@@ -19,27 +19,21 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String LANGUAGE = "JSON";
+    private TransmitterAgent transmitterAgent;
 
-    private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
-
-    private MovingAgent movingAgent;
-
-    public TransmitterReceiveMessageBehaviour(MovingAgent movingAgent) {
-        super(movingAgent);
-        this.movingAgent = movingAgent;
+    public TransmitterReceiveMessageBehaviour(TransmitterAgent transmitterAgent) {
+        super(transmitterAgent);
+        this.transmitterAgent = transmitterAgent;
     }
 
     @Override
     public void action() {
-        MessageTemplate mt2 = MessageTemplate.and(
-                MessageTemplate.MatchPerformative(PERFORMATIVE),
-                MessageTemplate.MatchLanguage(LANGUAGE));
-        /*MessageTemplate mt = MessageTemplate.and(
-                MessageTemplate.MatchConversationId(CONVERSATION_ID), 
-                mt2);*/
-        TransmitterAgent agent = (TransmitterAgent) myAgent;
-        ACLMessage msg = agent.receiveAndUpdateStatistics(mt2);
+        MessageTemplate template = MessageTemplate.and(
+                MessageTemplate.MatchPerformative(ACLMessage.PROPAGATE),
+                MessageTemplate.MatchLanguage(Language.JSON));
+
+        TransmitterAgent agent = transmitterAgent;
+        ACLMessage msg = agent.receiveAndUpdateStatistics(template);
         if (msg != null) {
             switch (ConversationId.resolveConversationType(msg.getConversationId())) {
                 case AGENT_STATUS:

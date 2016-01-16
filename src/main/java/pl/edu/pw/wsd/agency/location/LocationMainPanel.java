@@ -2,7 +2,6 @@ package pl.edu.pw.wsd.agency.location;
 
 import com.google.common.cache.Cache;
 import jade.core.AID;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,13 +15,13 @@ class LocationMainPanel extends JPanel {
     /**
      * Map of entities that holds its coordinates.
      */
-    protected final Cache<AID, Point> pointsMap;
+    protected final Cache<AID, ViewEntity> pointsMap;
 
 
-    public LocationMainPanel(Cache<AID, Point> agentsLocation) {
+    public LocationMainPanel(Cache<AID, ViewEntity> agentsLocation) {
         this.pointsMap = agentsLocation;
         setBorder(BorderFactory.createLineBorder(Color.black));
-        setPreferredSize(new Dimension(600, 600));
+        setPreferredSize(new Dimension(700, 700));
 
     }
 
@@ -33,12 +32,12 @@ class LocationMainPanel extends JPanel {
 
 //        g.translate((int)size.getWidth()/2, (int)size.getHeight()/2);
 
-        ConcurrentMap<AID, Point> aidPointConcurrentMap = pointsMap.asMap();
+        ConcurrentMap<AID, ViewEntity> aidPointConcurrentMap = pointsMap.asMap();
         aidPointConcurrentMap.forEach((aid, point) -> {
             final int x = mapX(size, point);
             final int y = mapY(size, point);
-            final int signalRangeX = mapSignalRangeX(size, point.getSignalRange());
-            final int signalRangeY = mapSignalRangeY(size, point.getSignalRange());
+            final int signalRangeX = 2 * mapSignalRangeX(size, point.getSignalRange());
+            final int signalRangeY = 2 * mapSignalRangeY(size, point.getSignalRange());
 
 
             // FIXME :: dirty hack
@@ -60,12 +59,16 @@ class LocationMainPanel extends JPanel {
 
             // print signal range
             g.setColor(Color.BLACK);
-            // FIXME :: scale signal RANGE!!!!
+
             g.drawOval(x - signalRangeX / 2 - 2, y - signalRangeX / 2 - 2, signalRangeX, signalRangeY);
 
             // print stored messages
-            String join = StringUtils.join(point.getMessageIdList().toArray(), "\n");
-            g.drawString(join, x + 10, y);
+            int i = 0;
+            for (MessageId messageId : point.getMessageIdList()) {
+                g.drawString(messageId.prettyToString(), x + 10, y + (11 * i));
+                i++;
+
+            }
         });
 
     }
@@ -73,13 +76,13 @@ class LocationMainPanel extends JPanel {
     private static final int GRID = 1000;
 
 
-    public static int mapX(Dimension size, Point point2D) {
-        Double x = point2D.getX() / GRID * size.getWidth() + size.getWidth() / 2;
+    public static int mapX(Dimension size, ViewEntity viewEntity2D) {
+        Double x = viewEntity2D.getX() / GRID * size.getWidth() + size.getWidth() / 2;
         return x.intValue();
     }
 
-    public static int mapY(Dimension size, Point point2D) {
-        Double y = (-1) * point2D.getY() / GRID * size.getHeight() + size.getHeight() / 2;
+    public static int mapY(Dimension size, ViewEntity viewEntity2D) {
+        Double y = (-1) * viewEntity2D.getY() / GRID * size.getHeight() + size.getHeight() / 2;
         return y.intValue();
     }
 

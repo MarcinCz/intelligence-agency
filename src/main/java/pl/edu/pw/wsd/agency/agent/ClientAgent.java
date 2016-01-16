@@ -3,7 +3,7 @@ package pl.edu.pw.wsd.agency.agent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientPropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.UserInputMessageBehaviour;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * @author Adrian Sidor
  */
-public class ClientAgent extends MovingAgent {
+public class ClientAgent extends PhysicalAgent {
 
     private static final long serialVersionUID = 8776284258546308595L;
 
@@ -43,12 +43,12 @@ public class ClientAgent extends MovingAgent {
     @Override
     protected void setup() {
         super.setup();
-        clientMessages = new LinkedList<ClientMessage>();
-        addBehaviour(new MoveBehaviour(this, mbp, false));
+        clientMessages = new LinkedList<>();
+        addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
         addBehaviour(new UserInputMessageBehaviour());
-        addBehaviour(new ClientPropagateMessageBehaviour(this, mbp));
+        addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
         addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-        addBehaviour(new RequestAgentsLocationBehaviour(this, mbp));
+        addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
     }
 
     public void queueClientMessage(ClientMessage cm) {

@@ -8,7 +8,7 @@ import javax.swing.*;
 /**
  * @author <a href="mailto:adam.papros@gmail.com">Adam Papros</a>
  */
-public class LocationFrame extends JFrame {
+public class AgencyJFrame extends JFrame {
 
     private LocationMainPanel mainPanel;
 
@@ -18,7 +18,7 @@ public class LocationFrame extends JFrame {
     }
 
 
-    public LocationFrame(Cache<AID, Point> agentsLocation) {
+    public AgencyJFrame(Cache<AID, ViewEntity> agentsLocation) {
         super("Agency");
         // tricky
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

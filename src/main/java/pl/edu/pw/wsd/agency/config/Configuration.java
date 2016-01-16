@@ -3,10 +3,12 @@ package pl.edu.pw.wsd.agency.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
-import jade.core.AID;
 import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.json.deserializer.Point2dDeserializer;
-import pl.edu.pw.wsd.agency.location.PhisicalDeviceLocation;
+import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdDeserializer;
+import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdSerializer;
+import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +29,14 @@ public class Configuration {
     /**
      * Agents location
      */
-    private Map<AID, PhisicalDeviceLocation> agentsLocation;
+    private Map<TransmitterId, PhysicalDeviceLocation> agentsLocation;
 
     private Configuration() {
         mapper = new ObjectMapper();
         SimpleModule simple = new SimpleModule();
         simple.addDeserializer(Point2D.class, new Point2dDeserializer());
+        simple.addKeyDeserializer(TransmitterId.class, new TransmitterIdDeserializer());
+        simple.addSerializer(TransmitterId.class, new TransmitterIdSerializer());
         mapper.registerModule(simple);
         mapper.registerModule(new JodaModule());
         agentsLocation = new HashMap<>();
@@ -54,7 +58,7 @@ public class Configuration {
     /**
      * @return
      */
-    public Map<AID, PhisicalDeviceLocation> getAgentsLocation() {
+    public Map<TransmitterId, PhysicalDeviceLocation> getAgentsLocation() {
         return agentsLocation;
     }
 
@@ -66,15 +70,15 @@ public class Configuration {
      * @param aid
      * @return
      */
-    public Map<AID, PhisicalDeviceLocation> getAgentsLocationWithout(AID aid) {
-        Map<AID, PhisicalDeviceLocation> agentsLocation = new HashMap<>();
+    public Map<TransmitterId, PhysicalDeviceLocation> getAgentsLocationWithout(TransmitterId aid) {
+        Map<TransmitterId, PhysicalDeviceLocation> agentsLocation = new HashMap<>();
         agentsLocation.putAll(this.agentsLocation);
         agentsLocation.remove(aid);
 
         return agentsLocation;
     }
 
-    public void updateAgentLocation(AID aid, PhisicalDeviceLocation location) {
+    public void updateAgentLocation(TransmitterId aid, PhysicalDeviceLocation location) {
         agentsLocation.put(aid, location);
     }
 }

@@ -17,8 +17,8 @@ import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.LocationFrame;
-import pl.edu.pw.wsd.agency.location.Point;
+import pl.edu.pw.wsd.agency.location.AgencyJFrame;
+import pl.edu.pw.wsd.agency.location.ViewEntity;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit;
  *
  * @author <a href="mailto:adam.papros@gmail.com">Adam Papros</a>
  */
-public class EntityLocationAgent extends Agent {
+public class ViewAgent extends Agent {
 
-    private Cache<AID, Point> entityLocationCache;
-    private LocationFrame locationFrame;
+    private Cache<AID, ViewEntity> entityLocationCache;
+    private AgencyJFrame agencyJFrame;
 
     public static final String CONVERSATION_ID = "Entity-Location";
     public static final String SERVICE_TYPE = "EntityRegistry";
@@ -41,14 +41,14 @@ public class EntityLocationAgent extends Agent {
 
     @Override
     protected void setup() {
-        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<AID, Point>() {
+        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<AID, ViewEntity>() {
             @Override
-            public void onRemoval(RemovalNotification<AID, Point> removalNotification) {
-                locationFrame.updateAgentsLocations();
+            public void onRemoval(RemovalNotification<AID, ViewEntity> removalNotification) {
+                agencyJFrame.updateAgentsLocations();
             }
         }).build();
 
-        locationFrame = new LocationFrame(entityLocationCache);
+        agencyJFrame = new AgencyJFrame(entityLocationCache);
 
         // create agent description and service description
         DFAgentDescription dfd = new DFAgentDescription();
@@ -64,34 +64,36 @@ public class EntityLocationAgent extends Agent {
             log.error("Could not register agent. Agent terminating");
             doDelete();
         }
-        addBehaviour(new EntitiesLocationServiceBehaviour());
-
+        addBehaviour(new RefreshingViewBehaviour(this));
     }
 
-
-    public void updateEntityLocation(AID aid, Point location) {
+    public void updateEntityLocation(AID aid, ViewEntity location) {
         entityLocationCache.put(aid, location);
-        locationFrame.updateAgentsLocations();
+        agencyJFrame.updateAgentsLocations();
     }
 
-    private class EntitiesLocationServiceBehaviour extends Behaviour {
+    private class RefreshingViewBehaviour extends Behaviour {
+
+        private final ViewAgent viewAgent;
+
+        RefreshingViewBehaviour(ViewAgent viewAgent) {
+            this.viewAgent = viewAgent;
+        }
 
         @Override
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
-            log.debug("Czekam na wiadomosc.");
+            log.trace("Czekam na wiadomosc.");
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
-                log.debug("Nowa wiadomość o lokalizacji");
-                EntityLocationAgent agent = (EntityLocationAgent) getAgent();
-
+                log.trace("Nowa wiadomość o lokalizacji");
                 if (msg.getPerformative() == ACLMessage.INFORM) {
                     String content = msg.getContent();
                     ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                     try {
-                        Point point = mapper.readValue(content, Point.class);
+                        ViewEntity viewEntity = mapper.readValue(content, ViewEntity.class);
                         AID sender = msg.getSender();
-                        agent.updateEntityLocation(sender, point);
+                        viewAgent.updateEntityLocation(sender, viewEntity);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
