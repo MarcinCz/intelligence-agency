@@ -3,7 +3,6 @@ package pl.edu.pw.wsd.agency.agent;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,8 +28,9 @@ public class ClientAgent extends MovingAgent {
     private int createStatusPeriod;
     private List<ClientMessage> clientMessages;
 
-    public ClientAgent(String propertiesFileName) {
-		super(propertiesFileName);
+    public ClientAgent(ClientAgentConfiguration config) {
+		super(config);
+		loadConfiguration(config);
 	}
     
     @Override
@@ -55,11 +55,9 @@ public class ClientAgent extends MovingAgent {
 		addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
 	}
     
-    @Override
-    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-    	super.loadConfiguration(propertiesFileName);
-    	ClientAgentConfiguration cfg = configProvider.getClientAgentConfiguration(propertiesFileName);
-    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
+    protected void loadConfiguration(ClientAgentConfiguration config) {
+    	super.loadConfiguration(config);
+    	createStatusPeriod = config.getCreateNewStatusPeriod();
     }
 
 /*    @Override

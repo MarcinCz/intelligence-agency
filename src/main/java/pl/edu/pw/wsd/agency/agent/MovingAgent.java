@@ -4,7 +4,6 @@ package pl.edu.pw.wsd.agency.agent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
@@ -17,9 +16,8 @@ import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 public class MovingAgent extends BaseAgent {
 
 	private static final long serialVersionUID = 851946783328690212L;
-
     private static final Logger log = LogManager.getLogger();
-    
+
     /**
      * List of Agents in range of this Agent
      */
@@ -68,8 +66,9 @@ public class MovingAgent extends BaseAgent {
         return new Point2D(posX, posY);
     }
     
-    public MovingAgent(String propertiesFileName) {
-		super(propertiesFileName);
+    public MovingAgent(MovingAgentConfiguration config) {
+		super();
+		loadConfiguration(config);
 	}
     
     @Override
@@ -77,12 +76,8 @@ public class MovingAgent extends BaseAgent {
         super.setup();
         log.info("Agent starting position: " + getPosition());
     }
-
-    //Doing it this way is really bad because configuration is loaded from file as many times as we override this method to get more specific configuration.
-    //Should be done with generics, but it works so it stays.
-    @Override
-    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-        MovingAgentConfiguration cfg = configProvider.getMovingAgentConfiguration(propertiesFileName);
+    
+    protected void loadConfiguration(MovingAgentConfiguration cfg) {
         mbp = cfg.getMoveBehaviourPeriod();
         path = cfg.getPath();
         speed = cfg.getSpeed();

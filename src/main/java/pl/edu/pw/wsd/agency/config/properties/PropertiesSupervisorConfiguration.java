@@ -1,10 +1,10 @@
-package pl.edu.pw.wsd.agency.config;
+package pl.edu.pw.wsd.agency.config.properties;
 
-import org.apache.commons.configuration.ConfigurationException;
+import pl.edu.pw.wsd.agency.config.SupervisorConfiguration;
 
-public class SupervisorConfigurationImpl extends MovingAgentConfigurationImpl implements SupervisorConfiguration {
+public class PropertiesSupervisorConfiguration extends PropertiesMovingAgentConfiguration implements SupervisorConfiguration {
 
-	public SupervisorConfigurationImpl(String propertiesFileName) throws ConfigurationException {
+	public PropertiesSupervisorConfiguration(String propertiesFileName) {
 		super(propertiesFileName);
 	}
 

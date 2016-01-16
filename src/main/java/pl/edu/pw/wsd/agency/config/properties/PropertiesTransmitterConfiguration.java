@@ -1,13 +1,13 @@
-package pl.edu.pw.wsd.agency.config;
+package pl.edu.pw.wsd.agency.config.properties;
 
-import org.apache.commons.configuration.ConfigurationException;
+import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
 
-public class TransmitterAgentConfigurationImpl extends MovingAgentConfigurationImpl implements TransmitterAgentConfiguration {
+public class PropertiesTransmitterConfiguration extends PropertiesMovingAgentConfiguration implements TransmitterConfiguration {
 
 	private static final String KEY_CREATE_STATUS_PERIOD = "period.create.status";
 	private static final String KEY_PROPAGATE_STATUS_PERIOD = "period.propagate.statuses";
 
-	public TransmitterAgentConfigurationImpl(String propertiesFileName) throws ConfigurationException {
+	public PropertiesTransmitterConfiguration(String propertiesFileName) {
 		super(propertiesFileName);
 	}
 	

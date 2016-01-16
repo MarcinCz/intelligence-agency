@@ -1,14 +1,8 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import pl.edu.pw.wsd.agency.config.AgentConfigurationProvider;
-import pl.edu.pw.wsd.agency.config.AgentConfigurationProviderImpl;
 import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
 
 /**
@@ -20,39 +14,11 @@ public abstract class BaseAgent extends Agent {
 
     private static final long serialVersionUID = 851946783328690212L;
 
-    protected AgentConfigurationProvider configProvider;
     private AgentStatistics statistics;
-    private String propertiesFileName;
 
-	private static final Logger log = LogManager.getLogger();
-
-	public BaseAgent(String propertiesFileName) {
-    	this(new AgentConfigurationProviderImpl());
-    	
+	public BaseAgent() {
     	this.statistics = new AgentStatistics();
-    	this.propertiesFileName = propertiesFileName;
 	}
-    
-    /**
-     * Use this constructor if you want to create Agent from code and set non-default configuration provider.
-     * Useful for tests.
-     * @param configProvider
-     */
-    public BaseAgent(AgentConfigurationProvider configProvider) {
-    	this.configProvider = configProvider;
-    }
-    
-    @Override
-    protected void setup() {
-        log.info("Agent starting.");
-        log.info("Loading configuration: " + propertiesFileName);
-        try {
-            loadConfiguration(propertiesFileName);
-        } catch (ConfigurationException e) {
-            log.info("Could not load configuration. Agent terminating", e);
-            doDelete();
-        }
-    }
     
     public AgentStatistics getAgentStatistics() {
 		return statistics;
@@ -78,7 +44,5 @@ public abstract class BaseAgent extends Agent {
     	super.send(message);
     	statistics.incrementMessagesSent();
     }
-
-	protected abstract void loadConfiguration(String propertiesFileName) throws ConfigurationException;
 	
 }

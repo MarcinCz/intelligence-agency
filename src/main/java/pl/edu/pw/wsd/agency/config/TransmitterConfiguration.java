@@ -1,6 +1,6 @@
 package pl.edu.pw.wsd.agency.config;
 
-public interface TransmitterAgentConfiguration extends MovingAgentConfiguration {
+public interface TransmitterConfiguration extends MovingAgentConfiguration {
 
 	int getCreateNewStatusPeriod();
 	int getPropagateStatusesPeriod();

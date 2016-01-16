@@ -1,12 +1,11 @@
-package pl.edu.pw.wsd.agency.config;
+package pl.edu.pw.wsd.agency.config.properties;
 
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
-
 import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 
-public class MovingAgentConfigurationImpl extends BaseAgentConfigurationImpl implements MovingAgentConfiguration {
+public class PropertiesMovingAgentConfiguration extends PropertiesBaseAgentConfiguration implements MovingAgentConfiguration {
 
 	private static final String KEY_PATH = "path";
 	private static final String KEY_SPEED = "speed";
@@ -16,7 +15,7 @@ public class MovingAgentConfigurationImpl extends BaseAgentConfigurationImpl imp
 
 	private static final String COORDINATE_SEPARATOR = ";";
 
-	public MovingAgentConfigurationImpl(String propertiesFileName) throws ConfigurationException {
+	public PropertiesMovingAgentConfiguration(String propertiesFileName) {
 		super(propertiesFileName);
 	}
 	

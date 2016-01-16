@@ -1,12 +1,13 @@
-package pl.edu.pw.wsd.agency.config;
+package pl.edu.pw.wsd.agency.config.properties;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import javafx.geometry.Point2D;
+import pl.edu.pw.wsd.agency.config.BaseAgentConfiguration;
 
-public class BaseAgentConfigurationImpl implements BaseAgentConfiguration {
+public class PropertiesBaseAgentConfiguration implements BaseAgentConfiguration {
 
 	protected final Configuration cfg;
 
@@ -14,8 +15,12 @@ public class BaseAgentConfigurationImpl implements BaseAgentConfiguration {
 	
 	private static final String POSITION_SEPARATOR = ";";
 
-	public BaseAgentConfigurationImpl(String propertiesFileName) throws ConfigurationException {
-		cfg = new PropertiesConfiguration(propertiesFileName);
+	public PropertiesBaseAgentConfiguration(String propertiesFileName) {
+		try {
+			cfg = new PropertiesConfiguration(propertiesFileName);
+		} catch (ConfigurationException e) {
+			throw new IllegalStateException("Could not load configuration from file [" + propertiesFileName + "]");
+		}
 	}
 	
 	@Override

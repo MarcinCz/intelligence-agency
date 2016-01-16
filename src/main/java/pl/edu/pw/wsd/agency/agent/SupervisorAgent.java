@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-
 import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
@@ -23,8 +21,9 @@ public class SupervisorAgent extends MovingAgent {
 	private int agentHeartbeatMaxPeriod;
 	private int requestAgentStatusesPeriod;
 	
-	public SupervisorAgent(String propertiesFileName) {
-		super(propertiesFileName);
+	public SupervisorAgent(SupervisorConfiguration config) {
+		super(config);
+		loadConfiguration(config);
 	}
 	
 	@Override
@@ -37,12 +36,10 @@ public class SupervisorAgent extends MovingAgent {
 		addBehaviour(new MoveBehaviour(this, mbp, false));
 	}
 
-	@Override
-	protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-		super.loadConfiguration(propertiesFileName);
-		SupervisorConfiguration cfg = configProvider.geSupervisorAgentConfiguration(propertiesFileName);
-		agentHeartbeatMaxPeriod = cfg.getAgentHeartbeatMaxPeriod();
-		requestAgentStatusesPeriod = cfg.getRequestStatusesPeriod();
+	protected void loadConfiguration(SupervisorConfiguration config) {
+		super.loadConfiguration(config);
+		agentHeartbeatMaxPeriod = config.getAgentHeartbeatMaxPeriod();
+		requestAgentStatusesPeriod = config.getRequestStatusesPeriod();
 	}
 
 	public int getAgentHeartbeatMaxPeriod() {

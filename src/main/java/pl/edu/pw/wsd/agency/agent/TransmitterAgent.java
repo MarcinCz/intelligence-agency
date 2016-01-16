@@ -3,7 +3,6 @@ package pl.edu.pw.wsd.agency.agent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +14,7 @@ import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
-import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
+import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 public class TransmitterAgent extends MovingAgent {
@@ -30,8 +29,9 @@ public class TransmitterAgent extends MovingAgent {
     private List<ACLMessage> clientMessages = new ArrayList<>();
     private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
     
-    public TransmitterAgent(String propertiesFileName) {
-		super(propertiesFileName);
+    public TransmitterAgent(TransmitterConfiguration config) {
+		super(config);
+		loadConfiguration(config);
 	}
     
     @Override
@@ -55,12 +55,10 @@ public class TransmitterAgent extends MovingAgent {
 		addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
 	}
 
-    @Override
-    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-    	super.loadConfiguration(propertiesFileName);
-    	TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
-    	createStatusPeriod = cfg.getCreateNewStatusPeriod();
-    	propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
+    protected void loadConfiguration(TransmitterConfiguration config) {
+    	super.loadConfiguration(config);
+    	createStatusPeriod = config.getCreateNewStatusPeriod();
+    	propagateStatusPeriod = config.getPropagateStatusesPeriod();
     }
     
 	public void addClientMessage(ACLMessage cm) {
