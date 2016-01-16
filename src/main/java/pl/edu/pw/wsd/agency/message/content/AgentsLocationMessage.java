@@ -10,7 +10,7 @@ import lombok.Setter;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdKeyDeserializer;
 import pl.edu.pw.wsd.agency.json.deserializer.TransmitterIdSerializer;
-import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
 
 import java.util.Map;
 
@@ -24,10 +24,10 @@ public class AgentsLocationMessage {
     @JsonDeserialize(keyUsing = TransmitterIdKeyDeserializer.class)
     @JsonSerialize(keyUsing = TransmitterIdSerializer.class)
 //    @JsonSerialize(keyUsing = Tra)
-    private Map<TransmitterId, PhysicalDeviceLocation> agentsLocation;
+    private Map<TransmitterId, PhysicalAgentLocation> agentsLocation;
 
     @JsonCreator
-    public AgentsLocationMessage(@JsonProperty("agents_placement") Map<TransmitterId, PhysicalDeviceLocation> agentsLocation) {
+    public AgentsLocationMessage(@JsonProperty("agents_placement") Map<TransmitterId, PhysicalAgentLocation> agentsLocation) {
         this.agentsLocation = agentsLocation;
     }
 

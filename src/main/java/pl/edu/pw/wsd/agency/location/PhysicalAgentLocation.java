@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PhysicalDeviceLocation {
+public class PhysicalAgentLocation {
 
     @JsonProperty
     private double x;
@@ -27,7 +27,7 @@ public class PhysicalDeviceLocation {
         return Math.sqrt(a * a + b * b);
     }
 
-    public double distance(PhysicalDeviceLocation other) {
+    public double distance(PhysicalAgentLocation other) {
         return distance(other.getX(), other.getY());
     }
 

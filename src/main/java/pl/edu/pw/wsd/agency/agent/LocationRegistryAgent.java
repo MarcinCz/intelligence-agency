@@ -17,7 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class LocationRegistryAgent extends Agent {
 
     private static final Logger log = LogManager.getLogger();
 
-    private Cache<TransmitterId, PhysicalDeviceLocation> agentsLocation;
+    private Cache<TransmitterId, PhysicalAgentLocation> agentsLocation;
 
     @Override
     protected void setup() {
@@ -76,15 +76,15 @@ public class LocationRegistryAgent extends Agent {
      * @param transmitterId
      * @return
      */
-    public Map<TransmitterId, PhysicalDeviceLocation> getAgentsLocationWithout(TransmitterId transmitterId) {
-        Map<TransmitterId, PhysicalDeviceLocation> agentsLocation = new HashMap<>();
+    public Map<TransmitterId, PhysicalAgentLocation> getAgentsLocationWithout(TransmitterId transmitterId) {
+        Map<TransmitterId, PhysicalAgentLocation> agentsLocation = new HashMap<>();
         agentsLocation.putAll(this.agentsLocation.asMap());
         agentsLocation.remove(transmitterId);
 
         return agentsLocation;
     }
 
-    public void updateAgentLocation(TransmitterId aid, PhysicalDeviceLocation location) {
+    public void updateAgentLocation(TransmitterId aid, PhysicalAgentLocation location) {
         agentsLocation.put(aid, location);
     }
 
@@ -129,7 +129,7 @@ public class LocationRegistryAgent extends Agent {
                     String content = msg.getContent();
                     ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                     try {
-                        PhysicalDeviceLocation position = mapper.readValue(content, PhysicalDeviceLocation.class);
+                        PhysicalAgentLocation position = mapper.readValue(content, PhysicalAgentLocation.class);
                         AID sender = msg.getSender();
                         locationRegistryAgent.updateAgentLocation(new TransmitterId(sender), position);
                     } catch (IOException e) {

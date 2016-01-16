@@ -10,7 +10,7 @@ import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
@@ -49,11 +49,11 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
                 ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
 
                 AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
-                Map<TransmitterId, PhysicalDeviceLocation> al = alm.getAgentsLocation();
+                Map<TransmitterId, PhysicalAgentLocation> al = alm.getAgentsLocation();
 
                 List<TransmitterId> agentsInRange = new ArrayList<>();
-                for (Entry<TransmitterId, PhysicalDeviceLocation> entry : al.entrySet()) {
-                    PhysicalDeviceLocation location = entry.getValue();
+                for (Entry<TransmitterId, PhysicalAgentLocation> entry : al.entrySet()) {
+                    PhysicalAgentLocation location = entry.getValue();
                     if (amIInRange(location)) {
                         // create transmitter id with local nam
                         // FIXME
@@ -84,7 +84,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
      * @param location
      * @return
      */
-    private boolean amIInRange(PhysicalDeviceLocation location) {
+    private boolean amIInRange(PhysicalAgentLocation location) {
         double distance = physicalAgent.getLocation().distance(location);
         return distance <= location.getSignalRange();
     }

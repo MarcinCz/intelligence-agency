@@ -11,7 +11,7 @@ import org.joda.time.DateTime;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public abstract class PhysicalAgent extends BaseAgent {
      */
     public abstract Set<MessageId> getStoredMessageId();
 
-    private PhysicalDeviceLocation location;
+    private PhysicalAgentLocation location;
 
     /**
      * List of Agents in range of this Agent
@@ -91,7 +91,7 @@ public abstract class PhysicalAgent extends BaseAgent {
         agentDirection = cfg.getAgentDirection();
         int spi = cfg.getStartingPositionIndex();
         Point2D startingPoint = cfg.getStartingPosition();
-        location = new PhysicalDeviceLocation(startingPoint.getX(), startingPoint.getY(), cfg.getSignalRange());
+        location = new PhysicalAgentLocation(startingPoint.getX(), startingPoint.getY(), cfg.getSignalRange());
         // set current target point
         if (agentDirection) {
             if (spi == path.length) {

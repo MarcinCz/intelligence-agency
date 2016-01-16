@@ -41,7 +41,7 @@ public class ViewEntity {
         this(point.getX(), point.getY(), signalRange);
     }
 
-    public ViewEntity(PhysicalDeviceLocation l) {
+    public ViewEntity(PhysicalAgentLocation l) {
         this(l.getX(), l.getY(), l.getSignalRange());
     }
 

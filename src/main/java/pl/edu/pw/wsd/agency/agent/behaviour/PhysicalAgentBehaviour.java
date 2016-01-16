@@ -17,7 +17,7 @@ import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.PhysicalDeviceLocation;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
 import pl.edu.pw.wsd.agency.location.ViewEntity;
 
 /**
@@ -83,7 +83,7 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
         if (locationRegistry != null) {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
             msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
-            PhysicalDeviceLocation location = agent.getLocation();
+            PhysicalAgentLocation location = agent.getLocation();
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content;
             try {
