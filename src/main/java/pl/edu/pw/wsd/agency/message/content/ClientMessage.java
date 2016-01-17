@@ -1,36 +1,31 @@
 package pl.edu.pw.wsd.agency.message.content;
 
-import org.joda.time.DateTime;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import pl.edu.pw.wsd.agency.location.MessageId;
 
+@Data
 public class ClientMessage {
 
-    @JsonProperty("end-client") 
+    @JsonProperty("message_id")
+    private MessageId messageId;
+    @JsonProperty("end_client")
     private String endClient;
-    @JsonProperty("message") 
+    @JsonProperty("message")
     private String message;
-    @JsonProperty("message-life") 
-    private DateTime messageLife;
-    
+    @JsonProperty("message_life")
+    private long messageLife;
+
     @JsonCreator
-    public ClientMessage(@JsonProperty("end-client") String endClient,@JsonProperty("message") String message,@JsonProperty("message-life") DateTime messageLife) {
+    public ClientMessage(@JsonProperty("message_id") MessageId messageId,
+                         @JsonProperty("end_client") String endClient,
+                         @JsonProperty("message") String message,
+                         @JsonProperty("message_life") long messageLife) {
+        this.messageId = messageId;
         this.endClient = endClient;
         this.message = message;
         this.messageLife = messageLife;
-    }
-
-    public String getEndClient() {
-        return endClient;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public DateTime getMessageLife() {
-        return messageLife;
     }
 
 }

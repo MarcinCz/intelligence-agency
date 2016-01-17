@@ -1,7 +1,7 @@
 package pl.edu.pw.wsd.agency.container;
 
 import jade.core.Agent;
-import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
+import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ public class FrameContainer extends RunnableContainer {
     @Override
     public List<Agent> getAgentsToRun() {
         List<Agent> list = new ArrayList<>();
-        list.add(new EntityLocationAgent());
+        list.add(new ViewAgent());
         return list;
     }
 }

@@ -1,52 +1,52 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.google.common.base.Preconditions;
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import javafx.geometry.Point2D;
-import pl.edu.pw.wsd.agency.agent.EntityLocationAgent;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
+import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
+import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
+import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
+import pl.edu.pw.wsd.agency.location.ViewEntity;
 
 /**
  * Simulates Agents moving.
  *
  * @author Adrian Sidor
  */
-public class MoveBehaviour extends TickerBehaviour {
+public class PhysicalAgentBehaviour extends TickerBehaviour {
+    @Getter
+    private PhysicalAgent physicalAgent;
 
-    public MoveBehaviour(Agent a, long period, boolean save) {
-        super(a, period);
-        this.save = save;
+    public PhysicalAgentBehaviour(PhysicalAgent physicalAgent, long period, boolean save) {
+        super(physicalAgent, period);
+        Preconditions.checkNotNull(physicalAgent);
+        this.physicalAgent = physicalAgent;
     }
 
     private static final long serialVersionUID = -8221711531932126745L;
 
     private static final Logger log = LogManager.getLogger();
 
-    private boolean save;
-
     @Override
     protected void onTick() {
-        MovingAgent agent = (MovingAgent) getAgent();
+        PhysicalAgent agent = physicalAgent;
         updatePosition(agent);
-        if (save) {
-            sendInfoToLocationRegistry(agent);
-        }
+        sendInfoToLocationRegistry(agent);
 
         sendInfoToEntityLocationRegistry(agent);
-        log.trace("Agent moved:" + agent.getPosition());
+        log.trace("Agent moved:" + agent.getLocation());
         log.trace("Agent target: " + agent.getCurrentTarget());
     }
 
@@ -56,35 +56,8 @@ public class MoveBehaviour extends TickerBehaviour {
      *
      * @param agent
      */
-    private void updatePosition(MovingAgent agent) {
-        double direction = getDirection(agent);
-        log.trace("Direction: " + direction);
-        double speed = agent.getSpeed();
-        agent.setX(agent.getX() + (speed * Math.cos(direction)));
-        agent.setY(agent.getY() + (speed * Math.sin(direction)));
-        Point2D target = agent.getCurrentTarget();
-        double distance = target.distance(agent.getPosition());
-        log.trace("Distance: " + distance);
-        if (distance < speed) {
-            Point2D[] path = agent.getPath();
-            int tpi = agent.getTargetPointNumber();
-            if (agent.getDirection()) {
-                if (tpi == path.length - 1) {
-                    agent.decrementTargetPointNumber();
-                    agent.setDirection(false);
-                } else {
-                    agent.incrementTargetPointNumber();
-                }
-            } else {
-                if (tpi == 0) {
-                    agent.incrementTargetPointNumber();
-                    agent.setDirection(true);
-                } else {
-                    agent.decrementTargetPointNumber();
-                }
-            }
-            log.trace("Moving to next target: " + agent.getCurrentTarget());
-        }
+    private void updatePosition(PhysicalAgent agent) {
+        agent.updatePosition();
     }
 
     /**
@@ -92,11 +65,11 @@ public class MoveBehaviour extends TickerBehaviour {
      *
      * @param agent
      */
-    private void sendInfoToLocationRegistry(MovingAgent agent) {
+    private void sendInfoToLocationRegistry(PhysicalAgent agent) {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
-        sd.setType("Registry");
-        sd.setName("LocationRegistry");
+        sd.setType(LocationRegistryAgent.SERVICE_TYPE);
+        sd.setName(LocationRegistryAgent.SERVICE_NAME);
         template.addServices(sd);
         AID locationRegistry = null;
         try {
@@ -109,12 +82,12 @@ public class MoveBehaviour extends TickerBehaviour {
         }
         if (locationRegistry != null) {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setConversationId("Agents-Location");
-            Point2D position = agent.getPosition();
+            msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
+            PhysicalAgentLocation location = agent.getLocation();
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content;
             try {
-                content = mapper.writeValueAsString(position);
+                content = mapper.writeValueAsString(location);
                 msg.setContent(content);
                 msg.addReceiver(locationRegistry);
                 agent.send(msg);
@@ -125,11 +98,11 @@ public class MoveBehaviour extends TickerBehaviour {
         }
     }
 
-    private void sendInfoToEntityLocationRegistry(MovingAgent agent) {
+    private void sendInfoToEntityLocationRegistry(PhysicalAgent agent) {
         DFAgentDescription template = new DFAgentDescription();
         ServiceDescription sd = new ServiceDescription();
-        sd.setType(EntityLocationAgent.SERVICE_TYPE);
-        sd.setName(EntityLocationAgent.SERVICE_NAME);
+        sd.setType(ViewAgent.SERVICE_TYPE);
+        sd.setName(ViewAgent.SERVICE_NAME);
         template.addServices(sd);
         AID locationRegistry = null;
         try {
@@ -142,12 +115,16 @@ public class MoveBehaviour extends TickerBehaviour {
         }
         if (locationRegistry != null) {
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setConversationId(EntityLocationAgent.CONVERSATION_ID);
-            Point2D position = agent.getPosition();
+            msg.setConversationId(ViewAgent.CONVERSATION_ID);
+
+            // create viewEntity
+            ViewEntity viewEntity = new ViewEntity(agent.getLocation());
+            viewEntity.setMessageIdList(agent.getStoredMessageId());
+
             ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
             String content;
             try {
-                content = mapper.writeValueAsString(position);
+                content = mapper.writeValueAsString(viewEntity);
                 msg.setContent(content);
                 msg.addReceiver(locationRegistry);
                 agent.send(msg);
@@ -159,12 +136,5 @@ public class MoveBehaviour extends TickerBehaviour {
         }
     }
 
-    private double getDirection(MovingAgent agent) {
-        Point2D target = agent.getCurrentTarget();
-        double deltaX = target.getX() - agent.getX();
-        double deltaY = target.getY() - agent.getY();
-
-        return Math.atan2(deltaY, deltaX);
-    }
 
 }

@@ -1,17 +1,17 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
 /**
- *	Behaviour for receiving all the messages from other agents.
- *	Messages are saved in transmitter for later propagation or other actions.
+ * Behaviour for receiving all the messages from other agents.
+ * Messages are saved in transmitter for later propagation or other actions.
  */
 public class TransmitterReceiveMessageBehaviour extends Behaviour {
 
@@ -19,33 +19,34 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final String LANGUAGE = "JSON";
+    private TransmitterAgent transmitterAgent;
 
-    private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
+    public TransmitterReceiveMessageBehaviour(TransmitterAgent transmitterAgent) {
+        super(transmitterAgent);
+        this.transmitterAgent = transmitterAgent;
+    }
 
     @Override
     public void action() {
-        MessageTemplate mt2 = MessageTemplate.and(
-                MessageTemplate.MatchPerformative(PERFORMATIVE), 
-                MessageTemplate.MatchLanguage(LANGUAGE));
-        /*MessageTemplate mt = MessageTemplate.and(
-                MessageTemplate.MatchConversationId(CONVERSATION_ID), 
-                mt2);*/
-        TransmitterAgent agent = (TransmitterAgent) myAgent;
-        ACLMessage msg = agent.receiveAndUpdateStatistics(mt2);
+        MessageTemplate template = MessageTemplate.and(
+                MessageTemplate.MatchPerformative(ACLMessage.PROPAGATE),
+                MessageTemplate.MatchLanguage(Language.JSON));
+
+        TransmitterAgent agent = transmitterAgent;
+        ACLMessage msg = agent.receiveAndUpdateStatistics(template);
         if (msg != null) {
-        	switch(ConversationId.resolveConversationType(msg.getConversationId())) {
-        	case PROPAGATE_AGENT_STATUS:
-        		agent.addAgentStatusMessage(msg);
-        		log.debug("Transmitter received new agent status from [" + msg.getSender().getLocalName() + "]");
-        		break;
-        	case CLIENT_MESSAGE:
-        		agent.addClientMessage(msg);
-        		log.debug("Transmitter received new client message.");
-        		break;
-        	default:
-        		log.warn("Unknown conversation type for conversation id [" + msg.getConversationId() + "]");
-        	}
+            switch (ConversationId.resolveConversationType(msg.getConversationId())) {
+                case PROPAGATE_AGENT_STATUS:
+                    agent.addAgentStatusMessage(msg);
+                    log.debug("Transmitter received new agent status.");
+                    break;
+                case CLIENT_MESSAGE:
+                    agent.addNewClientMessage(msg);
+                    log.debug("Transmitter received new client message.");
+                    break;
+                default:
+                    throw new IllegalStateException("Unknown conversation type for conversation id [" + msg.getConversationId() + "]");
+            }
         } else {
             block();
         }
@@ -54,7 +55,6 @@ public class TransmitterReceiveMessageBehaviour extends Behaviour {
 
     @Override
     public boolean done() {
-        // TODO Auto-generated method stub
         return false;
     }
 

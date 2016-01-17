@@ -1,20 +1,20 @@
 package pl.edu.pw.wsd.agency.container.launcher;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.config.ContainerConfig;
 
 /**
  * Base class for container launcher.
  * It creates new containers based on container properties.
+ *
  * @author marcin.czerwinski
  *
  */
@@ -31,7 +31,7 @@ public class ContainerLauncher {
 		}
 		jadeRuntime.createMainContainer(profile);
 	}
-	
+
 	public static void runMainContainer() {
 		runMainContainer(true);
 	}
@@ -50,7 +50,7 @@ public class ContainerLauncher {
 
 		for(Agent agent: container.getAgentsToRun()) {
 			try {
-				String agentName = agent.getClass().getSimpleName() + "-" + RandomStringUtils.randomAlphanumeric(8);
+				String agentName = agent.getClass().getSimpleName() + "_" + RandomStringUtils.randomNumeric(4);
 				AgentController agentController = c.acceptNewAgent(agentName, agent);
 				agentController.start();
 				log.debug("Added agent [" + agentName + "]");

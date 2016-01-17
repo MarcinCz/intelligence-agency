@@ -1,27 +1,29 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jade.core.behaviours.Behaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
+import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
+import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import jade.core.AID;
-import jade.core.behaviours.Behaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-import jade.lang.acl.UnreadableException;
-import javafx.geometry.Point2D;
-import pl.edu.pw.wsd.agency.agent.MovingAgent;
-
 /**
  * Behaviour that receive massage from LocationRegistry Agent about all Agents Positions.
  * Based on that information checks what Agents are in range.
- * 
- * @author Adrian Sidor
  *
+ * @author Adrian Sidor
  */
 public class ReceiveAgentsLocationBehaviour extends Behaviour {
 
@@ -29,28 +31,40 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private double range = 3;
+    private PhysicalAgent physicalAgent;
+
+    public ReceiveAgentsLocationBehaviour(PhysicalAgent physicalAgent) {
+        super(physicalAgent);
+        this.physicalAgent = physicalAgent;
+    }
 
     @Override
     public void action() {
-        MessageTemplate mt = MessageTemplate.MatchConversationId("Agents-Location");
-        MovingAgent agent = (MovingAgent) getAgent();
-        ACLMessage msg = agent.receive(mt);
+        MessageTemplate mt = MessageTemplate.MatchConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
+        PhysicalAgent agent = physicalAgent;
+        ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
         if (msg != null) {
             try {
-                Map<AID, java.awt.geom.Point2D> al = (Map<AID, java.awt.geom.Point2D>) msg.getContentObject();
-                List<AID> agentsInRange = new ArrayList<AID>();
-                for (Entry<AID, java.awt.geom.Point2D> entry : al.entrySet()) {
-                    java.awt.geom.Point2D value = entry.getValue();
-					Point2D location = new Point2D(value.getX(), value.getY());
-                    if (isInRange(location)) {
+                String content = msg.getContent();
+                ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+
+                AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
+                Map<TransmitterId, PhysicalAgentLocation> al = alm.getAgentsLocation();
+
+                List<TransmitterId> agentsInRange = new ArrayList<>();
+                for (Entry<TransmitterId, PhysicalAgentLocation> entry : al.entrySet()) {
+                    PhysicalAgentLocation location = entry.getValue();
+                    if (amIInRange(location)) {
+                        // create transmitter id with local nam
+                        // FIXME
                         agentsInRange.add(entry.getKey());
                     }
                 }
                 agent.setAgentsInRange(agentsInRange);
-                log.debug("Agents in range: " + agent.getAgentsInRange());
-            } catch (UnreadableException e) {
-                // TODO Auto-generated catch block
+                if (log.isDebugEnabled()) {
+                    log.debug(agentsInRange.size() + " agents in range: " + agentsInRange);
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
@@ -66,19 +80,13 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 
     /**
      * Checks if two points are in range.
-     * 
+     *
      * @param location
      * @return
      */
-    private boolean isInRange(Point2D location) {
-        MovingAgent agent = (MovingAgent) this.getAgent();
-        Point2D agentPosition = agent.getPosition();
-        double distance = agentPosition.distance(location);
-        if (distance > range) {
-            return false;
-        } else {
-            return true;
-        }
+    private boolean amIInRange(PhysicalAgentLocation location) {
+        double distance = physicalAgent.getLocation().distance(location);
+        return distance <= location.getSignalRange();
     }
 
 }

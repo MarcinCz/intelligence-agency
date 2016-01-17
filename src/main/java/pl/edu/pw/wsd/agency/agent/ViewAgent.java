@@ -1,37 +1,38 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import javafx.geometry.Point2D;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.visualization.LocationFrame;
+import pl.edu.pw.wsd.agency.location.AgencyJFrame;
+import pl.edu.pw.wsd.agency.location.ViewEntity;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Store location of ALL entities in system ( transmitters and clients0
  *
  * @author <a href="mailto:adam.papros@gmail.com">Adam Papros</a>
  */
-public class EntityLocationAgent extends Agent {
+public class ViewAgent extends Agent {
 
-    private Map<AID, Point2D> entityLocationMap;
-
-    private LocationFrame locationFrame;
+    private Cache<TransmitterId, ViewEntity> entityLocationCache;
+    private AgencyJFrame agencyJFrame;
 
     public static final String CONVERSATION_ID = "Entity-Location";
     public static final String SERVICE_TYPE = "EntityRegistry";
@@ -41,10 +42,15 @@ public class EntityLocationAgent extends Agent {
 
     @Override
     protected void setup() {
+        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<TransmitterId, ViewEntity>() {
+            @Override
+            public void onRemoval(RemovalNotification<TransmitterId, ViewEntity> removalNotification) {
+                agencyJFrame.updateAgentsLocations();
+            }
+        }).build();
 
-        entityLocationMap = new HashMap<>();
-        locationFrame = new LocationFrame(entityLocationMap);
-        
+        agencyJFrame = new AgencyJFrame(entityLocationCache);
+
         // create agent description and service description
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -59,17 +65,21 @@ public class EntityLocationAgent extends Agent {
             log.error("Could not register agent. Agent terminating");
             doDelete();
         }
-        addBehaviour(new EntitiesLocationServiceBehaviour());
-
+        addBehaviour(new RefreshingViewBehaviour(this));
     }
 
-
-    public void updateEntityLocation(AID aid, Point2D location) {
-        entityLocationMap.put(aid, location);
-        locationFrame.updateAgentsLocations();
+    public void updateEntityLocation(TransmitterId transmitterId, ViewEntity location) {
+        entityLocationCache.put(transmitterId, location);
+        agencyJFrame.updateAgentsLocations();
     }
 
-    private class EntitiesLocationServiceBehaviour extends Behaviour {
+    private class RefreshingViewBehaviour extends Behaviour {
+
+        private final ViewAgent viewAgent;
+
+        RefreshingViewBehaviour(ViewAgent viewAgent) {
+            this.viewAgent = viewAgent;
+        }
 
         @Override
         public void action() {
@@ -78,15 +88,13 @@ public class EntityLocationAgent extends Agent {
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
                 log.trace("Nowa wiadomość o lokalizacji");
-                EntityLocationAgent agent = (EntityLocationAgent) getAgent();
-
                 if (msg.getPerformative() == ACLMessage.INFORM) {
                     String content = msg.getContent();
                     ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                     try {
-                        Point2D position = mapper.readValue(content, Point2D.class);
+                        ViewEntity viewEntity = mapper.readValue(content, ViewEntity.class);
                         AID sender = msg.getSender();
-                        agent.updateEntityLocation(sender, position);
+                        viewAgent.updateEntityLocation(new TransmitterId(sender), viewEntity);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

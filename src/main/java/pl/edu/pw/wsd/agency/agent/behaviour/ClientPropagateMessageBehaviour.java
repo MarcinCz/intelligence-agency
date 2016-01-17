@@ -1,22 +1,19 @@
 package pl.edu.pw.wsd.agency.agent.behaviour;
 
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.ClientAgent;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
+
+import java.util.List;
 
 public class ClientPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -24,35 +21,33 @@ public class ClientPropagateMessageBehaviour extends TickerBehaviour {
 
     private static final Logger log = LogManager.getLogger();
 
-    private static final int PERFORMATIVE = ACLMessage.PROPAGATE;
+    private ClientAgent clientAgent;
 
-    public ClientPropagateMessageBehaviour(Agent a, long period) {
-        super(a, period);
+    public ClientPropagateMessageBehaviour(ClientAgent clientAgent, long period) {
+        super(clientAgent, period);
+        this.clientAgent = clientAgent;
     }
 
     @Override
     public void onTick() {
-        ClientAgent agent = (ClientAgent) myAgent;
-        List<AID> transmitters = agent.getAgentsInRange();
-        if (!transmitters.isEmpty()) {
-            // we dont want to send message to all possible transmitters, only to one
-            // I choose the first on the list
-            AID receiver = transmitters.get(0);
-            List<ClientMessage> messages = agent.getClientMessages();
+        List<TransmitterId> transmitters = clientAgent.getAgentsInRange();
+
+        for (TransmitterId transmitterId : transmitters) {
+            List<ClientMessage> messages = clientAgent.getClientMessages();
             if (!messages.isEmpty()) {
-                // send one message by behaviour cycle or all ?
-                // I choosed one by behaviour cycle
+                // TODO :: jedna czy wszystkie?
                 ClientMessage message = messages.remove(0);
                 ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
                 try {
                     String content = mapper.writeValueAsString(message);
-                    ACLMessage aclm = new ACLMessage(PERFORMATIVE);
-                    aclm.addReceiver(receiver);
-                    aclm.setContent(content);
-                    aclm.setLanguage(Language.JSON);
-                    aclm.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
-                    agent.sendAndUpdateStatistics(aclm);
-                    log.info("Wyslalem wiadomosc do Transmitera");
+                    ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
+                    msg.addReceiver(transmitterId.toAID());
+                    msg.setContent(content);
+                    msg.setLanguage(Language.JSON);
+                    msg.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
+                    clientAgent.sendAndUpdateStatistics(msg);
+
+                    log.info("Wyslalem wiadomosc do Transmitera,{}", transmitterId);
                 } catch (JsonProcessingException e) {
                     log.error("Could not parse ClientMessage");
                     // we lost message this way because we removed it from the list

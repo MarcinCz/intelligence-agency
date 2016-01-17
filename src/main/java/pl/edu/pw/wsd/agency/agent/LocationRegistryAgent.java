@@ -1,37 +1,52 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import javafx.geometry.Point2D;
-import pl.edu.pw.wsd.agency.agent.behaviour.AgentsLocationServiceBehaviour;
+import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
+import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class LocationRegistryAgent extends Agent {
+
+    public static final String SERVICE_TYPE = "Registry";
+    public static final String SERVICE_NAME = "LocationRegistry";
+
+    public static final String LOCATION_CONVERSATION_ID = "Agents-Location";
 
     private static final long serialVersionUID = 6818961843348892572L;
 
     private static final Logger log = LogManager.getLogger();
 
-    private Map<AID, Point2D> agentsLocation;
+    private Cache<TransmitterId, PhysicalAgentLocation> agentsLocation;
 
     @Override
     protected void setup() {
-        setAgentsLocation(new HashMap<AID, Point2D>());
+        this.agentsLocation = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).build();
+
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
-        sd.setType("Registry");
-        sd.setName("LocationRegistry");
+        sd.setType(SERVICE_TYPE);
+        sd.setName(SERVICE_NAME);
         dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
@@ -41,7 +56,7 @@ public class LocationRegistryAgent extends Agent {
             doDelete();
         }
 
-        addBehaviour(new AgentsLocationServiceBehaviour());
+        addBehaviour(new AgentsLocationServiceBehaviour(this));
     }
 
     @Override
@@ -54,35 +69,81 @@ public class LocationRegistryAgent extends Agent {
         }
     }
 
-    public Map<AID, Point2D> getAgentsLocation() {
-        return agentsLocation;
-    }
-
     /**
      * Returns Agents Location information without information about Agent it ask for.
      * Agent doesn't need information about its  own location.
      *
-     * @param aid
+     * @param transmitterId
      * @return
      */
-    public HashMap<AID, java.awt.geom.Point2D> getAgentsLocationWithout(AID aid) {
-    	HashMap<AID, java.awt.geom.Point2D> agentsLocation = new HashMap<>();
-    	for (Entry<AID, Point2D> location : getAgentsLocation().entrySet()) {
-			Point2D value = location.getValue();
-			agentsLocation.put(location.getKey(), new java.awt.geom.Point2D.Double(value.getX(), value.getY()));
-		}
-        agentsLocation.remove(aid);
+    public Map<TransmitterId, PhysicalAgentLocation> getAgentsLocationWithout(TransmitterId transmitterId) {
+        Map<TransmitterId, PhysicalAgentLocation> agentsLocation = new HashMap<>();
+        agentsLocation.putAll(this.agentsLocation.asMap());
+        agentsLocation.remove(transmitterId);
 
         return agentsLocation;
     }
 
-    public void setAgentsLocation(Map<AID, Point2D> agentsLocation) {
-        this.agentsLocation = agentsLocation;
-    }
-
-    public void updateAgentLocation(AID aid, Point2D location) {
+    public void updateAgentLocation(TransmitterId aid, PhysicalAgentLocation location) {
         agentsLocation.put(aid, location);
     }
 
 
+    public static class AgentsLocationServiceBehaviour extends Behaviour {
+
+        private static final long serialVersionUID = 6320047876997878496L;
+
+        private static final Logger log = LogManager.getLogger();
+
+        private final LocationRegistryAgent locationRegistryAgent;
+
+        AgentsLocationServiceBehaviour(LocationRegistryAgent agent) {
+            this.locationRegistryAgent = agent;
+        }
+
+        @Override
+        public void action() {
+
+            MessageTemplate mt = MessageTemplate.MatchConversationId(LOCATION_CONVERSATION_ID);
+            log.trace("Czekam na wiadomosc");
+            ACLMessage msg = myAgent.receive(mt);
+            if (msg == null) {
+                block();
+            } else {
+
+                if (msg.getPerformative() == ACLMessage.REQUEST) {
+                    ACLMessage reply = msg.createReply();
+                    ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+                    TransmitterId tid = new TransmitterId(msg.getSender());
+                    AgentsLocationMessage alm = new AgentsLocationMessage(locationRegistryAgent.getAgentsLocationWithout(tid));
+                    try {
+                        String content = mapper.writeValueAsString(alm);
+                        reply.setContent(content);
+
+                    } catch (JsonProcessingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    locationRegistryAgent.send(reply);
+                } else if (msg.getPerformative() == ACLMessage.INFORM) {
+                    String content = msg.getContent();
+                    ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+                    try {
+                        PhysicalAgentLocation position = mapper.readValue(content, PhysicalAgentLocation.class);
+                        AID sender = msg.getSender();
+                        locationRegistryAgent.updateAgentLocation(new TransmitterId(sender), position);
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean done() {
+            return false;
+        }
+
+    }
 }

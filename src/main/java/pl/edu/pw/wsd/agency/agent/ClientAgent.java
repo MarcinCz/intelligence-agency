@@ -1,79 +1,82 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientPropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.MoveBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.UserInputMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientRequestDeliveryMessageBehaviour;
 import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Client Agent implementation.
- * @author Adrian Sidor
  *
+ * @author Adrian Sidor
  */
-public class ClientAgent extends MovingAgent {
+public class ClientAgent extends PhysicalAgent {
 
-	private static final long serialVersionUID = 8776284258546308595L;
+    private static final long serialVersionUID = 8776284258546308595L;
+
     private static final Logger log = LogManager.getLogger();
 
     private int createStatusPeriod;
+
     private List<ClientMessage> clientMessages;
 
-    public ClientAgent(ClientAgentConfiguration config) {
-		super(config);
-		loadConfiguration(config);
-	}
-    
+    @Override
+    public Set<MessageId> getStoredMessageId() {
+        Set<MessageId> collect = clientMessages.stream().
+                map(ClientMessage::getMessageId).
+                collect(Collectors.toSet());
+        return collect;
+    }
+
+    public ClientAgent(String propertiesFileName) {
+        super(propertiesFileName);
+    }
+
     @Override
     protected void setup() {
         super.setup();
-        clientMessages = new LinkedList<ClientMessage>();
-        addBehaviour(new MoveBehaviour(null, mbp, false));
-//        addBehaviour(new DetectAgentsBehaviour(this, mbp));
-        addBehaviour(new UserInputMessageBehaviour());
-        addBehaviour(new ClientPropagateMessageBehaviour(null, mbp));
-        addBehaviour(new ReceiveAgentsLocationBehaviour());
-        addBehaviour(new RequestAgentsLocationBehaviour(null, mbp));
-/*        addBehaviour(new MoveBehaviour(null, mbp, true));
-        addBehaviour(new DetectAgentsBehaviour(null, mbp));
-        // addBehaviour(new Receive());
-        addBehaviour(new PropagateMessageBehaviour(this, 1000));*/
+        clientMessages = new LinkedList<>();
+        addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
+        addBehaviour(new UserInputMessageBehaviour(this));
+        addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
+        addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
+        addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
+        addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+        addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
         addStatusesBehaviours();
     }
 
     private void addStatusesBehaviours() {
-		addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
-	}
-    
-    protected void loadConfiguration(ClientAgentConfiguration config) {
-    	super.loadConfiguration(config);
-    	createStatusPeriod = config.getCreateNewStatusPeriod();
+        addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
     }
 
-/*    @Override
-    protected void takeDown() {
-        try {
-            DFService.deregister(this);
-        } catch (FIPAException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }*/
-    
+    @Override
+    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
+        super.loadConfiguration(propertiesFileName);
+        ClientAgentConfiguration cfg = configProvider.getClientAgentConfiguration(propertiesFileName);
+        createStatusPeriod = cfg.getCreateNewStatusPeriod();
+    }
+
     public void queueClientMessage(ClientMessage cm) {
         clientMessages.add(cm);
     }
-    
+
     public List<ClientMessage> getClientMessages() {
         return clientMessages;
     }
