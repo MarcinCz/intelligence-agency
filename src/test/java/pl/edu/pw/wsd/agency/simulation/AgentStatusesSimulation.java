@@ -1,17 +1,6 @@
 package pl.edu.pw.wsd.agency.simulation;
 
-import jade.core.Agent;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import pl.edu.pw.wsd.agency.agent.ClientAgent;
-import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
-import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.agent.ViewAgent;
-import pl.edu.pw.wsd.agency.container.launcher.ContainerLauncher;
-import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
-import pl.edu.pw.wsd.agency.message.content.AgentStatus;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +8,27 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import jade.core.Agent;
+import pl.edu.pw.wsd.agency.agent.ClientAgent;
+import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
+import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.agent.ViewAgent;
+import pl.edu.pw.wsd.agency.config.properties.PropertiesClientAgentConfiguration;
+import pl.edu.pw.wsd.agency.config.properties.PropertiesSupervisorConfiguration;
+import pl.edu.pw.wsd.agency.config.properties.PropertiesTransmitterConfiguration;
+import pl.edu.pw.wsd.agency.container.launcher.ContainerLauncher;
+import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 /**
  * Test runs jade platform and checks if agent statuses functionality works
- *
  * @author marcin.czerwinski
+ *
  */
 @Ignore("Requires running jade platform")
 public class AgentStatusesSimulation {
@@ -39,10 +43,11 @@ public class AgentStatusesSimulation {
     @SuppressWarnings("serial")
     @Before
     public void setup() {
-        clientAgent = new ClientAgent("statusesSimulation/ClientAgent.properties");
-        transmitterAgent1 = new TransmitterAgent("statusesSimulation/transmitterAgent1.properties");
-        transmitterAgent2 = new TransmitterAgent("statusesSimulation/transmitterAgent2.properties");
-        supervisorAgent = new SupervisorAgent("statusesSimulation/supervisorAgent.properties") {
+
+        clientAgent = new ClientAgent(new PropertiesClientAgentConfiguration("statusesSimulation/ClientAgent.properties"));
+        transmitterAgent1 = new TransmitterAgent(new PropertiesTransmitterConfiguration("statusesSimulation/transmitterAgent1.properties"));
+        transmitterAgent2 = new TransmitterAgent(new PropertiesTransmitterConfiguration("statusesSimulation/transmitterAgent2.properties"));
+        supervisorAgent = new SupervisorAgent(new PropertiesSupervisorConfiguration("statusesSimulation/supervisorAgent.properties")) {
             @Override
             public void updateStatuses(List<AgentStatus> readAgentStatuses) {
                 super.updateStatuses(readAgentStatuses);

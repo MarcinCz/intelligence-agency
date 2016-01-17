@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
@@ -17,7 +16,7 @@ import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesReque
 import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterDeliverMessageBehaviour;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
-import pl.edu.pw.wsd.agency.config.TransmitterAgentConfiguration;
+import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
@@ -63,11 +62,13 @@ public class TransmitterAgent extends PhysicalAgent {
         return tmpSet;
     }
 
-    public TransmitterAgent(String propertiesFileName) {
-        super(propertiesFileName);
 
-    }
 
+    public TransmitterAgent(TransmitterConfiguration config) {
+		super(config);
+		loadConfiguration(config);
+	}
+    
     @Override
     protected void setup() {
         super.setup();
@@ -88,13 +89,16 @@ public class TransmitterAgent extends PhysicalAgent {
         addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
     }
 
-    @Override
-    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-        super.loadConfiguration(propertiesFileName);
-        TransmitterAgentConfiguration cfg = configProvider.getTransmitterAgentConfiguration(propertiesFileName);
-        createStatusPeriod = cfg.getCreateNewStatusPeriod();
-        propagateStatusPeriod = cfg.getPropagateStatusesPeriod();
+
+    protected void loadConfiguration(TransmitterConfiguration config) {
+    	super.loadConfiguration(config);
+    	createStatusPeriod = config.getCreateNewStatusPeriod();
+    	propagateStatusPeriod = config.getPropagateStatusesPeriod();
     }
+    
+//	public void addClientMessage(ACLMessage cm) {
+//        clientMessages.add(cm);
+//    }
 
     public void addNewClientMessage(ACLMessage cm) {
         clientMessages.put(cm, Sets.newHashSet());

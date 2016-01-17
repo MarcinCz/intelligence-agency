@@ -10,7 +10,7 @@ public class PropertiesTransmitterConfiguration extends PropertiesMovingAgentCon
 	public PropertiesTransmitterConfiguration(String propertiesFileName) {
 		super(propertiesFileName);
 	}
-	
+
 	@Override
 	public int getCreateNewStatusPeriod() {
 		return cfg.getInt(KEY_CREATE_STATUS_PERIOD);

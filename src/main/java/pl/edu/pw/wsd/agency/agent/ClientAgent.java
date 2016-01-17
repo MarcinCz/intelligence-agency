@@ -1,6 +1,5 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
@@ -27,57 +26,56 @@ import java.util.stream.Collectors;
  */
 public class ClientAgent extends PhysicalAgent {
 
-    private static final long serialVersionUID = 8776284258546308595L;
+	private static final long serialVersionUID = 8776284258546308595L;
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    private int createStatusPeriod;
+	private int createStatusPeriod;
 
-    private List<ClientMessage> clientMessages;
+	private List<ClientMessage> clientMessages;
 
-    @Override
-    public Set<MessageId> getStoredMessageId() {
-        Set<MessageId> collect = clientMessages.stream().
-                map(ClientMessage::getMessageId).
-                collect(Collectors.toSet());
-        return collect;
-    }
+	@Override
+	public Set<MessageId> getStoredMessageId() {
+		Set<MessageId> collect = clientMessages.stream().
+				map(ClientMessage::getMessageId).
+				collect(Collectors.toSet());
+		return collect;
+	}
 
-    public ClientAgent(String propertiesFileName) {
-        super(propertiesFileName);
-    }
+	public ClientAgent(ClientAgentConfiguration config) {
+		super(config);
+		loadConfiguration(config);
+	}
 
-    @Override
-    protected void setup() {
-        super.setup();
-        clientMessages = new LinkedList<>();
-        addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
-        addBehaviour(new UserInputMessageBehaviour(this));
-        addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
-        addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
-        addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
-        addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-        addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+	@Override
+	protected void setup() {
+		super.setup();
+		clientMessages = new LinkedList<>();
+		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
+		addBehaviour(new UserInputMessageBehaviour(this));
+		addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
+		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
-        addStatusesBehaviours();
-    }
+		addStatusesBehaviours();
+	}
 
-    private void addStatusesBehaviours() {
-        addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
-    }
+	private void addStatusesBehaviours() {
+		addBehaviour(new ClientCreateStatusBehaviour(this, createStatusPeriod));
+	}
 
-    @Override
-    protected void loadConfiguration(String propertiesFileName) throws ConfigurationException {
-        super.loadConfiguration(propertiesFileName);
-        ClientAgentConfiguration cfg = configProvider.getClientAgentConfiguration(propertiesFileName);
-        createStatusPeriod = cfg.getCreateNewStatusPeriod();
-    }
+	protected void loadConfiguration(ClientAgentConfiguration config) {
+		super.loadConfiguration(config);
+		createStatusPeriod = config.getCreateNewStatusPeriod();
+	}
 
-    public void queueClientMessage(ClientMessage cm) {
-        clientMessages.add(cm);
-    }
+	public void queueClientMessage(ClientMessage cm) {
+		clientMessages.add(cm);
+	}
 
-    public List<ClientMessage> getClientMessages() {
-        return clientMessages;
-    }
+	public List<ClientMessage> getClientMessages() {
+		return clientMessages;
+	}
 }
