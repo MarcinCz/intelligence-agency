@@ -6,8 +6,8 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.behaviour.*;
-import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterDeliverMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.*;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -68,7 +68,6 @@ public class TransmitterAgent extends PhysicalAgent {
 		addBehaviour(new TransmitterReceiveMessageBehaviour(this));
 		addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
 		addBehaviour(new TransmitterDeliverMessageBehaviour(this, moveBehaviourPeriod / 2));
-
 
 		addStatusesBehaviours();
 	}

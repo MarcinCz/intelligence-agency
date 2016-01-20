@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.physical;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

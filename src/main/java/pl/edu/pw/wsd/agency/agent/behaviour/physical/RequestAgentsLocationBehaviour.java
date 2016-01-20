@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.physical;
 
 import jade.core.AID;
 import jade.core.Agent;

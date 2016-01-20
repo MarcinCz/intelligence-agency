@@ -7,9 +7,9 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
-import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.physical.PhysicalAgentBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.physical.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.physical.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -93,6 +93,7 @@ public abstract class PhysicalAgent extends BaseAgent {
 		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, isClient));
 		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
 		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+
 	}
 
 	protected void loadConfiguration(MovingAgentConfiguration cfg) {

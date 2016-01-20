@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;

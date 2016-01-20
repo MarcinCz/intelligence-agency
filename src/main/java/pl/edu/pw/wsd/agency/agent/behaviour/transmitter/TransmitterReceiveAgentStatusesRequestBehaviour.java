@@ -1,16 +1,11 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
@@ -18,6 +13,9 @@ import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Receives request about stored agent statuses from supervisor
