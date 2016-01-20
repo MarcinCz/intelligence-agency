@@ -6,14 +6,7 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateAgentStatusBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterPropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveAgentStatusesRequestBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.*;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterDeliverMessageBehaviour;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
@@ -30,85 +23,78 @@ import java.util.Set;
 @Getter
 public class TransmitterAgent extends PhysicalAgent {
 
-    private static final long serialVersionUID = 4131616609061841238L;
+	private static final long serialVersionUID = 4131616609061841238L;
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    private int createStatusPeriod;
-    private int propagateStatusPeriod;
+	private int createStatusPeriod;
+	private int propagateStatusPeriod;
 
-    private Map<ACLMessage, Set<TransmitterId>> clientMessages = new HashMap<>();
+	private Map<ACLMessage, Set<TransmitterId>> clientMessages = new HashMap<>();
 
-    private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
+	private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
 
-    private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 
-    @Override
-    public Set<MessageId> getStoredMessageId() {
-        Set<MessageId> tmpSet = new HashSet<>();
-        Set<ACLMessage> aclMessages = clientMessages.keySet();
-        for (ACLMessage clientMessage : aclMessages) {
-            // FIXME :: OMG
-            String content = clientMessage.getContent();
-            try {
-                ClientMessage clientMessage1 = mapper.readValue(content, ClientMessage.class);
-                MessageId messageId = clientMessage1.getMessageId();
-                tmpSet.add(messageId);
-            } catch (IOException e) {
-                log.error("Could not read JSON=" + content, e);
-                e.printStackTrace();
-            }
-        }
-        return tmpSet;
-    }
+	@Override
+	public Set<MessageId> getStoredMessageId() {
+		Set<MessageId> tmpSet = new HashSet<>();
+		Set<ACLMessage> aclMessages = clientMessages.keySet();
+		for (ACLMessage clientMessage : aclMessages) {
+			// FIXME :: OMG
+			String content = clientMessage.getContent();
+			try {
+				ClientMessage clientMessage1 = mapper.readValue(content, ClientMessage.class);
+				MessageId messageId = clientMessage1.getMessageId();
+				tmpSet.add(messageId);
+			} catch (IOException e) {
+				log.error("Could not read JSON=" + content, e);
+				e.printStackTrace();
+			}
+		}
+		return tmpSet;
+	}
 
 
-
-    public TransmitterAgent(TransmitterConfiguration config) {
-		super(config);
+	public TransmitterAgent(TransmitterConfiguration config) {
+		super(config, false);
 		loadConfiguration(config);
 	}
-    
-    @Override
-    protected void setup() {
-        super.setup();
-        addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, true));
-        addBehaviour(new TransmitterReceiveMessageBehaviour(this));
-        addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-        addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
-        addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
-        addBehaviour(new TransmitterDeliverMessageBehaviour(this, moveBehaviourPeriod / 2));
+
+	@Override
+	protected void setup() {
+		super.setup();
+
+		addBehaviour(new TransmitterReceiveMessageBehaviour(this));
+		addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
+		addBehaviour(new TransmitterDeliverMessageBehaviour(this, moveBehaviourPeriod / 2));
 
 
-        addStatusesBehaviours();
-    }
+		addStatusesBehaviours();
+	}
 
-    private void addStatusesBehaviours() {
-        addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
-        addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
-        addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
-    }
+	private void addStatusesBehaviours() {
+		addBehaviour(new TransmitterPropagateAgentStatusBehaviour(this, propagateStatusPeriod));
+		addBehaviour(new TransmitterCreateStatusBehaviour(this, createStatusPeriod));
+		addBehaviour(new TransmitterReceiveAgentStatusesRequestBehaviour(this));
+	}
 
 
-    protected void loadConfiguration(TransmitterConfiguration config) {
-    	super.loadConfiguration(config);
-    	createStatusPeriod = config.getCreateNewStatusPeriod();
-    	propagateStatusPeriod = config.getPropagateStatusesPeriod();
-    }
-    
-//	public void addClientMessage(ACLMessage cm) {
-//        clientMessages.add(cm);
-//    }
+	protected void loadConfiguration(TransmitterConfiguration config) {
+		super.loadConfiguration(config);
+		createStatusPeriod = config.getCreateNewStatusPeriod();
+		propagateStatusPeriod = config.getPropagateStatusesPeriod();
+	}
 
-    public void addNewClientMessage(ACLMessage cm) {
-        clientMessages.put(cm, Sets.newHashSet());
-    }
+	public void addNewClientMessage(ACLMessage cm) {
+		clientMessages.put(cm, Sets.newHashSet());
+	}
 
-    public void addAgentStatusMessage(ACLMessage msg) {
-        agentStatusQueue.queueMessage(msg);
-    }
+	public void addAgentStatusMessage(ACLMessage msg) {
+		agentStatusQueue.queueMessage(msg);
+	}
 
-    public AgentStatusMessageQueue getAgentStatusQueue() {
-        return agentStatusQueue;
-    }
+	public AgentStatusMessageQueue getAgentStatusQueue() {
+		return agentStatusQueue;
+	}
 }

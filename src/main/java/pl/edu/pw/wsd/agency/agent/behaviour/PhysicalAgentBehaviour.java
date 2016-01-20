@@ -24,117 +24,118 @@ import pl.edu.pw.wsd.agency.location.ViewEntity;
  * Simulates Agents moving.
  *
  * @author Adrian Sidor
+ * @author Adam Papros
  */
 public class PhysicalAgentBehaviour extends TickerBehaviour {
-    @Getter
-    private PhysicalAgent physicalAgent;
 
-    public PhysicalAgentBehaviour(PhysicalAgent physicalAgent, long period, boolean save) {
-        super(physicalAgent, period);
-        Preconditions.checkNotNull(physicalAgent);
-        this.physicalAgent = physicalAgent;
-    }
+	@Getter
+	private final boolean isClient;
 
-    private static final long serialVersionUID = -8221711531932126745L;
+	@Getter
+	private PhysicalAgent physicalAgent;
 
-    private static final Logger log = LogManager.getLogger();
+	public PhysicalAgentBehaviour(PhysicalAgent physicalAgent, long period, boolean isClient) {
+		super(physicalAgent, period);
+		Preconditions.checkNotNull(physicalAgent);
+		this.physicalAgent = physicalAgent;
+		this.isClient = isClient;
+	}
 
-    @Override
-    protected void onTick() {
-        PhysicalAgent agent = physicalAgent;
-        updatePosition(agent);
-        sendInfoToLocationRegistry(agent);
+	private static final long serialVersionUID = -8221711531932126745L;
 
-        sendInfoToEntityLocationRegistry(agent);
-        log.trace("Agent moved:" + agent.getLocation());
-        log.trace("Agent target: " + agent.getCurrentTarget());
-    }
+	private static final Logger log = LogManager.getLogger();
 
-    /**
-     * Updates Agents Position.
-     * Agent is moving.
-     *
-     * @param agent
-     */
-    private void updatePosition(PhysicalAgent agent) {
-        agent.updatePosition();
-    }
+	@Override
+	protected void onTick() {
+		updatePosition();
+		sendInfoToLocationRegistry();
 
-    /**
-     * Agent sends information to LocationRegistry Agent about its new Position.
-     *
-     * @param agent
-     */
-    private void sendInfoToLocationRegistry(PhysicalAgent agent) {
-        DFAgentDescription template = new DFAgentDescription();
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType(LocationRegistryAgent.SERVICE_TYPE);
-        sd.setName(LocationRegistryAgent.SERVICE_NAME);
-        template.addServices(sd);
-        AID locationRegistry = null;
-        try {
-            DFAgentDescription[] result = DFService.search(myAgent, template);
-            if (result.length == 1) {
-                locationRegistry = result[0].getName();
-            }
-        } catch (FIPAException fe) {
-            fe.printStackTrace();
-        }
-        if (locationRegistry != null) {
-            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
-            PhysicalAgentLocation location = agent.getLocation();
-            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-            String content;
-            try {
-                content = mapper.writeValueAsString(location);
-                msg.setContent(content);
-                msg.addReceiver(locationRegistry);
-                agent.send(msg);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
+		sendInfoToEntityLocationRegistry();
+		log.trace("Agent moved:" + physicalAgent.getLocation());
+		log.trace("Agent target: " + physicalAgent.getCurrentTarget());
+	}
 
-        }
-    }
+	/**
+	 * Updates Agents Position.
+	 * Agent is moving.
+	 */
+	private void updatePosition() {
+		physicalAgent.updatePosition();
+	}
 
-    private void sendInfoToEntityLocationRegistry(PhysicalAgent agent) {
-        DFAgentDescription template = new DFAgentDescription();
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType(ViewAgent.SERVICE_TYPE);
-        sd.setName(ViewAgent.SERVICE_NAME);
-        template.addServices(sd);
-        AID locationRegistry = null;
-        try {
-            DFAgentDescription[] result = DFService.search(myAgent, template);
-            if (result.length == 1) {
-                locationRegistry = result[0].getName();
-            }
-        } catch (FIPAException fe) {
-            fe.printStackTrace();
-        }
-        if (locationRegistry != null) {
-            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setConversationId(ViewAgent.CONVERSATION_ID);
+	/**
+	 * Agent sends information to LocationRegistry Agent about its new Position.
+	 */
+	private void sendInfoToLocationRegistry() {
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType(LocationRegistryAgent.SERVICE_TYPE);
+		sd.setName(LocationRegistryAgent.SERVICE_NAME);
+		template.addServices(sd);
+		AID locationRegistry = null;
+		try {
+			DFAgentDescription[] result = DFService.search(myAgent, template);
+			if (result.length == 1) {
+				locationRegistry = result[0].getName();
+			}
+		} catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+		if (locationRegistry != null) {
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
+			PhysicalAgentLocation location = physicalAgent.getLocation();
+			ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+			String content;
+			try {
+				content = mapper.writeValueAsString(location);
+				msg.setContent(content);
+				msg.addReceiver(locationRegistry);
+				physicalAgent.send(msg);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
 
-            // create viewEntity
-            ViewEntity viewEntity = new ViewEntity(agent.getLocation());
-            viewEntity.setMessageIdList(agent.getStoredMessageId());
+		}
+	}
 
-            ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-            String content;
-            try {
-                content = mapper.writeValueAsString(viewEntity);
-                msg.setContent(content);
-                msg.addReceiver(locationRegistry);
-                agent.send(msg);
-            } catch (JsonProcessingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+	private void sendInfoToEntityLocationRegistry() {
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType(ViewAgent.SERVICE_TYPE);
+		sd.setName(ViewAgent.SERVICE_NAME);
+		template.addServices(sd);
+		AID locationRegistry = null;
+		try {
+			DFAgentDescription[] result = DFService.search(myAgent, template);
+			if (result.length == 1) {
+				locationRegistry = result[0].getName();
+			}
+		} catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+		if (locationRegistry != null) {
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setConversationId(ViewAgent.CONVERSATION_ID);
 
-        }
-    }
+			// create viewEntity
+			ViewEntity viewEntity = new ViewEntity(physicalAgent.getLocation());
+			viewEntity.setMessageIdList(physicalAgent.getStoredMessageId());
+
+			ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+			String content;
+			try {
+				content = mapper.writeValueAsString(viewEntity);
+				msg.setContent(content);
+				msg.addReceiver(locationRegistry);
+				physicalAgent.send(msg);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
 
 
 }

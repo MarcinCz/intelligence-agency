@@ -4,9 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientPropagateMessageBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.UserInputMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientRequestDeliveryMessageBehaviour;
@@ -36,14 +33,13 @@ public class ClientAgent extends PhysicalAgent {
 
 	@Override
 	public Set<MessageId> getStoredMessageId() {
-		Set<MessageId> collect = clientMessages.stream().
+		return clientMessages.stream().
 				map(ClientMessage::getMessageId).
 				collect(Collectors.toSet());
-		return collect;
 	}
 
 	public ClientAgent(ClientAgentConfiguration config) {
-		super(config);
+		super(config, true);
 		loadConfiguration(config);
 	}
 
@@ -51,13 +47,11 @@ public class ClientAgent extends PhysicalAgent {
 	protected void setup() {
 		super.setup();
 		clientMessages = new LinkedList<>();
-		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, false));
+
 		addBehaviour(new UserInputMessageBehaviour(this));
 		addBehaviour(new ClientPropagateMessageBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
-		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
 		addStatusesBehaviours();
 	}

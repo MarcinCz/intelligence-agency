@@ -7,6 +7,9 @@ import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -69,10 +72,17 @@ public abstract class PhysicalAgent extends BaseAgent {
 	private Point2D[] path;
 
 	/**
+	 * Flag that indicates if physical agent is client or not.
+	 */
+	private final boolean isClient;
+
+
+	/**
 	 * Constructor
 	 */
-	public PhysicalAgent(MovingAgentConfiguration config) {
+	protected PhysicalAgent(MovingAgentConfiguration config, boolean isClient) {
 		super();
+		this.isClient = isClient;
 		loadConfiguration(config);
 	}
 
@@ -80,6 +90,9 @@ public abstract class PhysicalAgent extends BaseAgent {
 	protected void setup() {
 		super.setup();
 		log.info("Agent starting position: " + location);
+		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, isClient));
+		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 	}
 
 	protected void loadConfiguration(MovingAgentConfiguration cfg) {

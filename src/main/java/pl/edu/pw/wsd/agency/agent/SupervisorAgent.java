@@ -1,10 +1,6 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import pl.edu.pw.wsd.agency.agent.behaviour.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorReceiveAgentStatuses;
-import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorRequestAgentStatuses;
+import pl.edu.pw.wsd.agency.agent.behaviour.*;
 import pl.edu.pw.wsd.agency.config.SupervisorConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
@@ -24,7 +20,7 @@ public class SupervisorAgent extends PhysicalAgent {
 	private int requestAgentStatusesPeriod;
 
 	public SupervisorAgent(SupervisorConfiguration config) {
-		super(config);
+		super(config, false);
 		loadConfiguration(config);
 	}
 
