@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
  * @author apapros
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class LocationRegistryData {
 
 	@JsonProperty
@@ -20,8 +20,14 @@ public class LocationRegistryData {
 	@JsonProperty("signal_range")
 	private double signalRange;
 	@JsonProperty("is_client")
-	private boolean isClient;
+	private Boolean isClient;
 
+	public LocationRegistryData(double x, double y, double signalRange, boolean isClient) {
+		this.x = x;
+		this.y = y;
+		this.signalRange = signalRange;
+		this.isClient = isClient;
+	}
 
 	public double distance(double x1, double y1) {
 		double a = getX() - x1;

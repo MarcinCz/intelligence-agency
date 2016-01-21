@@ -1,7 +1,6 @@
-package pl.edu.pw.wsd.agency.agent.behaviour.physical;
+package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 import jade.core.AID;
-import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -10,6 +9,10 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+
+import javax.xml.stream.Location;
 
 /**
  * Detects Agents that are in range.
@@ -18,7 +21,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class RequestAgentsLocationBehaviour extends TickerBehaviour {
 
-	public RequestAgentsLocationBehaviour(Agent a, long period) {
+	public RequestAgentsLocationBehaviour(TransmitterAgent a, long period) {
 		super(a, period);
 	}
 
@@ -28,25 +31,26 @@ public class RequestAgentsLocationBehaviour extends TickerBehaviour {
 
 	@Override
 	public void onTick() {
-		DFAgentDescription template = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType("Registry");
-		sd.setName("LocationRegistry");
-		template.addServices(sd);
-		AID locationRegistry = null;
 		try {
+			DFAgentDescription template = LocationRegistryAgent.createDfAgentDescription();
+
+			AID locationRegistry = null;
+
 			DFAgentDescription[] result = DFService.search(myAgent, template);
 			if (result.length == 1) {
 				locationRegistry = result[0].getName();
 			}
+
+			if (locationRegistry != null) {
+				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
+				msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
+				msg.addReceiver(locationRegistry);
+				myAgent.send(msg);
+			}
 		} catch (FIPAException fe) {
 			fe.printStackTrace();
-		}
-		if (locationRegistry != null) {
-			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.setConversationId("Agents-Location");
-			msg.addReceiver(locationRegistry);
-			myAgent.send(msg);
+			log.error("Could not resolve or send message to LocationRegistry!!!", fe);
 		}
 	}
+
 }

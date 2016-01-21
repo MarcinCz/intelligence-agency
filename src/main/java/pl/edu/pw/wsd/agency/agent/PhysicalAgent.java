@@ -8,8 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import pl.edu.pw.wsd.agency.agent.behaviour.physical.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.physical.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.physical.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -89,9 +89,7 @@ public abstract class PhysicalAgent extends BaseAgent {
 	protected void setup() {
 		super.setup();
 		log.info("Agent starting position: " + location);
-		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, location.isClient()));
-		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
-		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, location.getIsClient()));
 
 	}
 

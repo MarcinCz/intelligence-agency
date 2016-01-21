@@ -69,6 +69,13 @@ public class TransmitterAgent extends PhysicalAgent {
 		addBehaviour(new TransmitterPropagateMessageBehaviour(this, moveBehaviourPeriod / 2));
 		addBehaviour(new TransmitterDeliverMessageBehaviour(this, moveBehaviourPeriod / 2));
 
+		// ask client for messages
+		addBehaviour(new AskClientForMessagesBehaviour(this, moveBehaviourPeriod / 2));
+
+		// request-inform location service behaviours
+		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+
 		addStatusesBehaviours();
 	}
 

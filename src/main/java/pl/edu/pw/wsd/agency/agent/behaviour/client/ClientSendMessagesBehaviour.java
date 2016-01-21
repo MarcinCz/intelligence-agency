@@ -3,7 +3,7 @@ package pl.edu.pw.wsd.agency.agent.behaviour.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jade.core.AID;
-import jade.core.behaviours.TickerBehaviour;
+import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author Adam Papros
  */
-public class ClientSendMessagesBehaviour extends TickerBehaviour {
+public class ClientSendMessagesBehaviour extends Behaviour {
 
 	private static final long serialVersionUID = -4865095272921712993L;
 
@@ -38,17 +38,17 @@ public class ClientSendMessagesBehaviour extends TickerBehaviour {
 	/**
 	 * How many times every message will be sent.
 	 */
-	private static final int MAX_SEND = 5;
+	private static final int MAX_SEND = 25;
 
 	private ClientAgent clientAgent;
 
 	public ClientSendMessagesBehaviour(ClientAgent clientAgent, long period) {
-		super(clientAgent, period);
+		super(clientAgent);
 		this.clientAgent = clientAgent;
 	}
 
 	@Override
-	public void onTick() {
+	public void action() {
 		// message template
 		MessageTemplate t = MessageTemplate.MatchConversationId(CONVERSATION_ID);
 		// receive
@@ -65,7 +65,9 @@ public class ClientSendMessagesBehaviour extends TickerBehaviour {
 					response.setContent(content);
 					response.setLanguage(Language.JSON);
 					response.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
-					clientAgent.sendAndUpdateStatistics(msg);
+
+
+					clientAgent.sendAndUpdateStatistics(response);
 
 					log.info("Sent response to transmitter ,{}", sender);
 				} catch (JsonProcessingException e) {
@@ -79,6 +81,11 @@ public class ClientSendMessagesBehaviour extends TickerBehaviour {
 		} else {
 			block();
 		}
+	}
+
+	@Override
+	public boolean done() {
+		return false;
 	}
 
 	public List<ClientMessage> getFilteredMessages() {

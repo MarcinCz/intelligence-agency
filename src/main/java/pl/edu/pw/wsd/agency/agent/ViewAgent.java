@@ -31,82 +31,86 @@ import java.util.concurrent.TimeUnit;
  */
 public class ViewAgent extends Agent {
 
-    private Cache<PhysicalAgentId, ViewEntity> entityLocationCache;
-    private AgencyJFrame agencyJFrame;
+	private Cache<PhysicalAgentId, ViewEntity> entityLocationCache;
+	private AgencyJFrame agencyJFrame;
 
-    public static final String CONVERSATION_ID = "Entity-Location";
-    public static final String SERVICE_TYPE = "EntityRegistry";
-    public static final String SERVICE_NAME = "EntityLocationRegistry";
+	public static final String CONVERSATION_ID = "Entity-Location";
+	public static final String SERVICE_TYPE = "EntityRegistry";
+	public static final String SERVICE_NAME = "EntityLocationRegistry";
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    @Override
-    protected void setup() {
-        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<PhysicalAgentId, ViewEntity>() {
-            @Override
-            public void onRemoval(RemovalNotification<PhysicalAgentId, ViewEntity> removalNotification) {
-                agencyJFrame.updateAgentsLocations();
-            }
-        }).build();
+	@Override
+	protected void setup() {
+		entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<PhysicalAgentId, ViewEntity>() {
+			@Override
+			public void onRemoval(RemovalNotification<PhysicalAgentId, ViewEntity> removalNotification) {
+				agencyJFrame.updateAgentsLocations();
+			}
+		}).build();
 
-        agencyJFrame = new AgencyJFrame(entityLocationCache);
+		agencyJFrame = new AgencyJFrame(entityLocationCache);
+		DFAgentDescription dfd = createDfAgentDescription();
 
-        // create agent description and service description
-        DFAgentDescription dfd = new DFAgentDescription();
-        dfd.setName(getAID());
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType(SERVICE_TYPE);
-        sd.setName(SERVICE_NAME);
-        dfd.addServices(sd);
-        try {
-            DFService.register(this, dfd);
-        } catch (FIPAException e) {
-            e.printStackTrace();
-            log.error("Could not register agent. Agent terminating");
-            doDelete();
-        }
-        addBehaviour(new RefreshingViewBehaviour(this));
-    }
+		dfd.setName(getAID());
 
-    public void updateEntityLocation(PhysicalAgentId physicalAgentId, ViewEntity location) {
-        entityLocationCache.put(physicalAgentId, location);
-        agencyJFrame.updateAgentsLocations();
-    }
+		try {
+			DFService.register(this, dfd);
+		} catch (FIPAException e) {
+			e.printStackTrace();
+			log.error("Could not register agent. Agent terminating");
+			doDelete();
+		}
+		addBehaviour(new RefreshingViewBehaviour(this));
+	}
 
-    private class RefreshingViewBehaviour extends Behaviour {
+	public static DFAgentDescription createDfAgentDescription() {
+		// create agent description and service description
+		DFAgentDescription dfd = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType(SERVICE_TYPE);
+		sd.setName(SERVICE_NAME);
+		dfd.addServices(sd);
+		return dfd;
+	}
 
-        private final ViewAgent viewAgent;
+	public void updateEntityLocation(PhysicalAgentId physicalAgentId, ViewEntity location) {
+		entityLocationCache.put(physicalAgentId, location);
+		agencyJFrame.updateAgentsLocations();
+	}
 
-        RefreshingViewBehaviour(ViewAgent viewAgent) {
-            this.viewAgent = viewAgent;
-        }
+	private class RefreshingViewBehaviour extends Behaviour {
 
-        @Override
-        public void action() {
-            MessageTemplate mt = MessageTemplate.MatchConversationId(CONVERSATION_ID);
-            log.trace("Czekam na wiadomosc.");
-            ACLMessage msg = myAgent.receive(mt);
-            if (msg != null) {
-                log.trace("Nowa wiadomość o lokalizacji");
-                if (msg.getPerformative() == ACLMessage.INFORM) {
-                    String content = msg.getContent();
-                    ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-                    try {
-                        ViewEntity viewEntity = mapper.readValue(content, ViewEntity.class);
-                        AID sender = msg.getSender();
-                        viewAgent.updateEntityLocation(new PhysicalAgentId(sender), viewEntity);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                block();
-            }
-        }
+		private final ViewAgent viewAgent;
 
-        @Override
-        public boolean done() {
-            return false;
-        }
-    }
+		RefreshingViewBehaviour(ViewAgent viewAgent) {
+			this.viewAgent = viewAgent;
+		}
+
+		@Override
+		public void action() {
+			MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchConversationId(CONVERSATION_ID),
+					MessageTemplate.MatchPerformative(ACLMessage.INFORM));
+			ACLMessage msg = myAgent.receive(mt);
+			if (msg != null) {
+				log.trace("New view location message");
+				String content = msg.getContent();
+				ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+				try {
+					ViewEntity viewEntity = mapper.readValue(content, ViewEntity.class);
+					AID sender = msg.getSender();
+					viewAgent.updateEntityLocation(new PhysicalAgentId(sender), viewEntity);
+				} catch (IOException e) {
+					log.error("Could not process new ViewEntity message", e);
+				}
+			} else {
+				block();
+			}
+		}
+
+		@Override
+		public boolean done() {
+			return false;
+		}
+	}
 }

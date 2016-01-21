@@ -40,23 +40,17 @@ public class LocationRegistryAgent extends Agent {
 
 	@Override
 	protected void setup() {
-		this.agentsLocation = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).build();
-
-		DFAgentDescription dfd = new DFAgentDescription();
-		dfd.setName(getAID());
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType(SERVICE_TYPE);
-		sd.setName(SERVICE_NAME);
-		dfd.addServices(sd);
 		try {
+			this.agentsLocation = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.SECONDS).build();
+			DFAgentDescription dfd = createDfAgentDescription();
+			dfd.setName(getAID());
+
 			DFService.register(this, dfd);
+			addBehaviour(new AgentsLocationServiceBehaviour(this));
 		} catch (FIPAException e) {
-			e.printStackTrace();
-			log.error("Could not register agent. Agent terminating");
+			log.error("Could not register agent. Agent terminating", e);
 			doDelete();
 		}
-
-		addBehaviour(new AgentsLocationServiceBehaviour(this));
 	}
 
 	@Override
@@ -64,8 +58,7 @@ public class LocationRegistryAgent extends Agent {
 		try {
 			DFService.deregister(this);
 		} catch (FIPAException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Could not deregister LocationRegistry!!!", e);
 		}
 	}
 
@@ -107,28 +100,30 @@ public class LocationRegistryAgent extends Agent {
 			} else {
 
 				if (msg.getPerformative() == ACLMessage.REQUEST) {
-					ACLMessage reply = msg.createReply();
-					ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-					AgentsLocationMessage alm = new AgentsLocationMessage(locationRegistryAgent.getAgentsLocationWithout());
+					// new location request
 					try {
+						ACLMessage reply = msg.createReply();
+						ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
+						AgentsLocationMessage alm = new AgentsLocationMessage(locationRegistryAgent.getAgentsLocationWithout());
+
 						String content = mapper.writeValueAsString(alm);
 						reply.setContent(content);
 
+						locationRegistryAgent.send(reply);
 					} catch (JsonProcessingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("Could not process json", e);
 					}
-					locationRegistryAgent.send(reply);
-				} else if (msg.getPerformative() == ACLMessage.INFORM) {
-					String content = msg.getContent();
 
+				} else if (msg.getPerformative() == ACLMessage.INFORM) {
+					// new location data to store!
+
+					String content = msg.getContent();
 					try {
 						LocationRegistryData position = mapper.readValue(content, LocationRegistryData.class);
 						AID sender = msg.getSender();
 						locationRegistryAgent.updateAgentLocation(new PhysicalAgentId(sender), position);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("Could not process json", e);
 					}
 				}
 			}
@@ -139,5 +134,15 @@ public class LocationRegistryAgent extends Agent {
 			return false;
 		}
 
+	}
+
+
+	public static DFAgentDescription createDfAgentDescription() {
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType(LocationRegistryAgent.SERVICE_TYPE);
+		sd.setName(LocationRegistryAgent.SERVICE_NAME);
+		template.addServices(sd);
+		return template;
 	}
 }

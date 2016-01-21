@@ -7,7 +7,6 @@ import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
@@ -17,11 +16,11 @@ import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 import pl.edu.pw.wsd.agency.location.ViewEntity;
+import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 
 /**
- * Simulates Agents moving.
+ * Simulates Agents moving. Sends location data to LocationRegistry and ViewAgent.
  *
  * @author Adrian Sidor
  * @author Adam Papros
@@ -33,6 +32,8 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 
 	@Getter
 	private PhysicalAgent physicalAgent;
+
+	private final ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
 
 	public PhysicalAgentBehaviour(PhysicalAgent physicalAgent, long period, boolean isClient) {
 		super(physicalAgent, period);
@@ -47,12 +48,50 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 
 	@Override
 	protected void onTick() {
+		// update position
 		updatePosition();
-		sendInfoToLocationRegistry();
 
-		sendInfoToEntityLocationRegistry();
-		log.trace("Agent moved:" + physicalAgent.getLocation());
-		log.trace("Agent target: " + physicalAgent.getCurrentTarget());
+		// send data to LocationRegistry
+		AID locationRegistry = findLocationRegistry();
+		if (locationRegistry != null) {
+			sendInfoToLocationRegistry(locationRegistry);
+		}
+
+		// send data to ViewAgent
+		AID viewRegistry = findViewRegistry();
+		if (viewRegistry != null) {
+			sendInfoToEntityLocationRegistry(viewRegistry);
+		}
+
+		if (log.isTraceEnabled()) {
+			log.trace("Agent moved:" + physicalAgent.getLocation());
+			log.trace("Agent target: " + physicalAgent.getCurrentTarget());
+		}
+	}
+
+	private AID findViewRegistry() {
+		DFAgentDescription template = ViewAgent.createDfAgentDescription();
+		return findRegistry(template);
+	}
+
+	private AID findLocationRegistry() {
+		DFAgentDescription template = LocationRegistryAgent.createDfAgentDescription();
+		return findRegistry(template);
+	}
+
+	private AID findRegistry(DFAgentDescription template) {
+		try {
+			AID locationRegistry = null;
+			DFAgentDescription[] result = DFService.search(myAgent, template);
+			if (result.length == 1) {
+				locationRegistry = result[0].getName();
+			}
+			return locationRegistry;
+
+		} catch (FIPAException fe) {
+			log.error("LocationRegistry could not be found!!!", fe);
+			return null;
+		}
 	}
 
 	/**
@@ -65,56 +104,30 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 
 	/**
 	 * Agent sends information to LocationRegistry Agent about its new Position.
+	 *
+	 * @param locationRegistry
 	 */
-	private void sendInfoToLocationRegistry() {
-		DFAgentDescription template = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType(LocationRegistryAgent.SERVICE_TYPE);
-		sd.setName(LocationRegistryAgent.SERVICE_NAME);
-		template.addServices(sd);
-		AID locationRegistry = null;
+	private void sendInfoToLocationRegistry(AID locationRegistry) {
 		try {
-			DFAgentDescription[] result = DFService.search(myAgent, template);
-			if (result.length == 1) {
-				locationRegistry = result[0].getName();
-			}
-		} catch (FIPAException fe) {
-			fe.printStackTrace();
-		}
-		if (locationRegistry != null) {
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			msg.setConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
 			LocationRegistryData location = physicalAgent.getLocation();
-			ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-			String content;
-			try {
-				content = mapper.writeValueAsString(location);
-				msg.setContent(content);
-				msg.addReceiver(locationRegistry);
-				physicalAgent.send(msg);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-			}
 
+			String content = mapper.writeValueAsString(location);
+
+			msg.setContent(content);
+			msg.addReceiver(locationRegistry);
+			physicalAgent.send(msg);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			log.error("Could not send location data to LocationRegistry!!!", e);
 		}
+
 	}
 
-	private void sendInfoToEntityLocationRegistry() {
-		DFAgentDescription template = new DFAgentDescription();
-		ServiceDescription sd = new ServiceDescription();
-		sd.setType(ViewAgent.SERVICE_TYPE);
-		sd.setName(ViewAgent.SERVICE_NAME);
-		template.addServices(sd);
-		AID locationRegistry = null;
+	private void sendInfoToEntityLocationRegistry(AID viewAgent) {
 		try {
-			DFAgentDescription[] result = DFService.search(myAgent, template);
-			if (result.length == 1) {
-				locationRegistry = result[0].getName();
-			}
-		} catch (FIPAException fe) {
-			fe.printStackTrace();
-		}
-		if (locationRegistry != null) {
+
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			msg.setConversationId(ViewAgent.CONVERSATION_ID);
 
@@ -122,19 +135,14 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 			ViewEntity viewEntity = new ViewEntity(physicalAgent.getLocation());
 			viewEntity.setMessageIdList(physicalAgent.getStoredMessageId());
 
-			ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
-			String content;
-			try {
-				content = mapper.writeValueAsString(viewEntity);
-				msg.setContent(content);
-				msg.addReceiver(locationRegistry);
-				physicalAgent.send(msg);
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			String content = mapper.writeValueAsString(viewEntity);
+			msg.setContent(content);
+			msg.addReceiver(viewAgent);
+			physicalAgent.send(msg);
+		} catch (JsonProcessingException e) {
+			log.error("Could not send location data to LocationRegistry!!!", e);
 		}
+
 	}
 
 

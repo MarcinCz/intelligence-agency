@@ -1,13 +1,14 @@
-package pl.edu.pw.wsd.agency.agent.behaviour.physical;
+package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jade.core.AID;
 import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
-import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
@@ -31,17 +32,18 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 
 	private static final Logger log = LogManager.getLogger();
 
-	private PhysicalAgent physicalAgent;
+	private TransmitterAgent transmitterAgent;
 
-	public ReceiveAgentsLocationBehaviour(PhysicalAgent physicalAgent) {
-		super(physicalAgent);
-		this.physicalAgent = physicalAgent;
+	public ReceiveAgentsLocationBehaviour(TransmitterAgent transmitterAgent) {
+		super(transmitterAgent);
+		this.transmitterAgent = transmitterAgent;
 	}
 
 	@Override
 	public void action() {
-		MessageTemplate mt = MessageTemplate.MatchConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID);
-		ACLMessage msg = physicalAgent.receiveAndUpdateStatistics(mt);
+		MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchReceiver(new AID[]{transmitterAgent.getAID()}),
+				MessageTemplate.MatchConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID));
+		ACLMessage msg = transmitterAgent.receiveAndUpdateStatistics(mt);
 		if (msg != null) {
 			try {
 				String content = msg.getContent();
@@ -55,9 +57,12 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 				Set<PhysicalAgentId> transmitters = new HashSet<>();
 
 				for (Entry<PhysicalAgentId, LocationRegistryData> entry : al.entrySet()) {
+					if (entry.getKey().getLocalName().equals(transmitterAgent.getLocalName())) {
+						continue;
+					}
 					LocationRegistryData location = entry.getValue();
-					if (amIInRange(location)) {
-						if (location.isClient()) {
+					if (isInMyRange(location)) {
+						if (location.getIsClient()) {
 							clients.add(entry.getKey());
 						} else {
 							transmitters.add(entry.getKey());
@@ -66,8 +71,8 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 				}
 
 
-				physicalAgent.setTransmittersInRange(transmitters);
-				physicalAgent.setClientsInRange(clients);
+				transmitterAgent.setTransmittersInRange(transmitters);
+				transmitterAgent.setClientsInRange(clients);
 
 				if (log.isDebugEnabled()) {
 					log.debug(clients.size() + " clients in range: " + clients);
@@ -91,9 +96,9 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 	 *
 	 * @param location
 	 */
-	private boolean amIInRange(LocationRegistryData location) {
-		double distance = physicalAgent.getLocation().distance(location);
-		return distance <= location.getSignalRange();
+	private boolean isInMyRange(LocationRegistryData location) {
+		double distance = transmitterAgent.getLocation().distance(location);
+		return distance <= transmitterAgent.getLocation().getSignalRange();
 	}
 
 }
