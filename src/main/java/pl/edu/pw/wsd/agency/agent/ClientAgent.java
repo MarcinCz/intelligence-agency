@@ -5,7 +5,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
-import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientRequestDeliveryMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendMessagesBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.UserInputMessageBehaviour;
 import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
@@ -32,11 +31,18 @@ public class ClientAgent extends PhysicalAgent {
 	private int createStatusPeriod;
 
 	/**
-	 * Map that hold messages.
+	 * Map that hold messages sent by client (or messages that will be send).
 	 * The value of every message is counter -> how many times message was sent.
 	 */
 	@Getter
-	private Map<ClientMessage, Integer> clientMessages;
+	private final Map<ClientMessage, Integer> clientMessages;
+
+	/**
+	 * Map that holds received messages.
+	 * The value of every message is counter -> how many times message was delivered.
+	 */
+	@Getter
+	private final Map<ClientMessage, Integer> receivedMessages;
 
 	@Override
 	public Set<MessageId> getStoredMessageId() {
@@ -48,16 +54,16 @@ public class ClientAgent extends PhysicalAgent {
 	public ClientAgent(ClientAgentConfiguration config) {
 		super(config, true);
 		loadConfiguration(config);
+		this.clientMessages = new HashMap<>();
+		this.receivedMessages = new HashMap<>();
 	}
 
 	@Override
 	protected void setup() {
 		super.setup();
-		clientMessages = new HashMap<>();
 
 		addBehaviour(new UserInputMessageBehaviour(this));
 		addBehaviour(new ClientSendMessagesBehaviour(this, moveBehaviourPeriod));
-		addBehaviour(new ClientRequestDeliveryMessageBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
 
 		addStatusesBehaviours();
@@ -76,4 +82,13 @@ public class ClientAgent extends PhysicalAgent {
 		clientMessages.put(cm, 0);
 	}
 
+	public void addReceivedMessage(ClientMessage clientMessage) {
+		if (receivedMessages.containsKey(clientMessage)) {
+			Integer counter = receivedMessages.get(clientMessage);
+			// increment
+			receivedMessages.put(clientMessage, counter + 1);
+		} else {
+			receivedMessages.put(clientMessage, 1);
+		}
+	}
 }

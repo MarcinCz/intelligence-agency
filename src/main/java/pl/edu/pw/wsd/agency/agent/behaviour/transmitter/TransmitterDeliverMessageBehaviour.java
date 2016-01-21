@@ -1,23 +1,22 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.TransmitterId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -25,51 +24,64 @@ import java.util.stream.Collectors;
  */
 public class TransmitterDeliverMessageBehaviour extends TickerBehaviour {
 
-    private static final long serialVersionUID = -4865095272921712993L;
+	private static final long serialVersionUID = -4865095272921712993L;
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    private TransmitterAgent transmitterAgent;
+	private TransmitterAgent transmitterAgent;
 
-    private final ObjectMapper objectMapper = Configuration.getInstance().getObjectMapper();
+	private final ObjectMapper objectMapper = Configuration.getInstance().getObjectMapper();
 
-    public TransmitterDeliverMessageBehaviour(TransmitterAgent transmitterAgent, long period) {
-        super(transmitterAgent, period);
-        this.transmitterAgent = transmitterAgent;
-    }
+	public TransmitterDeliverMessageBehaviour(TransmitterAgent transmitterAgent, long period) {
+		super(transmitterAgent, period);
+		this.transmitterAgent = transmitterAgent;
+	}
 
+	@Override
+	public void onTick() {
+		// get clients
+		Set<AID> clientsInRange = transmitterAgent.getClientsInRange();
 
-    @Override
-    public void onTick() {
-        MessageTemplate tm = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.REQUEST), MessageTemplate.MatchConversationId(ConversationId.DELIVER_CLIENT_MESSAGE.toString()));
-        ACLMessage receivedMessage = transmitterAgent.receive(tm);
+		Map<String, AID> clientsMap = clientsInRange.stream().collect(Collectors.toMap(AID::getLocalName, aid -> aid));
 
-        if (receivedMessage != null) {
-            AID sender = receivedMessage.getSender();
-            Map<ACLMessage, Set<TransmitterId>> clientMessages = transmitterAgent.getClientMessages();
-            List<Map.Entry<ACLMessage, Set<TransmitterId>>> collect = clientMessages.entrySet().stream().filter(new Predicate<Map.Entry<ACLMessage, Set<TransmitterId>>>() {
-                @Override
-                public boolean test(Map.Entry<ACLMessage, Set<TransmitterId>> aclMessageSetEntry) {
-                    try {
-                        ClientMessage clientMessage = objectMapper.readValue(aclMessageSetEntry.getKey().getContent(), ClientMessage.class);
-                        return clientMessage.getEndClient().equals(sender.getLocalName());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                }
-            }).collect(Collectors.toList());
+		// get if there is message for them
+		Map<ACLMessage, Set<TransmitterId>> clientMessages = transmitterAgent.getClientMessages();
 
-            for (Map.Entry<ACLMessage, Set<TransmitterId>> aclMessageSetEntry : collect) {
-                ACLMessage key = aclMessageSetEntry.getKey();
-                key.clearAllReceiver();
-                key.addReceiver(sender);
-                transmitterAgent.send(key);
-            }
-        } else {
-            block();
-        }
+		Map<AID, List<ACLMessage>> messagesThatCanBeSent = new HashMap<>();
 
-    }
+		clientMessages.entrySet().stream().forEach(aclMessageSetEntry -> {
+			try {
+				ClientMessage clientMessage = objectMapper.readValue(aclMessageSetEntry.getKey().getContent(), ClientMessage.class);
+
+				// get these messages that can be send now
+				if (clientsMap.containsKey(clientMessage.getEndClient())) {
+					AID aid = clientsMap.get(clientMessage.getEndClient());
+					if (messagesThatCanBeSent.containsKey(aid)) {
+						// add new element to existing list
+						List<ACLMessage> msgs = messagesThatCanBeSent.get(aid);
+						msgs.add(aclMessageSetEntry.getKey());
+					} else {
+						// add new list with one element
+						messagesThatCanBeSent.put(aid, Lists.newArrayList(aclMessageSetEntry.getKey()));
+					}
+				}
+
+			} catch (IOException e) {
+				log.error("Error occurred", e);
+				e.printStackTrace();
+
+			}
+		});
+
+		messagesThatCanBeSent.forEach((aid, aclMessages) -> {
+			for (ACLMessage msg : aclMessages) {
+				msg.clearAllReceiver();
+				msg.addReceiver(aid);
+				// FIXME :: stats?
+				transmitterAgent.send(msg);
+			}
+		});
+
+	}
 
 }

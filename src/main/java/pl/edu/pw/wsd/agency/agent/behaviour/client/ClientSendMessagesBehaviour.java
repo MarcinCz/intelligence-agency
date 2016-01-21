@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 
 /**
  * Behaviour that sends messages.
+ * <p>
+ * Transmitter starts conversation. Client is requested and just sends response with his messages.
  *
  * @author Adam Papros
  */
@@ -55,19 +57,22 @@ public class ClientSendMessagesBehaviour extends TickerBehaviour {
 			final AID sender = msg.getSender();
 			// send filtered messages
 			List<ClientMessage> filteredMessages = getFilteredMessages();
-			try {
-				final String content = mapper.writeValueAsString(filteredMessages);
-				ACLMessage response = new ACLMessage(ACLMessage.PROPAGATE);
-				response.addReceiver(sender);
-				response.setContent(content);
-				response.setLanguage(Language.JSON);
-				response.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
-				clientAgent.sendAndUpdateStatistics(msg);
+			filteredMessages.forEach(clientMessage -> {
+				try {
+					final String content = mapper.writeValueAsString(clientMessage);
+					ACLMessage response = new ACLMessage(ACLMessage.PROPAGATE);
+					response.addReceiver(sender);
+					response.setContent(content);
+					response.setLanguage(Language.JSON);
+					response.setConversationId(ConversationId.CLIENT_MESSAGE.generateId());
+					clientAgent.sendAndUpdateStatistics(msg);
 
-				log.info("Sent response to transmitter ,{}", sender);
-			} catch (JsonProcessingException e) {
-				log.error("Could not parse ClientMessage");
-			}
+					log.info("Sent response to transmitter ,{}", sender);
+				} catch (JsonProcessingException e) {
+					log.error("Could not parse ClientMessage");
+				}
+			});
+
 			// increment counter
 			clientAgent.getClientMessages().entrySet().stream().forEach(e -> e.setValue(e.getValue() + 1));
 

@@ -2,6 +2,7 @@ package pl.edu.pw.wsd.agency.agent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -33,6 +34,9 @@ public class TransmitterAgent extends PhysicalAgent {
 	private Map<ACLMessage, Set<TransmitterId>> clientMessages = new HashMap<>();
 
 	private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
+
+	@Getter
+	private Set<AID> clientsInRange = new HashSet<>();
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -96,4 +100,5 @@ public class TransmitterAgent extends PhysicalAgent {
 	public AgentStatusMessageQueue getAgentStatusQueue() {
 		return agentStatusQueue;
 	}
+
 }

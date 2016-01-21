@@ -18,35 +18,46 @@ import java.io.IOException;
  */
 public class ClientReceiveMessage extends TickerBehaviour {
 
-    private static final long serialVersionUID = -4865095272921712993L;
+	private static final long serialVersionUID = -4865095272921712993L;
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    private ClientAgent clientAgent;
+	private ClientAgent clientAgent;
 
-    private final ObjectMapper objectMapper = Configuration.getInstance().getObjectMapper();
+	private final ObjectMapper objectMapper = Configuration.getInstance().getObjectMapper();
 
-    public ClientReceiveMessage(ClientAgent clientAgent, long period) {
-        super(clientAgent, period);
-        this.clientAgent = clientAgent;
-    }
+	public ClientReceiveMessage(ClientAgent clientAgent, long period) {
+		super(clientAgent, period);
+		this.clientAgent = clientAgent;
+	}
 
 
-    @Override
-    public void onTick() {
-        MessageTemplate tm = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.PROPAGATE), MessageTemplate.MatchReceiver(new AID[]{clientAgent.getAID()}));
-        ACLMessage receivedMessage = clientAgent.receive(tm);
+	@Override
+	public void onTick() {
+		MessageTemplate tm = MessageTemplate.and(MessageTemplate.MatchPerformative(ACLMessage.PROPAGATE),
+				MessageTemplate.MatchReceiver(new AID[]{clientAgent.getAID()}));
 
-        if (receivedMessage != null) {
-            try {
-                ClientMessage clientMessage = objectMapper.readValue(receivedMessage.getContent(), ClientMessage.class);
-                log.info("Received message, {}", clientMessage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+		// FIXME :: stats ?
+		ACLMessage receivedMessage = clientAgent.receive(tm);
 
-        } else {
-            block();
-        }
-    }
+		if (receivedMessage != null) {
+			try {
+				ClientMessage clientMessage = objectMapper.readValue(receivedMessage.getContent(), ClientMessage.class);
+				String endClient = clientMessage.getEndClient();
+
+				if (!clientAgent.getLocalName().equals(endClient)) {
+					throw new IllegalStateException("This message is not for me, agent" + clientAgent + ", message=" + clientMessage);
+				}
+
+				// store message
+				clientAgent.addReceivedMessage(clientMessage);
+				log.info("Received message, {}", clientMessage);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} else {
+			block();
+		}
+	}
 }
