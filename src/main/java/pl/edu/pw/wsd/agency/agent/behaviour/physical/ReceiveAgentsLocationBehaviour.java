@@ -14,12 +14,10 @@ import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Behaviour that receive massage from LocationRegistry Agent about all Agents Positions.
@@ -52,27 +50,28 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 				AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
 				Map<PhysicalAgentId, LocationRegistryData> al = alm.getAgentsLocation();
 
-				final List<PhysicalAgentId> physicalAgentsInRange = new ArrayList<>();
+
+				Set<PhysicalAgentId> clients = new HashSet<>();
+				Set<PhysicalAgentId> transmitters = new HashSet<>();
+
 				for (Entry<PhysicalAgentId, LocationRegistryData> entry : al.entrySet()) {
 					LocationRegistryData location = entry.getValue();
 					if (amIInRange(location)) {
-						physicalAgentsInRange.add(entry.getKey());
+						if (location.isClient()) {
+							clients.add(entry.getKey());
+						} else {
+							transmitters.add(entry.getKey());
+						}
 					}
 				}
 
-				Set<PhysicalAgentId> clients = physicalAgentsInRange.stream().
-						filter(physicalAgentId -> physicalAgentId.isClient()).
-						collect(Collectors.toSet());
-
-				Set<PhysicalAgentId> transmitters = physicalAgentsInRange.stream().
-						filter(physicalAgentId -> !physicalAgentId.isClient()).
-						collect(Collectors.toSet());
 
 				physicalAgent.setTransmittersInRange(transmitters);
 				physicalAgent.setClientsInRange(clients);
 
 				if (log.isDebugEnabled()) {
-					log.debug(physicalAgentsInRange.size() + " agents in range: " + physicalAgentsInRange);
+					log.debug(clients.size() + " clients in range: " + clients);
+					log.debug(transmitters.size() + " transmitters in range: " + transmitters);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

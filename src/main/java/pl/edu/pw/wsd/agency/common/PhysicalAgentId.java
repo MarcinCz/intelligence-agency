@@ -18,10 +18,6 @@ public class PhysicalAgentId {
 	@JsonProperty("local_name")
 	private String localName;
 
-	@JsonProperty("is_client")
-	private boolean isClient;
-
-
 	public PhysicalAgentId(AID aid) {
 		Object clone = aid.clone();
 		AID cloned = (AID) clone;
