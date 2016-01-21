@@ -5,57 +5,54 @@ import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
-    private static final long serialVersionUID = -4865095272921712993L;
+	private static final long serialVersionUID = -4865095272921712993L;
 
-    private static final Logger log = LogManager.getLogger();
+	private static final Logger log = LogManager.getLogger();
 
-    private TransmitterAgent transmitterAgent;
+	private TransmitterAgent transmitterAgent;
 
-    private final static int NUMBER_OF_MESSAGES_AT_ONCE = 5;
-
-    public TransmitterPropagateMessageBehaviour(TransmitterAgent transmitterAgent, long period) {
-        super(transmitterAgent, period);
-        this.transmitterAgent = transmitterAgent;
-    }
+	public TransmitterPropagateMessageBehaviour(TransmitterAgent transmitterAgent, long period) {
+		super(transmitterAgent, period);
+		this.transmitterAgent = transmitterAgent;
+	}
 
 
-    @Override
-    public void onTick() {
-        TransmitterAgent agent = (TransmitterAgent) myAgent;
-        List<TransmitterId> transmitters = agent.getAgentsInRange();
-        Map<ACLMessage, Set<TransmitterId>> clientMessages = agent.getClientMessages();
+	@Override
+	public void onTick() {
 
-        for (TransmitterId receiver : transmitters) {
-            for (Map.Entry<ACLMessage, Set<TransmitterId>> entry : clientMessages.entrySet()) {
+		Set<PhysicalAgentId> transmitters = transmitterAgent.getTransmittersInRange();
+		Map<ACLMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
 
-                Set<TransmitterId> transmitterIds = entry.getValue();
-                ACLMessage aclMessage = entry.getKey();
-                // check if message was sent
-                if (!transmitterIds.contains(receiver)) {
-                    // send message
-                    ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
-                    msg.addReceiver(receiver.toAID());
-                    msg.setContent(aclMessage.getContent());
-                    msg.setLanguage(aclMessage.getLanguage());
-                    msg.setConversationId(aclMessage.getConversationId());
+		for (PhysicalAgentId receiver : transmitters) {
+			for (Map.Entry<ACLMessage, Set<PhysicalAgentId>> entry : clientMessages.entrySet()) {
 
-                    // FIXME stats ?
-                    transmitterAgent.send(msg);
+				Set<PhysicalAgentId> physicalAgentIds = entry.getValue();
+				ACLMessage aclMessage = entry.getKey();
+				// check if message was sent
+				if (!physicalAgentIds.contains(receiver)) {
+					// send message
+					ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
+					msg.addReceiver(receiver.toAID());
+					msg.setContent(aclMessage.getContent());
+					msg.setLanguage(aclMessage.getLanguage());
+					msg.setConversationId(aclMessage.getConversationId());
 
-                    transmitterIds.add(receiver);
+					// FIXME stats ?
+					this.transmitterAgent.send(msg);
 
-                }
-            }
+					physicalAgentIds.add(receiver);
 
-        }
-    }
+				}
+			}
+
+		}
+	}
 
 }

@@ -1,7 +1,7 @@
 package pl.edu.pw.wsd.agency.location;
 
 import com.google.common.cache.Cache;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,10 +15,10 @@ class LocationMainPanel extends JPanel {
     /**
      * Map of entities that holds its coordinates.
      */
-    protected final Cache<TransmitterId, ViewEntity> pointsMap;
+    protected final Cache<PhysicalAgentId, ViewEntity> pointsMap;
 
 
-    public LocationMainPanel(Cache<TransmitterId, ViewEntity> agentsLocation) {
+    public LocationMainPanel(Cache<PhysicalAgentId, ViewEntity> agentsLocation) {
         this.pointsMap = agentsLocation;
         setBorder(BorderFactory.createLineBorder(Color.black));
         setPreferredSize(new Dimension(700, 700));
@@ -32,7 +32,7 @@ class LocationMainPanel extends JPanel {
 
 //        g.translate((int)size.getWidth()/2, (int)size.getHeight()/2);
 
-        ConcurrentMap<TransmitterId, ViewEntity> aidPointConcurrentMap = pointsMap.asMap();
+        ConcurrentMap<PhysicalAgentId, ViewEntity> aidPointConcurrentMap = pointsMap.asMap();
         aidPointConcurrentMap.forEach((transmitterId, point) -> {
             final int x = mapX(size, point);
             final int y = mapY(size, point);

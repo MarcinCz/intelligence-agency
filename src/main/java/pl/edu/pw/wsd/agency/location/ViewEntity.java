@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javafx.geometry.Point2D;
 import lombok.Getter;
 import lombok.Setter;
+import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 
 import java.util.Set;
 
@@ -41,7 +42,7 @@ public class ViewEntity {
         this(point.getX(), point.getY(), signalRange);
     }
 
-    public ViewEntity(PhysicalAgentLocation l) {
+    public ViewEntity(LocationRegistryData l) {
         this(l.getX(), l.getY(), l.getSignalRange());
     }
 

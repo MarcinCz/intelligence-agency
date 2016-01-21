@@ -16,7 +16,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.AgencyJFrame;
 import pl.edu.pw.wsd.agency.location.ViewEntity;
@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ViewAgent extends Agent {
 
-    private Cache<TransmitterId, ViewEntity> entityLocationCache;
+    private Cache<PhysicalAgentId, ViewEntity> entityLocationCache;
     private AgencyJFrame agencyJFrame;
 
     public static final String CONVERSATION_ID = "Entity-Location";
@@ -42,9 +42,9 @@ public class ViewAgent extends Agent {
 
     @Override
     protected void setup() {
-        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<TransmitterId, ViewEntity>() {
+        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<PhysicalAgentId, ViewEntity>() {
             @Override
-            public void onRemoval(RemovalNotification<TransmitterId, ViewEntity> removalNotification) {
+            public void onRemoval(RemovalNotification<PhysicalAgentId, ViewEntity> removalNotification) {
                 agencyJFrame.updateAgentsLocations();
             }
         }).build();
@@ -68,8 +68,8 @@ public class ViewAgent extends Agent {
         addBehaviour(new RefreshingViewBehaviour(this));
     }
 
-    public void updateEntityLocation(TransmitterId transmitterId, ViewEntity location) {
-        entityLocationCache.put(transmitterId, location);
+    public void updateEntityLocation(PhysicalAgentId physicalAgentId, ViewEntity location) {
+        entityLocationCache.put(physicalAgentId, location);
         agencyJFrame.updateAgentsLocations();
     }
 
@@ -94,7 +94,7 @@ public class ViewAgent extends Agent {
                     try {
                         ViewEntity viewEntity = mapper.readValue(content, ViewEntity.class);
                         AID sender = msg.getSender();
-                        viewAgent.updateEntityLocation(new TransmitterId(sender), viewEntity);
+                        viewAgent.updateEntityLocation(new PhysicalAgentId(sender), viewEntity);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

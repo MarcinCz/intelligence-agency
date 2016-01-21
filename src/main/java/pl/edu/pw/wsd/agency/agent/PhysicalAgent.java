@@ -10,14 +10,13 @@ import org.joda.time.DateTime;
 import pl.edu.pw.wsd.agency.agent.behaviour.physical.PhysicalAgentBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.physical.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.physical.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
+import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Getter
@@ -33,16 +32,19 @@ public abstract class PhysicalAgent extends BaseAgent {
 	 */
 	public abstract Set<MessageId> getStoredMessageId();
 
-	private PhysicalAgentLocation location;
+	// FIXME :: lepsza nazwa!
+	private LocationRegistryData location;
 
 	/**
 	 * List of Agents in range of this Agent
 	 */
-
-	// FIXME : A nie tylko transmittery ?
 	@Getter
 	@Setter
-	private List<TransmitterId> agentsInRange;
+	private Set<PhysicalAgentId> transmittersInRange = new HashSet<>();
+
+	@Getter
+	@Setter
+	private Set<PhysicalAgentId> clientsInRange = new HashSet<>();
 
 	/**
 	 * PhysicalAgentBehaviour period
@@ -71,40 +73,36 @@ public abstract class PhysicalAgent extends BaseAgent {
 	 */
 	private Point2D[] path;
 
-	/**
-	 * Flag that indicates if physical agent is client or not.
-	 */
-	private final boolean isClient;
-
+	// FIXME redundant to location.isClient
+	private boolean isClient;
 
 	/**
 	 * Constructor
 	 */
 	protected PhysicalAgent(MovingAgentConfiguration config, boolean isClient) {
 		super();
-		this.isClient = isClient;
 		loadConfiguration(config);
+		this.isClient = isClient;
 	}
 
 	@Override
 	protected void setup() {
 		super.setup();
 		log.info("Agent starting position: " + location);
-		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, isClient));
+		addBehaviour(new PhysicalAgentBehaviour(this, moveBehaviourPeriod, location.isClient()));
 		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
 		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
 
 	}
 
 	protected void loadConfiguration(MovingAgentConfiguration cfg) {
-		agentsInRange = new ArrayList<>();
 		moveBehaviourPeriod = cfg.getMoveBehaviourPeriod();
 		path = cfg.getPath();
 		speed = cfg.getSpeed();
 		agentDirection = cfg.getAgentDirection();
 		int spi = cfg.getStartingPositionIndex();
 		Point2D startingPoint = cfg.getStartingPosition();
-		location = new PhysicalAgentLocation(startingPoint.getX(), startingPoint.getY(), cfg.getSignalRange());
+		location = new LocationRegistryData(startingPoint.getX(), startingPoint.getY(), cfg.getSignalRange(), this.isClient);
 		// set current target point
 		if (agentDirection) {
 			if (spi == path.length) {

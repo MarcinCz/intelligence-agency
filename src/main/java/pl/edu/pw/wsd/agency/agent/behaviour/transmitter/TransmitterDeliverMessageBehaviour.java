@@ -8,7 +8,7 @@ import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
@@ -40,12 +40,12 @@ public class TransmitterDeliverMessageBehaviour extends TickerBehaviour {
 	@Override
 	public void onTick() {
 		// get clients
-		Set<AID> clientsInRange = transmitterAgent.getClientsInRange();
+		Set<PhysicalAgentId> clientsInRange = transmitterAgent.getClientsInRange();
 
-		Map<String, AID> clientsMap = clientsInRange.stream().collect(Collectors.toMap(AID::getLocalName, aid -> aid));
+		Map<String, AID> clientsMap = clientsInRange.stream().collect(Collectors.toMap(PhysicalAgentId::getLocalName, PhysicalAgentId::toAID));
 
 		// get if there is message for them
-		Map<ACLMessage, Set<TransmitterId>> clientMessages = transmitterAgent.getClientMessages();
+		Map<ACLMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
 
 		Map<AID, List<ACLMessage>> messagesThatCanBeSent = new HashMap<>();
 

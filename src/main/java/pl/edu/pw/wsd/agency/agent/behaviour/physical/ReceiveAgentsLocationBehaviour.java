@@ -8,9 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.location.PhysicalAgentLocation;
+import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 import pl.edu.pw.wsd.agency.message.content.AgentsLocationMessage;
 
 import java.io.IOException;
@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Behaviour that receive massage from LocationRegistry Agent about all Agents Positions.
@@ -48,18 +50,29 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 				ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
 
 				AgentsLocationMessage alm = mapper.readValue(content, AgentsLocationMessage.class);
-				Map<TransmitterId, PhysicalAgentLocation> al = alm.getAgentsLocation();
+				Map<PhysicalAgentId, LocationRegistryData> al = alm.getAgentsLocation();
 
-				List<TransmitterId> agentsInRange = new ArrayList<>();
-				for (Entry<TransmitterId, PhysicalAgentLocation> entry : al.entrySet()) {
-					PhysicalAgentLocation location = entry.getValue();
+				final List<PhysicalAgentId> physicalAgentsInRange = new ArrayList<>();
+				for (Entry<PhysicalAgentId, LocationRegistryData> entry : al.entrySet()) {
+					LocationRegistryData location = entry.getValue();
 					if (amIInRange(location)) {
-						agentsInRange.add(entry.getKey());
+						physicalAgentsInRange.add(entry.getKey());
 					}
 				}
-				physicalAgent.setAgentsInRange(agentsInRange);
+
+				Set<PhysicalAgentId> clients = physicalAgentsInRange.stream().
+						filter(physicalAgentId -> physicalAgentId.isClient()).
+						collect(Collectors.toSet());
+
+				Set<PhysicalAgentId> transmitters = physicalAgentsInRange.stream().
+						filter(physicalAgentId -> !physicalAgentId.isClient()).
+						collect(Collectors.toSet());
+
+				physicalAgent.setTransmittersInRange(transmitters);
+				physicalAgent.setClientsInRange(clients);
+
 				if (log.isDebugEnabled()) {
-					log.debug(agentsInRange.size() + " agents in range: " + agentsInRange);
+					log.debug(physicalAgentsInRange.size() + " agents in range: " + physicalAgentsInRange);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -79,7 +92,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 	 *
 	 * @param location
 	 */
-	private boolean amIInRange(PhysicalAgentLocation location) {
+	private boolean amIInRange(LocationRegistryData location) {
 		double distance = physicalAgent.getLocation().distance(location);
 		return distance <= location.getSignalRange();
 	}

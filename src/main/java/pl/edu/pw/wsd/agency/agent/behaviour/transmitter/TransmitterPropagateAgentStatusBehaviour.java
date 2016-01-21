@@ -6,12 +6,13 @@ import jade.lang.acl.ACLMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Propagate stored agent status messages to transmitters in range.
@@ -32,9 +33,9 @@ public class TransmitterPropagateAgentStatusBehaviour extends TickerBehaviour {
 
     @Override
     protected void onTick() {
-        List<TransmitterId> transmitters = agent.getAgentsInRange();
+        Set<PhysicalAgentId> transmitters = agent.getTransmittersInRange();
 
-        for (TransmitterId receiver : transmitters) {
+        for (PhysicalAgentId receiver : transmitters) {
             propagateAgentStatuses(receiver.toAID());
         }
     }

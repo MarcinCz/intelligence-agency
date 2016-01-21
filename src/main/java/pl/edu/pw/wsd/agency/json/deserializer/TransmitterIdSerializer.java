@@ -9,17 +9,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
 import java.io.IOException;
 
-public class  TransmitterIdSerializer extends JsonSerializer<TransmitterId> {
+public class  TransmitterIdSerializer extends JsonSerializer<PhysicalAgentId> {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void serialize(TransmitterId transmitterId, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
-        String json = objectMapper.writeValueAsString(transmitterId);
+    public void serialize(PhysicalAgentId physicalAgentId, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException, JsonProcessingException {
+        String json = objectMapper.writeValueAsString(physicalAgentId);
 
         jsonGenerator.writeFieldName(json);
 

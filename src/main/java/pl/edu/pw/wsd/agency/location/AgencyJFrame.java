@@ -1,7 +1,7 @@
 package pl.edu.pw.wsd.agency.location;
 
 import com.google.common.cache.Cache;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
 import javax.swing.*;
 
@@ -18,7 +18,7 @@ public class AgencyJFrame extends JFrame {
     }
 
 
-    public AgencyJFrame(Cache<TransmitterId, ViewEntity> agentsLocation) {
+    public AgencyJFrame(Cache<PhysicalAgentId, ViewEntity> agentsLocation) {
         super("Agency");
         // tricky
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

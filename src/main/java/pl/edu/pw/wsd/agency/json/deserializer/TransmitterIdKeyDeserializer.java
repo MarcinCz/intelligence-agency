@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pl.edu.pw.wsd.agency.common.TransmitterId;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
 import java.io.IOException;
 
@@ -17,8 +17,8 @@ public class TransmitterIdKeyDeserializer extends KeyDeserializer {
 
     @Override
     public Object deserializeKey(String s, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-        TransmitterId transmitterId = objectMapper.readValue(s, TransmitterId.class);
-        return transmitterId;
+        PhysicalAgentId physicalAgentId = objectMapper.readValue(s, PhysicalAgentId.class);
+        return physicalAgentId;
     }
 
 
