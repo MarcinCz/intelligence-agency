@@ -11,40 +11,47 @@ import java.util.UUID;
  */
 public enum ConversationId {
 
-    CLIENT_MESSAGE,
-    /**
-     * Conversation between client/transmitter and transmitter.
-     * Transmitter is asked to propagate agent status so it can be delivered to supervisor.
-     */
-    PROPAGATE_AGENT_STATUS,
-    /**
-     * Conversation between supervisor and transmitter.
-     * Supervisor asks for agent status stored by transmitter.
-     */
-    DELIVER_AGENT_STATUSES,
+	CLIENT_MESSAGE,
+	/**
+	 * Conversation between client/transmitter and transmitter.
+	 * Transmitter is asked to propagate agent status so it can be delivered to supervisor.
+	 */
+	PROPAGATE_AGENT_STATUS,
+	/**
+	 * Conversation between supervisor and transmitter.
+	 * Supervisor asks for agent status stored by transmitter.
+	 */
+	DELIVER_AGENT_STATUSES,
 
-    // FIXME HAVE TO BE REMOVED
-    DELIVER_CLIENT_MESSAGE,
-    UNKOWN;
+	// FIXME HAVE TO BE REMOVED
+	DELIVER_CLIENT_MESSAGE,
 
-    /**
-     * Generate random id for this conversation type
-     */
-    public String generateId() {
-        return name() + "_" + UUID.randomUUID().toString();
-    }
+	/**
+	 * Request send by transmitter to client that is in range.
+	 * This request means: "Dear Client, please, give me your messages. I'll handle them!"
+	 */
+	CLIENT_MESSAGE_REQUEST,
 
-    public static ConversationId resolveConversationType(String conversationId) {
-        if (StringUtils.isBlank(conversationId)) {
-            return ConversationId.UNKOWN;
-        }
+	UNKOWN;
 
-        for (ConversationId type : ConversationId.values()) {
-            if (conversationId.startsWith(type.name())) {
-                return type;
-            }
-        }
+	/**
+	 * Generate random id for this conversation type
+	 */
+	public String generateId() {
+		return name() + "_" + UUID.randomUUID().toString();
+	}
 
-        return ConversationId.UNKOWN;
-    }
+	public static ConversationId resolveConversationType(String conversationId) {
+		if (StringUtils.isBlank(conversationId)) {
+			return ConversationId.UNKOWN;
+		}
+
+		for (ConversationId type : ConversationId.values()) {
+			if (conversationId.startsWith(type.name())) {
+				return type;
+			}
+		}
+
+		return ConversationId.UNKOWN;
+	}
 }
