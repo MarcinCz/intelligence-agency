@@ -11,8 +11,8 @@ import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,40 +45,38 @@ public class TransmitterDeliverMessageBehaviour extends TickerBehaviour {
 		Map<String, AID> clientsMap = clientsInRange.stream().collect(Collectors.toMap(PhysicalAgentId::getLocalName, PhysicalAgentId::toAID));
 
 		// get if there is message for them
-		Map<ACLMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
+		Map<ClientMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
 
-		Map<AID, List<ACLMessage>> messagesThatCanBeSent = new HashMap<>();
+		Map<AID, List<ClientMessage>> messagesThatCanBeSent = new HashMap<>();
 
 		clientMessages.entrySet().stream().forEach(aclMessageSetEntry -> {
-			try {
-				ClientMessage clientMessage = objectMapper.readValue(aclMessageSetEntry.getKey().getContent(), ClientMessage.class);
+			ClientMessage clientMessage = aclMessageSetEntry.getKey();
 
-				// get these messages that can be send now
-				if (clientsMap.containsKey(clientMessage.getEndClient())) {
-					AID aid = clientsMap.get(clientMessage.getEndClient());
-					if (messagesThatCanBeSent.containsKey(aid)) {
-						// add new element to existing list
-						List<ACLMessage> msgs = messagesThatCanBeSent.get(aid);
-						msgs.add(aclMessageSetEntry.getKey());
-					} else {
-						// add new list with one element
-						messagesThatCanBeSent.put(aid, Lists.newArrayList(aclMessageSetEntry.getKey()));
-					}
+			// get these messages that can be send now
+			if (clientsMap.containsKey(clientMessage.getEndClient())) {
+				AID aid = clientsMap.get(clientMessage.getEndClient());
+				if (messagesThatCanBeSent.containsKey(aid)) {
+					// add new element to existing list
+					List<ClientMessage> msgs = messagesThatCanBeSent.get(aid);
+					msgs.add(aclMessageSetEntry.getKey());
+				} else {
+					// add new list with one element
+					messagesThatCanBeSent.put(aid, Lists.newArrayList(aclMessageSetEntry.getKey()));
 				}
-
-			} catch (IOException e) {
-				log.error("Error occurred", e);
-				e.printStackTrace();
-
 			}
+
 		});
 
 		messagesThatCanBeSent.forEach((aid, aclMessages) -> {
-			for (ACLMessage msg : aclMessages) {
-				msg.clearAllReceiver();
-				msg.addReceiver(aid);
+			for (ClientMessage msg : aclMessages) {
+				ACLMessage aclMessage = new ACLMessage(ACLMessage.PROPAGATE);
+				aclMessage.setLanguage(Language.JSON);
+				aclMessage.setContent(msg.serialize());
+				aclMessage.clearAllReceiver();
+				aclMessage.addReceiver(aid);
+				aclMessage.setSender(transmitterAgent.getAID());
 				// FIXME :: stats?
-				transmitterAgent.send(msg);
+				transmitterAgent.send(aclMessage);
 			}
 		});
 

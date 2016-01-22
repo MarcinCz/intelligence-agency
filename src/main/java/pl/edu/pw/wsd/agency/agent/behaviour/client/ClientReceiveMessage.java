@@ -10,6 +10,8 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.ClientAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.content.StopPropagatingClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 
 import java.io.IOException;
 
@@ -52,6 +54,17 @@ public class ClientReceiveMessage extends TickerBehaviour {
 				// store message
 				clientAgent.addReceivedMessage(clientMessage);
 				log.info("Received message, {}", clientMessage);
+
+
+				// send stop propagating message to remove
+				ACLMessage reply = receivedMessage.createReply();
+				reply.setConversationId(ConversationId.STOP_PROPAGATING_CLIENT_MESSAGE.name());
+
+				StopPropagatingClientMessage stopPropagatingClientMessage = new StopPropagatingClientMessage();
+				stopPropagatingClientMessage.setMessageId(clientMessage.getMessageId());
+				reply.setContent(stopPropagatingClientMessage.serialize());
+				clientAgent.send(reply);
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

@@ -13,6 +13,10 @@ public enum ConversationId {
 
 	CLIENT_MESSAGE,
 	/**
+	 * Sent by client when client message is delivered.
+	 */
+	STOP_PROPAGATING_CLIENT_MESSAGE,
+	/**
 	 * Conversation between client/transmitter and transmitter.
 	 * Transmitter is asked to propagate agent status so it can be delivered to supervisor.
 	 */
@@ -23,14 +27,12 @@ public enum ConversationId {
 	 */
 	DELIVER_AGENT_STATUSES,
 
-	// FIXME HAVE TO BE REMOVED
-	DELIVER_CLIENT_MESSAGE,
-
 	/**
 	 * Request send by transmitter to client that is in range.
 	 * This request means: "Dear Client, please, give me your messages. I'll handle them!"
 	 */
 	CLIENT_MESSAGE_REQUEST,
+
 
 	UNKOWN;
 

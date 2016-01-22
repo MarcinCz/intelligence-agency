@@ -1,8 +1,12 @@
 package pl.edu.pw.wsd.agency.message.content;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 
 @Data
@@ -26,5 +30,17 @@ public class ClientMessage {
 		this.endClient = endClient;
 		this.message = message;
 		this.messageLife = messageLife;
+	}
+
+	@JsonIgnore
+	public String serialize() {
+		try {
+			ObjectMapper objectMapper = Configuration.getInstance().getObjectMapper();
+
+			return objectMapper.writeValueAsString(this);
+
+		} catch (JsonProcessingException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

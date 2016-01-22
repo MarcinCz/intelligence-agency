@@ -6,6 +6,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.content.StopPropagatingClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
 import java.util.Map;
 import java.util.Set;
@@ -28,21 +33,36 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 	public void onTick() {
 
 		Set<PhysicalAgentId> transmitters = transmitterAgent.getTransmittersInRange();
-		Map<ACLMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
+
+		Set<MessageId> stopPropagating = transmitterAgent.getStopPropagating();
+		for (PhysicalAgentId transmitter : transmitters) {
+			for (MessageId messageId : stopPropagating) {
+				ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
+				msg.addReceiver(transmitter.toAID());
+				msg.setContent(new StopPropagatingClientMessage(messageId).serialize());
+				msg.setLanguage(Language.JSON);
+				msg.setConversationId(ConversationId.STOP_PROPAGATING_CLIENT_MESSAGE.name());
+				transmitterAgent.send(msg);
+			}
+
+		}
+
+
+		Map<ClientMessage, Set<PhysicalAgentId>> clientMessages = transmitterAgent.getClientMessages();
 
 		for (PhysicalAgentId receiver : transmitters) {
-			for (Map.Entry<ACLMessage, Set<PhysicalAgentId>> entry : clientMessages.entrySet()) {
+			for (Map.Entry<ClientMessage, Set<PhysicalAgentId>> entry : clientMessages.entrySet()) {
 
 				Set<PhysicalAgentId> physicalAgentIds = entry.getValue();
-				ACLMessage aclMessage = entry.getKey();
+				ClientMessage aclMessage = entry.getKey();
 				// check if message was sent
 				if (!physicalAgentIds.contains(receiver)) {
 					// send message
 					ACLMessage msg = new ACLMessage(ACLMessage.PROPAGATE);
 					msg.addReceiver(receiver.toAID());
-					msg.setContent(aclMessage.getContent());
-					msg.setLanguage(aclMessage.getLanguage());
-					msg.setConversationId(aclMessage.getConversationId());
+					msg.setContent(aclMessage.serialize());
+					msg.setLanguage(Language.JSON);
+					msg.setConversationId(ConversationId.CLIENT_MESSAGE.name());
 
 					// FIXME stats ?
 					this.transmitterAgent.send(msg);

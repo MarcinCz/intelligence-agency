@@ -16,9 +16,10 @@ import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 public class TransmitterAgent extends PhysicalAgent {
@@ -30,7 +31,9 @@ public class TransmitterAgent extends PhysicalAgent {
 	private int createStatusPeriod;
 	private int propagateStatusPeriod;
 
-	private Map<ACLMessage, Set<PhysicalAgentId>> clientMessages = new HashMap<>();
+	private Map<ClientMessage, Set<PhysicalAgentId>> clientMessages = new HashMap<>();
+
+	private Set<MessageId> stopPropagating = Sets.newHashSet();
 
 	private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
 
@@ -38,23 +41,10 @@ public class TransmitterAgent extends PhysicalAgent {
 
 	@Override
 	public Set<MessageId> getStoredMessageId() {
-		Set<MessageId> tmpSet = new HashSet<>();
-		Set<ACLMessage> aclMessages = clientMessages.keySet();
-		for (ACLMessage clientMessage : aclMessages) {
-			// FIXME :: OMG
-			String content = clientMessage.getContent();
-			try {
-				ClientMessage clientMessage1 = mapper.readValue(content, ClientMessage.class);
-				MessageId messageId = clientMessage1.getMessageId();
-				tmpSet.add(messageId);
-			} catch (IOException e) {
-				log.error("Could not read JSON=" + content, e);
-				e.printStackTrace();
-			}
-		}
-		return tmpSet;
-	}
+		Set<ClientMessage> aclMessages = clientMessages.keySet();
+		return aclMessages.stream().map(ClientMessage::getMessageId).collect(Collectors.toSet());
 
+	}
 
 	public TransmitterAgent(TransmitterConfiguration config) {
 		super(config, false);
@@ -93,7 +83,16 @@ public class TransmitterAgent extends PhysicalAgent {
 	}
 
 	public void addNewClientMessage(ACLMessage cm) {
-		clientMessages.put(cm, Sets.newHashSet());
+		try {
+			ClientMessage clientMessage = mapper.readValue(cm.getContent(), ClientMessage.class);
+			if (stopPropagating.contains(clientMessage.getMessageId())) {
+				return;
+			}
+			clientMessages.put(clientMessage, Sets.newHashSet());
+		} catch (IOException e) {
+			log.error("Could not parse message", e);
+		}
+
 	}
 
 	public void addAgentStatusMessage(ACLMessage msg) {
@@ -104,4 +103,15 @@ public class TransmitterAgent extends PhysicalAgent {
 		return agentStatusQueue;
 	}
 
+	public void removeClientMessage(MessageId messageId) {
+		List<ClientMessage> collect = clientMessages.keySet().stream().
+				filter(clientMessage -> clientMessage.getMessageId().equals(messageId)).
+				collect(Collectors.toList());
+		collect.stream().forEach(clientMessage -> clientMessages.remove(clientMessage));
+
+	}
+
+	public void addStopPropagatingClientMessage(MessageId msg) {
+		stopPropagating.add(msg);
+	}
 }
