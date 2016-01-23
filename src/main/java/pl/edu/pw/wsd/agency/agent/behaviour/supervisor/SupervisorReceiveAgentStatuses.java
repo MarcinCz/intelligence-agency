@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.supervisor;
 
 import java.io.IOException;
 import java.util.List;
@@ -44,8 +44,9 @@ public class SupervisorReceiveAgentStatuses extends CyclicBehaviour {
 		if (msg != null) {
 			switch (ConversationId.resolveConversationType(msg.getConversationId())) {
 			case DELIVER_AGENT_STATUSES:
-				log.debug("Supvervisor received new response with agent statuses from [" + msg.getSender() + "].");
-				agent.updateStatuses(readAgentStatuses(msg));
+				List<AgentStatus> readAgentStatuses = readAgentStatuses(msg);
+				log.debug("Supvervisor received new response with " + readAgentStatuses.size() + " agent statuses from [" + msg.getSender() + "].");
+				agent.updateStatuses(readAgentStatuses);
 				break;
 			default:
 				log.debug("Ignoring request with unkown conversation id [" + msg.getConversationId() + "]");

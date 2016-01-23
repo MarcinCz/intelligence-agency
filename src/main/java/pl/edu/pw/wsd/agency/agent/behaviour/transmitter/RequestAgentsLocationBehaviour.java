@@ -1,18 +1,16 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
-import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.lang.acl.ACLMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-
-import javax.xml.stream.Location;
+import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 
 /**
  * Detects Agents that are in range.
@@ -21,7 +19,7 @@ import javax.xml.stream.Location;
  */
 public class RequestAgentsLocationBehaviour extends TickerBehaviour {
 
-	public RequestAgentsLocationBehaviour(TransmitterAgent a, long period) {
+	public RequestAgentsLocationBehaviour(PhysicalAgent a, long period) {
 		super(a, period);
 	}
 

@@ -1,17 +1,19 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.physical;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
-import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.lang.acl.ACLMessage;
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.PhysicalAgent;
 import pl.edu.pw.wsd.agency.agent.ViewAgent;
@@ -52,9 +54,11 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 		updatePosition();
 
 		// send data to LocationRegistry
-		AID locationRegistry = findLocationRegistry();
-		if (locationRegistry != null) {
-			sendInfoToLocationRegistry(locationRegistry);
+		if(physicalAgent.isSendAgentLocationToRegistry()) {
+			AID locationRegistry = findLocationRegistry();
+			if (locationRegistry != null) {
+				sendInfoToLocationRegistry(locationRegistry);
+			}
 		}
 
 		// send data to ViewAgent
@@ -144,6 +148,4 @@ public class PhysicalAgentBehaviour extends TickerBehaviour {
 		}
 
 	}
-
-
 }

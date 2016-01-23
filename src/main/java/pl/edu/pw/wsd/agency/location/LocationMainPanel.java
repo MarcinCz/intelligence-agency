@@ -1,11 +1,16 @@
 package pl.edu.pw.wsd.agency.location;
 
-import com.google.common.cache.Cache;
-import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.util.concurrent.ConcurrentMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+
+import com.google.common.cache.Cache;
+
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 
 /**
  * @author <a href="mailto:adam.papros@gmail.com">Adam Papros</a>
@@ -26,7 +31,8 @@ class LocationMainPanel extends JPanel {
     }
 
 
-    public void paintComponent(final Graphics g) {
+    @Override
+	public void paintComponent(final Graphics g) {
         super.paintComponent(g);
         final Dimension size = getSize();
 
@@ -62,11 +68,13 @@ class LocationMainPanel extends JPanel {
 
             // print stored messages
             int i = 0;
-            for (MessageId messageId : point.getMessageIdList()) {
-                g.drawString(messageId.prettyToString(), x + 10, y + (11 * i));
-                i++;
-
+            if(point.getMessageIdList() != null) {
+            	for (MessageId messageId : point.getMessageIdList()) {
+            		g.drawString(messageId.prettyToString(), x + 10, y + (11 * i));
+            		i++;
+            	}
             }
+
         });
 
     }

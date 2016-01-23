@@ -1,23 +1,23 @@
 package pl.edu.pw.wsd.agency.agent;
 
 
-import javafx.geometry.Point2D;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
+
+import javafx.geometry.Point2D;
+import lombok.Getter;
+import lombok.Setter;
 import pl.edu.pw.wsd.agency.agent.behaviour.physical.PhysicalAgentBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
-
-import java.util.HashSet;
-import java.util.Set;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus.Location;
 
 @Getter
 @Setter
@@ -75,6 +75,8 @@ public abstract class PhysicalAgent extends BaseAgent {
 
 	// FIXME redundant to location.isClient
 	private boolean isClient;
+
+	private boolean sendAgentLocationToRegistry = true; //by default every physical agent sends it's location to the LocationRegistry
 
 	/**
 	 * Constructor
@@ -135,9 +137,9 @@ public abstract class PhysicalAgent extends BaseAgent {
 
 	public AgentStatus getAgentStatus() {
 		AgentStatus status = new AgentStatus();
-		// fixme point2D
-		status.setLocation(null);
-		status.setSenderId(getAgentState().getName());
+		LocationRegistryData location = getLocation();
+		status.setLocation(new Location(location.getX(), location.getY()));
+		status.setSenderId(getLocalName());
 		status.setTimestamp(DateTime.now());
 		status.setStatistics(getAgentStatistics());
 		return status;

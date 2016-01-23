@@ -1,20 +1,23 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.behaviour.ClientCreateStatusBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
-import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendMessagesBehaviour;
-import pl.edu.pw.wsd.agency.agent.behaviour.client.UserInputMessageBehaviour;
-import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
-import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import lombok.Getter;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientCreateStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendMessagesBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.UserInputMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 /**
  * Client Agent implementation.
@@ -62,6 +65,9 @@ public class ClientAgent extends PhysicalAgent {
 	protected void setup() {
 		super.setup();
 
+		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+		
 		addBehaviour(new UserInputMessageBehaviour(this));
 		addBehaviour(new ClientSendMessagesBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));

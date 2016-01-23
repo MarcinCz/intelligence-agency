@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
 
 import org.apache.logging.log4j.LogManager;

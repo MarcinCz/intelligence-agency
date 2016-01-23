@@ -6,7 +6,7 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.behaviour.TransmitterCreateStatusBehaviour;
+
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.*;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
