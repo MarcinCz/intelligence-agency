@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jade.core.behaviours.TickerBehaviour;

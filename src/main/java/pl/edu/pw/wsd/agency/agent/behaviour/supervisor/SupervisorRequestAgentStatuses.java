@@ -1,4 +1,4 @@
-package pl.edu.pw.wsd.agency.agent.behaviour;
+package pl.edu.pw.wsd.agency.agent.behaviour.supervisor;
 
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;

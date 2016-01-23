@@ -9,7 +9,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import jade.core.Agent;
@@ -17,7 +16,6 @@ import pl.edu.pw.wsd.agency.agent.ClientAgent;
 import pl.edu.pw.wsd.agency.agent.LocationRegistryAgent;
 import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.agent.ViewAgent;
 import pl.edu.pw.wsd.agency.config.properties.PropertiesClientAgentConfiguration;
 import pl.edu.pw.wsd.agency.config.properties.PropertiesSupervisorConfiguration;
 import pl.edu.pw.wsd.agency.config.properties.PropertiesTransmitterConfiguration;
@@ -30,7 +28,7 @@ import pl.edu.pw.wsd.agency.message.content.AgentStatus;
  * @author marcin.czerwinski
  *
  */
-@Ignore("Requires running jade platform")
+//@Ignore("Requires running jade platform")
 public class AgentStatusesSimulation {
 
     private static ClientAgent clientAgent;
@@ -73,7 +71,7 @@ public class AgentStatusesSimulation {
                     agentsToRun.add(transmitterAgent1);
                     agentsToRun.add(transmitterAgent2);
                     agentsToRun.add(supervisorAgent);
-                    agentsToRun.add(new ViewAgent());
+//                    agentsToRun.add(new ViewAgent());
                     agentsToRun.add(new LocationRegistryAgent());
                     return agentsToRun;
                 }

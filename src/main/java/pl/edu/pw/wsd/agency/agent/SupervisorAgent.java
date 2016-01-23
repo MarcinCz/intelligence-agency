@@ -1,15 +1,17 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorReceiveAgentStatuses;
-import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorRequestAgentStatuses;
-import pl.edu.pw.wsd.agency.config.SupervisorConfiguration;
-import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.message.content.AgentStatus;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import pl.edu.pw.wsd.agency.agent.behaviour.supervisor.SupervisorReceiveAgentStatuses;
+import pl.edu.pw.wsd.agency.agent.behaviour.supervisor.SupervisorRequestAgentStatuses;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.config.SupervisorConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 public class SupervisorAgent extends PhysicalAgent {
 
@@ -34,6 +36,11 @@ public class SupervisorAgent extends PhysicalAgent {
 	protected void setup() {
 		super.setup();
 
+		setSendAgentLocationToRegistry(false);
+		
+		addBehaviour(new RequestAgentsLocationBehaviour(this, moveBehaviourPeriod));
+		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
+		
 		addBehaviour(new SupervisorReceiveAgentStatuses(this));
 		addBehaviour(new SupervisorRequestAgentStatuses(this, requestAgentStatusesPeriod));
 	}

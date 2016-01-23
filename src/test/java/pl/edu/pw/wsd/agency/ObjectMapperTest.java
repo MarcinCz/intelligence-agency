@@ -8,18 +8,19 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.joda.time.DateTime;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jade.core.AID;
 import jade.core.Agent;
-import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.container.launcher.ContainerLauncher;
 import pl.edu.pw.wsd.agency.container.launcher.RunnableContainer;
 import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus.Location;
 
 public class ObjectMapperTest {
 
@@ -27,7 +28,7 @@ public class ObjectMapperTest {
 	public void shouldMapAgentStatus() throws IOException {
 		ObjectMapper mapper = Configuration.getInstance().getObjectMapper();
 		AgentStatus status = new AgentStatus();
-		status.setLocation(new Point2D(1, 2));
+		status.setLocation(new Location(1, 2));
 		status.setSenderId("senderId");
 		status.setTimestamp(DateTime.now());
 		AgentStatistics statistics = new AgentStatistics();
@@ -41,7 +42,8 @@ public class ObjectMapperTest {
 		
 		AgentStatus statusFromJson = mapper.readValue(statusString, AgentStatus.class);
 		
-		assertEquals(status.getLocation(), statusFromJson.getLocation());
+		assertEquals(status.getLocation().getX(), statusFromJson.getLocation().getX(), 0.1);
+		assertEquals(status.getLocation().getY(), statusFromJson.getLocation().getY(), 0.1);
 		assertEquals(status.getSenderId(), statusFromJson.getSenderId());
 		assertEquals(status.getTimestamp().getMillis(), statusFromJson.getTimestamp().getMillis());
 		assertEquals(status.getStatistics().getMessagesReceived(), statusFromJson.getStatistics().getMessagesReceived());
@@ -51,6 +53,7 @@ public class ObjectMapperTest {
 	/**
 	 * Runs real jade platform, without it AIDs don't work properly - they throw some errors about unknown locale.
 	 */
+	@Ignore("takes long to execute and currently we don't map AIDs")
 	@Test
 	public void shouldMapAID() throws IOException, InterruptedException {
 		CountDownLatch waitForTestCompletion = new CountDownLatch(1);
