@@ -23,7 +23,7 @@ public class SupervisorsToRun {
 			@Override public int getStartingPositionIndex() {return 0;}
 			@Override public double getSpeed() {return 0;}
 			@Override public double getSignalRange() {return 100;}
-			@Override public Point2D[] getPath() { return new Point2D[]{new Point2D(10, 20)};}
+			@Override public Point2D[] getPath() { return new Point2D[]{new Point2D(350, 300)};}
 			@Override public int getMoveBehaviourPeriod() {return 1000;}
 			@Override public boolean getAgentDirection() { return false;}
 			@Override public int getRequestStatusesPeriod() {return 1000;}
