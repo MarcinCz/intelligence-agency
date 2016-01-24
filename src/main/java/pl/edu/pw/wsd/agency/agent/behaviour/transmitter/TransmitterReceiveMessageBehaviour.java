@@ -1,18 +1,20 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
+import java.io.IOException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.StopPropagatingClientMessage;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
-
-import java.io.IOException;
 
 /**
  * Behaviour for receiving all the messages from other agents.
@@ -65,7 +67,7 @@ public class TransmitterReceiveMessageBehaviour extends CyclicBehaviour {
 
 						agent.removeClientMessage(stopPropagatingClientMessage.getMessageId());
 						agent.addStopPropagatingClientMessage(stopPropagatingClientMessage.getMessageId());
-						log.debug("Transmitter received new client message.");
+						log.debug("Transmitter received request to stop propagate client message [" + stopPropagatingClientMessage.getMessageId() + "]");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
