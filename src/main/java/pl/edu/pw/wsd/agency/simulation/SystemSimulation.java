@@ -18,7 +18,6 @@ public class SystemSimulation {
 	
 	private void runSimulation() throws InterruptedException {
 		runPlatform(getAgentsToRun());
-		wait();
 	}
 
 	private List<Agent> getAgentsToRun() {
@@ -34,7 +33,7 @@ public class SystemSimulation {
 	
 	private void runPlatform(List<Agent> agentsToRun) {
         new Thread(() -> {
-            ContainerLauncher.runMainContainer(false);
+            ContainerLauncher.runMainContainer();
             ContainerLauncher.runRemoteContainer(new RunnableContainer() {
 
                 @Override

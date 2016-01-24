@@ -1,28 +1,30 @@
 package pl.edu.pw.wsd.agency.agent;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.domain.DFService;
+import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
-import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.location.AgencyJFrame;
 import pl.edu.pw.wsd.agency.location.ViewEntity;
-
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Store location of ALL entities in system ( transmitters and clients0
@@ -42,12 +44,12 @@ public class ViewAgent extends Agent {
 
 	@Override
 	protected void setup() {
-		entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<PhysicalAgentId, ViewEntity>() {
-			@Override
-			public void onRemoval(RemovalNotification<PhysicalAgentId, ViewEntity> removalNotification) {
-				agencyJFrame.updateAgentsLocations();
-			}
-		}).build();
+        entityLocationCache = CacheBuilder.newBuilder().expireAfterAccess(2, TimeUnit.SECONDS).removalListener(new RemovalListener<PhysicalAgentId, ViewEntity>() {
+            @Override
+            public void onRemoval(RemovalNotification<PhysicalAgentId, ViewEntity> removalNotification) {
+                agencyJFrame.updateAgentsLocations();
+            }
+        }).build();
 
 		agencyJFrame = new AgencyJFrame(entityLocationCache);
 		DFAgentDescription dfd = createDfAgentDescription();
@@ -112,5 +114,12 @@ public class ViewAgent extends Agent {
 		public boolean done() {
 			return false;
 		}
+	}
+	
+	@Override
+	protected void takeDown() {
+		super.takeDown();
+		agencyJFrame.setVisible(false);
+		agencyJFrame.dispose();
 	}
 }

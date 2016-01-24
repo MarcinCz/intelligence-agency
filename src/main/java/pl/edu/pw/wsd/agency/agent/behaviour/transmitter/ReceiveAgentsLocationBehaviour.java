@@ -100,7 +100,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 	 */
 	private boolean isInMyRange(LocationRegistryData location) {
 		double distance = physicalAgent.getLocation().distance(location);
-		return distance <= physicalAgent.getLocation().getSignalRange();
+		return distance <= physicalAgent.getLocation().getSignalRange() + location.getSignalRange();
 	}
 
 }
