@@ -1,36 +1,30 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.AgentStatus;
-import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
-import pl.edu.pw.wsd.agency.message.envelope.Language;
-import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
-import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Receives request about stored agent statuses from supervisor
- * 
- * @author marcin.czerwinski
- *
- */
-public class TransmitterReceiveAgentStatusesRequestBehaviour extends CyclicBehaviour {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-	private static final long serialVersionUID = 6029553786003193249L;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.message.content.AgentCertificate;
+import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
+
+public class TransmitterReceiveAgentCertificatesListRequestBehaviour extends CyclicBehaviour {
+
+	private static final long serialVersionUID = 9157690027324862299L;
 	private static final Logger log = LogManager.getLogger();
 
 	private TransmitterAgent agent;
 
-	public TransmitterReceiveAgentStatusesRequestBehaviour(TransmitterAgent agent) {
+	public TransmitterReceiveAgentCertificatesListRequestBehaviour(TransmitterAgent agent) {
 		super(agent);
 		this.agent = agent;
 	}
@@ -42,14 +36,14 @@ public class TransmitterReceiveAgentStatusesRequestBehaviour extends CyclicBehav
 						MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
 						MessageTemplate.MatchLanguage(Language.JSON)
 						),
-			MessageTemplate.MatchConversationId(ConversationId.DELIVER_AGENT_STATUSES.name()));
+			MessageTemplate.MatchConversationId(ConversationId.DELIVER_AGENTS_CERTIFICATES_LIST.name()));
 
 		ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
 		if (msg != null) {
 			switch (ConversationId.resolveConversationType(msg.getConversationId())) {
-			case DELIVER_AGENT_STATUSES:
+			case DELIVER_AGENTS_CERTIFICATES_LIST:
 				log.debug("Transmitter received new request from agent statuses.");
-				sendStatusesToSupervisor(msg);
+				sendCertificatesListToClient(msg);
 				break;
 			default:
 				log.debug("Ignoring request with unkown conversation id [" + msg.getConversationId() + "]");
@@ -59,7 +53,7 @@ public class TransmitterReceiveAgentStatusesRequestBehaviour extends CyclicBehav
 		}
 	}
 
-	private void sendStatusesToSupervisor(ACLMessage msgFromSupervisor) {
+	private void sendCertificatesListToClient(ACLMessage msgFromSupervisor) {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setContent(createContent());
 		msg.setSender(agent.getAID());
@@ -69,15 +63,12 @@ public class TransmitterReceiveAgentStatusesRequestBehaviour extends CyclicBehav
 		agent.sendAndUpdateStatistics(msg);
 	}
 	
+
 	private String createContent() {
 		try {
-			AgentStatusMessageQueue queue = agent.getAgentStatusQueue();
-			List<MessageToPropagate<AgentStatus>> statuses = queue.getQueuedMessages();
-			List<AgentStatus> content = new ArrayList<>();
-			for (MessageToPropagate<AgentStatus> messageToPropagate : statuses) {
-				content.add(messageToPropagate.getContentObject());
-			}
-			return Configuration.getInstance().getObjectMapper().writeValueAsString(content);
+			List<AgentCertificate> certificates = new ArrayList<>();
+			certificates.addAll(agent.getAgentCertificates());
+			return Configuration.getInstance().getObjectMapper().writeValueAsString(certificates);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("Could not parse agent status to message content", e);
 		}

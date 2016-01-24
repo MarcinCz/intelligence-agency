@@ -2,6 +2,7 @@ package pl.edu.pw.wsd.agency.agent;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,13 +11,17 @@ import org.apache.logging.log4j.Logger;
 
 import lombok.Getter;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientCreateStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveCertificatesListBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientRequestCertificatesListBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendCertificate;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendMessagesBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.UserInputMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.config.ClientAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.AgentCertificate;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 
 /**
@@ -30,6 +35,8 @@ public class ClientAgent extends PhysicalAgent {
 	private static final long serialVersionUID = 8776284258546308595L;
 
 	private static final Logger log = LogManager.getLogger();
+
+	private long requestCertificatesPeriod;
 
 	private int createStatusPeriod;
 
@@ -71,8 +78,15 @@ public class ClientAgent extends PhysicalAgent {
 		addBehaviour(new UserInputMessageBehaviour(this));
 		addBehaviour(new ClientSendMessagesBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
+		addCertificatesBehaviours();
 
 		addStatusesBehaviours();
+	}
+
+	private void addCertificatesBehaviours() {
+		addBehaviour(new ClientSendCertificate(this));
+		addBehaviour(new ClientRequestCertificatesListBehaviour(this, requestCertificatesPeriod));
+		addBehaviour(new ClientReceiveCertificatesListBehaviour(this));
 	}
 
 	private void addStatusesBehaviours() {
@@ -82,6 +96,7 @@ public class ClientAgent extends PhysicalAgent {
 	protected void loadConfiguration(ClientAgentConfiguration config) {
 		super.loadConfiguration(config);
 		createStatusPeriod = config.getCreateNewStatusPeriod();
+		requestCertificatesPeriod = config.getRequestCertificatesPeriod();
 	}
 
 	public void queueClientMessage(ClientMessage cm) {
@@ -96,5 +111,9 @@ public class ClientAgent extends PhysicalAgent {
 		} else {
 			receivedMessages.put(clientMessage, 1);
 		}
+	}
+
+	public void updateCertificates(List<AgentCertificate> AgentCertificates) {
+		getAgentCertificates().addAll(AgentCertificates);
 	}
 }
