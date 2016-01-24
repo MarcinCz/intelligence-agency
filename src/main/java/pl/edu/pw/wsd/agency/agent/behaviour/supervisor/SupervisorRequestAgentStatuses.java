@@ -1,15 +1,16 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.supervisor;
 
-import jade.core.behaviours.TickerBehaviour;
-import jade.lang.acl.ACLMessage;
+import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
-
-import java.util.Set;
 
 /**
  * Request agent statuses from transmitters in range.
@@ -42,7 +43,7 @@ public class SupervisorRequestAgentStatuses extends TickerBehaviour {
 		ACLMessage aclm = new ACLMessage(ACLMessage.REQUEST);
 		aclm.addReceiver(receiver.toAID());
 		aclm.setLanguage(Language.JSON);
-		aclm.setConversationId(ConversationId.DELIVER_AGENT_STATUSES.generateId());
+		aclm.setConversationId(ConversationId.DELIVER_AGENT_STATUSES.name());
 		aclm.setSender(agent.getAID());
 		agent.sendAndUpdateStatistics(aclm);
 		log.debug("Agent statuses from transmitter [" + receiver.getLocalName() + "] requested");
