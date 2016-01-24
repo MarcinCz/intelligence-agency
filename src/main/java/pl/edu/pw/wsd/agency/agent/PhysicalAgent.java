@@ -101,22 +101,24 @@ public abstract class PhysicalAgent extends BaseAgent {
 		speed = cfg.getSpeed();
 		agentDirection = cfg.getAgentDirection();
 		int spi = cfg.getStartingPositionIndex();
-		Point2D startingPoint = cfg.getStartingPosition();
+		Point2D startingPoint = path[spi];
 		location = new LocationRegistryData(startingPoint.getX(), startingPoint.getY(), cfg.getSignalRange(), this.isClient);
-		// set current target point
-		if (agentDirection) {
-			if (spi == path.length) {
-				agentDirection = false;
-				targetPointIndex = spi - 1;
+		if(path.length > 1) {
+			// set current target point
+			if (agentDirection) {
+				if (spi == path.length) {
+					agentDirection = false;
+					targetPointIndex = spi - 1;
+				} else {
+					targetPointIndex = spi + 1;
+				}
 			} else {
-				targetPointIndex = spi + 1;
-			}
-		} else {
-			if (spi == 0) {
-				agentDirection = true;
-				targetPointIndex = spi + 1;
-			} else {
-				targetPointIndex = spi - 1;
+				if (spi == 0) {
+					agentDirection = true;
+					targetPointIndex = spi + 1;
+				} else {
+					targetPointIndex = spi - 1;
+				}
 			}
 		}
 
@@ -156,7 +158,7 @@ public abstract class PhysicalAgent extends BaseAgent {
 		Point2D target = getCurrentTarget();
 		double distance = target.distance(location.getX(), location.getY());
 		log.trace("Distance: " + distance);
-		if (distance < speed) {
+		if (distance < speed && path.length > 1) {
 			Point2D[] path = getPath();
 			int targetPointIndex = getTargetPointIndex();
 			if (agentDirection) {

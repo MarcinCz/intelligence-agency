@@ -1,9 +1,9 @@
 package pl.edu.pw.wsd.agency.config.properties;
 
+import java.util.List;
+
 import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
-
-import java.util.List;
 
 public class PropertiesMovingAgentConfiguration extends PropertiesBaseAgentConfiguration implements MovingAgentConfiguration {
 
@@ -56,10 +56,5 @@ public class PropertiesMovingAgentConfiguration extends PropertiesBaseAgentConfi
 	@Override
 	public double getSignalRange() {
 		return cfg.getDouble(SIGNAL_RANGE_KEY, -1.0d);
-	}
-
-	@Override
-	public Point2D getStartingPosition() {
-		return getPath()[getStartingPositionIndex()];
 	}
 }

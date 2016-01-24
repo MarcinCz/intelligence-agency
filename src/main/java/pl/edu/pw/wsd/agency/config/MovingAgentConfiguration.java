@@ -2,7 +2,7 @@ package pl.edu.pw.wsd.agency.config;
 
 import javafx.geometry.Point2D;
 
-public interface MovingAgentConfiguration extends BaseAgentConfiguration {
+public interface MovingAgentConfiguration {
 
 	Point2D[] getPath();
 	double getSpeed();
