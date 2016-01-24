@@ -1,19 +1,21 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.client;
 
+import java.io.IOException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.agent.ClientAgent;
 import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.content.StopPropagatingClientMessage;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
-
-import java.io.IOException;
 
 /**
  * @author apapros
@@ -40,7 +42,7 @@ public class ClientReceiveMessage extends TickerBehaviour {
 				MessageTemplate.MatchReceiver(new AID[]{clientAgent.getAID()}));
 
 		// FIXME :: stats ?
-		ACLMessage receivedMessage = clientAgent.receive(tm);
+		ACLMessage receivedMessage = clientAgent.receiveAndUpdateStatistics(tm);
 
 		if (receivedMessage != null) {
 			try {
@@ -63,7 +65,7 @@ public class ClientReceiveMessage extends TickerBehaviour {
 				StopPropagatingClientMessage stopPropagatingClientMessage = new StopPropagatingClientMessage();
 				stopPropagatingClientMessage.setMessageId(clientMessage.getMessageId());
 				reply.setContent(stopPropagatingClientMessage.serialize());
-				clientAgent.send(reply);
+				clientAgent.sendAndUpdateStatistics(reply);
 
 			} catch (IOException e) {
 				e.printStackTrace();

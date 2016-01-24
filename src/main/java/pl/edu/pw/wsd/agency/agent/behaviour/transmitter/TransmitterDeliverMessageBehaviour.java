@@ -1,23 +1,25 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
-import jade.core.AID;
-import jade.core.behaviours.TickerBehaviour;
-import jade.lang.acl.ACLMessage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
-import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
-import pl.edu.pw.wsd.agency.config.Configuration;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-import pl.edu.pw.wsd.agency.message.envelope.Language;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
+
+import jade.core.AID;
+import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.envelope.Language;
 
 /**
  * @author apapros
@@ -75,8 +77,7 @@ public class TransmitterDeliverMessageBehaviour extends TickerBehaviour {
 				aclMessage.clearAllReceiver();
 				aclMessage.addReceiver(aid);
 				aclMessage.setSender(transmitterAgent.getAID());
-				// FIXME :: stats?
-				transmitterAgent.send(aclMessage);
+				transmitterAgent.sendAndUpdateStatistics(aclMessage);
 			}
 		});
 

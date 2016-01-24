@@ -45,7 +45,7 @@ public class ReceiveAgentsLocationBehaviour extends Behaviour {
 	public void action() {
 		MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchReceiver(new AID[]{physicalAgent.getAID()}),
 				MessageTemplate.MatchConversationId(LocationRegistryAgent.LOCATION_CONVERSATION_ID));
-		ACLMessage msg = physicalAgent.receiveAndUpdateStatistics(mt);
+		ACLMessage msg = physicalAgent.receive(mt);
 		if (msg != null) {
 			try {
 				String content = msg.getContent();

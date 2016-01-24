@@ -1,9 +1,13 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
-import jade.core.behaviours.TickerBehaviour;
-import jade.lang.acl.ACLMessage;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import jade.core.behaviours.TickerBehaviour;
+import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -11,9 +15,6 @@ import pl.edu.pw.wsd.agency.message.content.ClientMessage;
 import pl.edu.pw.wsd.agency.message.content.StopPropagatingClientMessage;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
-
-import java.util.Map;
-import java.util.Set;
 
 public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 
@@ -42,7 +43,7 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 				msg.setContent(new StopPropagatingClientMessage(messageId).serialize());
 				msg.setLanguage(Language.JSON);
 				msg.setConversationId(ConversationId.STOP_PROPAGATING_CLIENT_MESSAGE.name());
-				transmitterAgent.send(msg);
+				transmitterAgent.sendAndUpdateStatistics(msg);
 			}
 
 		}
@@ -64,8 +65,7 @@ public class TransmitterPropagateMessageBehaviour extends TickerBehaviour {
 					msg.setLanguage(Language.JSON);
 					msg.setConversationId(ConversationId.CLIENT_MESSAGE.name());
 
-					// FIXME stats ?
-					this.transmitterAgent.send(msg);
+					this.transmitterAgent.sendAndUpdateStatistics(msg);
 
 					physicalAgentIds.add(receiver);
 

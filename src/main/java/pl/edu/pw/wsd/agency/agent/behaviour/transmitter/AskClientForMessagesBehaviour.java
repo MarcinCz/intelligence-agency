@@ -1,12 +1,12 @@
 package pl.edu.pw.wsd.agency.agent.behaviour.transmitter;
 
+import java.util.Set;
+
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
-
-import java.util.Set;
 
 /**
  * @author <a href="mailto:adam.papros@gmail.com">Adam Papros</a>
@@ -30,7 +30,7 @@ public class AskClientForMessagesBehaviour extends TickerBehaviour {
 			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 			msg.addReceiver(physicalAgentId.toAID());
 			msg.setConversationId(ConversationId.CLIENT_MESSAGE_REQUEST.name());
-			myAgent.send(msg);
+			transmitterAgent.sendAndUpdateStatistics(msg);
 		});
 	}
 }
