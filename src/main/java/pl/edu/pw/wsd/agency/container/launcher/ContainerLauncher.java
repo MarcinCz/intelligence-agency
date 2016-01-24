@@ -77,7 +77,17 @@ public class ContainerLauncher {
 			currentCount = 1;
 		}
 		
+		String klasa = null;
+		if(className.equals("ClientAgent")){
+			klasa="C"; 
+		}
+		if(className.equals("TransmitterAgent")){
+			klasa="T"; 
+		}
+		if(className.equals("SupervisorAgent")){
+			klasa="S"; 
+		}
 		agentsNameCounter.put(className, currentCount);
-		return className + "_" + currentCount;
+		return klasa + "_" + currentCount;
 	}
 }

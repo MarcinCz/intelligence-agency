@@ -13,7 +13,8 @@ public class ClientsToRun {
 		List<Agent> agentsToRun = new ArrayList<>();
 		agentsToRun.add(new ClientAgent(new PropertiesClientAgentConfiguration("ClientAgent1.properties")));
 		agentsToRun.add(new ClientAgent(new PropertiesClientAgentConfiguration("ClientAgent2.properties")));
-
+		agentsToRun.add(new ClientAgent(new PropertiesClientAgentConfiguration("ClientAgent3.properties")));
+		
 		return agentsToRun;
 	}
 }
