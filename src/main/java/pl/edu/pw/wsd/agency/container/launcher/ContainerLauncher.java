@@ -13,6 +13,9 @@ import jade.core.ProfileImpl;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
+import pl.edu.pw.wsd.agency.agent.ClientAgent;
+import pl.edu.pw.wsd.agency.agent.SupervisorAgent;
+import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.config.ContainerConfig;
 
 /**
@@ -69,6 +72,15 @@ public class ContainerLauncher {
 	
 	private static String getAgentName(Agent agent, Map<String, Integer> agentsNameCounter) {
 		String className = agent.getClass().getSimpleName();
+		if(agent instanceof ClientAgent){
+			className="C"; 
+		}
+		if(agent instanceof TransmitterAgent){
+			className="T"; 
+		}
+		if(agent instanceof SupervisorAgent){
+			className="S"; 
+		}
 		int currentCount;
 
 		if(agentsNameCounter.containsKey(className)) {
@@ -77,17 +89,7 @@ public class ContainerLauncher {
 			currentCount = 1;
 		}
 		
-		String klasa = null;
-		if(className.equals("ClientAgent")){
-			klasa="C"; 
-		}
-		if(className.equals("TransmitterAgent")){
-			klasa="T"; 
-		}
-		if(className.equals("SupervisorAgent")){
-			klasa="S"; 
-		}
 		agentsNameCounter.put(className, currentCount);
-		return klasa + "_" + currentCount;
+		return className + "_" + currentCount;
 	}
 }
