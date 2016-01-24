@@ -12,6 +12,8 @@ public class ClientsToRun {
 	public static List<Agent> getClientsToRun() {
 		List<Agent> agentsToRun = new ArrayList<>();
 		agentsToRun.add(new ClientAgent(new PropertiesClientAgentConfiguration("ClientAgent1.properties")));
+		agentsToRun.add(new ClientAgent(new PropertiesClientAgentConfiguration("ClientAgent2.properties")));
+
 		return agentsToRun;
 	}
 }

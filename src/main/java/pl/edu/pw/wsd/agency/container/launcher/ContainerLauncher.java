@@ -1,14 +1,18 @@
 package pl.edu.pw.wsd.agency.container.launcher;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import pl.edu.pw.wsd.agency.config.ContainerConfig;
 
 /**
@@ -48,9 +52,11 @@ public class ContainerLauncher {
 		AgentContainer c = jadeRuntime.createAgentContainer(profile);
 		log.info("Container [" + containerName + "] created");
 
+		Map<String, Integer> agentsNameCounter = new HashMap<>();
 		for(Agent agent: container.getAgentsToRun()) {
 			try {
-				String agentName = agent.getClass().getSimpleName() + "_" + RandomStringUtils.randomNumeric(4);
+				
+				String agentName = getAgentName(agent, agentsNameCounter);
 				AgentController agentController = c.acceptNewAgent(agentName, agent);
 				agentController.start();
 				log.debug("Added agent [" + agentName + "]");
@@ -59,5 +65,19 @@ public class ContainerLauncher {
 			}
 		}
 		log.info("Added all the agents to container [" + containerName + "]");
+	}
+	
+	private static String getAgentName(Agent agent, Map<String, Integer> agentsNameCounter) {
+		String className = agent.getClass().getSimpleName();
+		int currentCount;
+
+		if(agentsNameCounter.containsKey(className)) {
+			currentCount = agentsNameCounter.get(className) + 1;
+		} else {
+			currentCount = 1;
+		}
+		
+		agentsNameCounter.put(className, currentCount);
+		return className + "_" + currentCount;
 	}
 }
