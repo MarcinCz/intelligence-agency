@@ -10,7 +10,6 @@ import jade.core.Agent;
 import javafx.geometry.Point2D;
 import pl.edu.pw.wsd.agency.agent.TransmitterAgent;
 import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
-import pl.edu.pw.wsd.agency.config.properties.PropertiesTransmitterConfiguration;
 
 public class TransmittersToRun {
 
@@ -92,7 +91,7 @@ public class TransmittersToRun {
 	private static TransmitterConfiguration getTransmitterConfiguration(Point2D[] path, double speed) {
 		TransmitterConfiguration config = mock(TransmitterConfiguration.class);
 		
-		when(config.getCreateNewStatusPeriod()).thenReturn(1000);
+		when(config.getCreateNewStatusPeriod()).thenReturn(10000);
 		when(config.getMoveBehaviourPeriod()).thenReturn(1000);
 		when(config.getPropagateStatusesPeriod()).thenReturn(1000);
 
