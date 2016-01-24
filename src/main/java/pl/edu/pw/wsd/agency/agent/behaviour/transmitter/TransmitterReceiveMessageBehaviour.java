@@ -46,6 +46,10 @@ public class TransmitterReceiveMessageBehaviour extends CyclicBehaviour {
 					agent.addAgentStatusMessage(msg);
 					log.debug("Transmitter received new agent status.");
 					break;
+				case PROPAGATE_AGENT_CERTIFICATE:
+					agent.addAgentCertificateMessage(msg);
+					log.debug("Transmitter received new agent status.");
+					break;
 				case CLIENT_MESSAGE:
 					agent.addNewClientMessage(msg);
 					log.debug("Transmitter received new client message.");

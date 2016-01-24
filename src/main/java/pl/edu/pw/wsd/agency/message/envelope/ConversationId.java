@@ -33,7 +33,26 @@ public enum ConversationId {
 	 */
 	CLIENT_MESSAGE_REQUEST,
 
+	/**
+	 * Transmitter is asked to propagate agent certificate so it can be delivered to supervisor.
+	 */
+	PROPAGATE_AGENT_CERTIFICATE,
+	
+	/**
+	 * Supervisor asks for agent certificate stored by transmitter.
+	 */
+	DELIVER_AGENT_CERTIFICATES,
+	
+	/**
+	 * Transmitter is asked to propagate agents' certificates list so it can be delivered to client.
+	 */
+	PROPAGATE_AGENTS_CERTIFICATES_LIST,
 
+	/**
+	 * agent asks for agent status stored by transmitter.
+	 */
+	DELIVER_AGENTS_CERTIFICATES_LIST,
+	
 	UNKOWN;
 
 	/**

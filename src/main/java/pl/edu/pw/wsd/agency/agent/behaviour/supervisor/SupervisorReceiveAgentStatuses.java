@@ -37,8 +37,11 @@ public class SupervisorReceiveAgentStatuses extends CyclicBehaviour {
 	@Override
 	public void action() {
 		MessageTemplate mt = MessageTemplate.and(
-				MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-				MessageTemplate.MatchLanguage(Language.JSON));
+				MessageTemplate.and(
+						MessageTemplate.MatchPerformative(ACLMessage.INFORM),
+						MessageTemplate.MatchLanguage(Language.JSON)
+						),
+			MessageTemplate.MatchConversationId(ConversationId.DELIVER_AGENT_STATUSES.name()));
 
 		ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
 		if (msg != null) {

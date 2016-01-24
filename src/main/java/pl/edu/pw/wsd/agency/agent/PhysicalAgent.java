@@ -1,6 +1,7 @@
 package pl.edu.pw.wsd.agency.agent;
 
 
+import java.security.KeyPair;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,8 +17,10 @@ import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.MovingAgentConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.location.message.content.LocationRegistryData;
+import pl.edu.pw.wsd.agency.message.content.AgentCertificate;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 import pl.edu.pw.wsd.agency.message.content.AgentStatus.Location;
+import pl.edu.pw.wsd.agency.pki.KeyGenerator;
 
 @Getter
 @Setter
@@ -72,12 +75,24 @@ public abstract class PhysicalAgent extends BaseAgent {
 	 * agent will move along this path
 	 */
 	private Point2D[] path;
-
+	
 	// FIXME redundant to location.isClient
 	private boolean isClient;
 
 	private boolean sendAgentLocationToRegistry = true; //by default every physical agent sends it's location to the LocationRegistry
 
+	/**
+	 * agent public/private keys
+	 */
+	@Getter
+	private KeyPair securityKeyPair;
+
+	/**
+	 * agents' public keys
+	 */
+	@Getter
+	private Set<AgentCertificate> agentCertificates;
+	
 	/**
 	 * Constructor
 	 */
@@ -85,6 +100,8 @@ public abstract class PhysicalAgent extends BaseAgent {
 		super();
 		loadConfiguration(config);
 		this.isClient = isClient;
+		securityKeyPair = KeyGenerator.generateKeyPair();
+		agentCertificates = new HashSet<>();
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import lombok.Getter;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientCreateStatusBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientReceiveMessage;
+import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendCertificate;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.ClientSendMessagesBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.client.UserInputMessageBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
@@ -71,6 +72,7 @@ public class ClientAgent extends PhysicalAgent {
 		addBehaviour(new UserInputMessageBehaviour(this));
 		addBehaviour(new ClientSendMessagesBehaviour(this, moveBehaviourPeriod));
 		addBehaviour(new ClientReceiveMessage(this, moveBehaviourPeriod));
+		addBehaviour(new ClientSendCertificate(this));
 
 		addStatusesBehaviours();
 	}

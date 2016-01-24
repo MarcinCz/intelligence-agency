@@ -12,6 +12,7 @@ import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
 import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
 import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.propagate.AgentCertificateMessageQueue;
 import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 import java.io.IOException;
@@ -36,6 +37,10 @@ public class TransmitterAgent extends PhysicalAgent {
 	private Set<MessageId> stopPropagating = Sets.newHashSet();
 
 	private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
+	
+	private AgentCertificateMessageQueue agentCertificateQueue = new AgentCertificateMessageQueue();
+	
+//	private 
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -67,6 +72,13 @@ public class TransmitterAgent extends PhysicalAgent {
 		addBehaviour(new ReceiveAgentsLocationBehaviour(this));
 
 		addStatusesBehaviours();
+		
+		addCertificateBehaviours();
+	}
+
+	private void addCertificateBehaviours() {
+		addBehaviour(new TransmitterPropagateAgentCertificateBehaviour(this, propagateStatusPeriod));
+		addBehaviour(new TransmitterReceiveAgentCertificatesRequestBehaviour(this));
 	}
 
 	private void addStatusesBehaviours() {
@@ -113,5 +125,9 @@ public class TransmitterAgent extends PhysicalAgent {
 
 	public void addStopPropagatingClientMessage(MessageId msg) {
 		stopPropagating.add(msg);
+	}
+
+	public void addAgentCertificateMessage(ACLMessage msg) {
+		agentCertificateQueue.queueMessage(msg);
 	}
 }
