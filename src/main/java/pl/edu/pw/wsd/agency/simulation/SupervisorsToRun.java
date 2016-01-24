@@ -26,7 +26,7 @@ public class SupervisorsToRun {
 			@Override public Point2D[] getPath() { return new Point2D[]{new Point2D(350, 300)};}
 			@Override public int getMoveBehaviourPeriod() {return 1000;}
 			@Override public boolean getAgentDirection() { return false;}
-			@Override public int getRequestStatusesPeriod() {return 1000;}
+			@Override public int getRequestStatusesPeriod() {return 5000;}
 			@Override public int getAgentHeartbeatMaxPeriod() {	return 1000;}
 			// @formatter:on
 		};

@@ -24,7 +24,7 @@ public class SupervisorAgent extends PhysicalAgent {
 	private Map<String, AgentStatus> agentStatuses = new HashMap<>();
 	private int agentHeartbeatMaxPeriod;
 	private int requestAgentStatusesPeriod;
-	private int requestAgentCertificatesPeriod;
+	private int requestAgentCertificatesPeriod = 10000;
 
 	public SupervisorAgent(SupervisorConfiguration config) {
 		super(config, false);
