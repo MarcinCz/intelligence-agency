@@ -1,26 +1,43 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
-import jade.lang.acl.ACLMessage;
-import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.*;
-import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
-import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
-import pl.edu.pw.wsd.agency.location.MessageId;
-import pl.edu.pw.wsd.agency.message.content.ClientMessage;
-import pl.edu.pw.wsd.agency.message.propagate.AgentCertificateMessageQueue;
-import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
+
+import jade.lang.acl.ACLMessage;
+import lombok.Getter;
+import lombok.Setter;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.AskClientForMessagesBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterCreateStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterDeliverMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterPropagateAgentCertificateBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterPropagateAgentCertificatesListBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterPropagateAgentStatusBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterPropagateMessageBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterReceiveAgentCertificatesListRequestBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterReceiveAgentCertificatesRequestBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterReceiveAgentStatusesRequestBehaviour;
+import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.TransmitterReceiveMessageBehaviour;
+import pl.edu.pw.wsd.agency.common.PhysicalAgentId;
+import pl.edu.pw.wsd.agency.config.Configuration;
+import pl.edu.pw.wsd.agency.config.TransmitterConfiguration;
+import pl.edu.pw.wsd.agency.location.MessageId;
+import pl.edu.pw.wsd.agency.message.content.AgentCertificate;
+import pl.edu.pw.wsd.agency.message.content.ClientMessage;
+import pl.edu.pw.wsd.agency.message.propagate.AgentCertificateMessageQueue;
+import pl.edu.pw.wsd.agency.message.propagate.AgentStatusMessageQueue;
 
 @Getter
 public class TransmitterAgent extends PhysicalAgent {
@@ -39,6 +56,11 @@ public class TransmitterAgent extends PhysicalAgent {
 	private AgentStatusMessageQueue agentStatusQueue = new AgentStatusMessageQueue();
 	
 	private AgentCertificateMessageQueue agentCertificateQueue = new AgentCertificateMessageQueue();
+	
+	@Setter
+	private boolean shouldPropagateCertificatesList = false;
+	
+	private ACLMessage certificatesListMessage;
 	
 //	private 
 
@@ -79,6 +101,8 @@ public class TransmitterAgent extends PhysicalAgent {
 	private void addCertificateBehaviours() {
 		addBehaviour(new TransmitterPropagateAgentCertificateBehaviour(this, propagateStatusPeriod));
 		addBehaviour(new TransmitterReceiveAgentCertificatesRequestBehaviour(this));
+		addBehaviour(new TransmitterPropagateAgentCertificatesListBehaviour(this, propagateStatusPeriod));
+		addBehaviour(new TransmitterReceiveAgentCertificatesListRequestBehaviour(this));
 	}
 
 	private void addStatusesBehaviours() {
@@ -129,5 +153,23 @@ public class TransmitterAgent extends PhysicalAgent {
 
 	public void addAgentCertificateMessage(ACLMessage msg) {
 		agentCertificateQueue.queueMessage(msg);
+	}
+
+	public void addAgentCertificateListMessage(ACLMessage msg) {
+		if(msg.equals(certificatesListMessage)){
+			shouldPropagateCertificatesList = false;
+		} else{
+			shouldPropagateCertificatesList = true;
+			certificatesListMessage = msg;
+			getAgentCertificates().addAll(readAgentCertificates(msg));
+		}
+		
+	}
+	private List<AgentCertificate> readAgentCertificates(ACLMessage msg) {
+		try {
+			return Configuration.getInstance().getObjectMapper().readValue(msg.getContent(), new TypeReference<List<AgentCertificate>>() {});
+		} catch (IOException e) {
+			throw new IllegalStateException("Could not parse agent statuses from content [" + msg.getContent() + "]");
+		}
 	}
 }

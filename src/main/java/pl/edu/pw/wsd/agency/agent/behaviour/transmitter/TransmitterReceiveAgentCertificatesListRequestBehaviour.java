@@ -16,17 +16,15 @@ import pl.edu.pw.wsd.agency.config.Configuration;
 import pl.edu.pw.wsd.agency.message.content.AgentCertificate;
 import pl.edu.pw.wsd.agency.message.envelope.ConversationId;
 import pl.edu.pw.wsd.agency.message.envelope.Language;
-import pl.edu.pw.wsd.agency.message.propagate.AgentCertificateMessageQueue;
-import pl.edu.pw.wsd.agency.message.propagate.MessageToPropagate;
 
-public class TransmitterReceiveAgentCertificatesRequestBehaviour extends CyclicBehaviour {
+public class TransmitterReceiveAgentCertificatesListRequestBehaviour extends CyclicBehaviour {
 
-	private static final long serialVersionUID = 167485150851031436L;
+	private static final long serialVersionUID = 9157690027324862299L;
 	private static final Logger log = LogManager.getLogger();
 
 	private TransmitterAgent agent;
 
-	public TransmitterReceiveAgentCertificatesRequestBehaviour(TransmitterAgent agent) {
+	public TransmitterReceiveAgentCertificatesListRequestBehaviour(TransmitterAgent agent) {
 		super(agent);
 		this.agent = agent;
 	}
@@ -38,14 +36,14 @@ public class TransmitterReceiveAgentCertificatesRequestBehaviour extends CyclicB
 						MessageTemplate.MatchPerformative(ACLMessage.REQUEST),
 						MessageTemplate.MatchLanguage(Language.JSON)
 						),
-			MessageTemplate.MatchConversationId(ConversationId.DELIVER_AGENT_CERTIFICATES.name()));
+			MessageTemplate.MatchConversationId(ConversationId.DELIVER_AGENTS_CERTIFICATES_LIST.name()));
 
 		ACLMessage msg = agent.receiveAndUpdateStatistics(mt);
 		if (msg != null) {
 			switch (ConversationId.resolveConversationType(msg.getConversationId())) {
-			case DELIVER_AGENT_CERTIFICATES:
+			case DELIVER_AGENTS_CERTIFICATES_LIST:
 				log.debug("Transmitter received new request from agent statuses.");
-				sendCertificatesToSupervisor(msg);
+				sendCertificatesListToClient(msg);
 				break;
 			default:
 				log.debug("Ignoring request with unkown conversation id [" + msg.getConversationId() + "]");
@@ -55,7 +53,7 @@ public class TransmitterReceiveAgentCertificatesRequestBehaviour extends CyclicB
 		}
 	}
 
-	private void sendCertificatesToSupervisor(ACLMessage msgFromSupervisor) {
+	private void sendCertificatesListToClient(ACLMessage msgFromSupervisor) {
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setContent(createContent());
 		msg.setSender(agent.getAID());
@@ -65,15 +63,12 @@ public class TransmitterReceiveAgentCertificatesRequestBehaviour extends CyclicB
 		agent.sendAndUpdateStatistics(msg);
 	}
 	
+
 	private String createContent() {
 		try {
-			AgentCertificateMessageQueue queue = agent.getAgentCertificateQueue();
-			List<MessageToPropagate<AgentCertificate>> certificates = queue.getQueuedMessages();
-			List<AgentCertificate> content = new ArrayList<>();
-			for (MessageToPropagate<AgentCertificate> messageToPropagate : certificates) {
-				content.add(messageToPropagate.getContentObject());
-			}
-			return Configuration.getInstance().getObjectMapper().writeValueAsString(content);
+			List<AgentCertificate> certificates = new ArrayList<>();
+			certificates.addAll(agent.getAgentCertificates());
+			return Configuration.getInstance().getObjectMapper().writeValueAsString(certificates);
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException("Could not parse agent status to message content", e);
 		}

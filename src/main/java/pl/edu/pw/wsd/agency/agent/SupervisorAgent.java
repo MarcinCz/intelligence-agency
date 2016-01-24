@@ -86,7 +86,11 @@ public class SupervisorAgent extends PhysicalAgent {
 		return true;
 	}
 
-	public boolean updateCertificates(AgentCertificate agentCertificate) {
-		return getAgentCertificates().add(agentCertificate);
+	public boolean updateCertificates(List<AgentCertificate> agentCertificates) {
+		boolean certificatesChanged = false;
+		for (AgentCertificate cert : agentCertificates){
+			certificatesChanged = certificatesChanged || getAgentCertificates().add(cert);   
+		}
+		return certificatesChanged;
 	}
 }
