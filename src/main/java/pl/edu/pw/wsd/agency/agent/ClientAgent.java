@@ -36,7 +36,7 @@ public class ClientAgent extends PhysicalAgent {
 
 	private static final Logger log = LogManager.getLogger();
 
-	private long requestCertificatesBehaviour;
+	private long requestCertificatesPeriod;
 
 	private int createStatusPeriod;
 
@@ -85,7 +85,7 @@ public class ClientAgent extends PhysicalAgent {
 
 	private void addCertificatesBehaviours() {
 		addBehaviour(new ClientSendCertificate(this));
-		addBehaviour(new ClientRequestCertificatesListBehaviour(this, requestCertificatesBehaviour));
+		addBehaviour(new ClientRequestCertificatesListBehaviour(this, requestCertificatesPeriod));
 		addBehaviour(new ClientReceiveCertificatesListBehaviour(this));
 	}
 
@@ -96,6 +96,7 @@ public class ClientAgent extends PhysicalAgent {
 	protected void loadConfiguration(ClientAgentConfiguration config) {
 		super.loadConfiguration(config);
 		createStatusPeriod = config.getCreateNewStatusPeriod();
+		requestCertificatesPeriod = config.getRequestCertificatesPeriod();
 	}
 
 	public void queueClientMessage(ClientMessage cm) {
