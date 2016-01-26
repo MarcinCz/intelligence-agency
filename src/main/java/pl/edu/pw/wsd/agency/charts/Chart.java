@@ -2,6 +2,9 @@ package pl.edu.pw.wsd.agency.charts;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -13,7 +16,6 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 import org.joda.time.DateTime;
 
 import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
@@ -27,7 +29,7 @@ public class Chart extends ApplicationFrame
 
    public Chart( String title, DateTime startDate )
    {
-      super("Statistics");
+      super("Statistics - " + title);
       
       received = new XYSeries( "Received" );
       sent = new XYSeries( "Sent" );
@@ -44,7 +46,7 @@ public class Chart extends ApplicationFrame
          true , true , false);
          
       ChartPanel chartPanel = new ChartPanel( xylineChart );
-      chartPanel.setPreferredSize( new java.awt.Dimension( 1120 , 734 ) );
+      chartPanel.setPreferredSize( new java.awt.Dimension( 560 , 367 ) );
       final XYPlot plot = xylineChart.getXYPlot( );
       XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer( );
       renderer.setSeriesPaint( 0, Color.RED );
@@ -55,7 +57,11 @@ public class Chart extends ApplicationFrame
       setContentPane( chartPanel ); 
       
       this.pack( );          
-      RefineryUtilities.centerFrameOnScreen( this );          
+	  GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	  GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+	  Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+	  int x = (int) rect.getMaxX() - this.getWidth();
+	  this.setLocation(x, 0);
       this.setVisible( true ); 
 
    }
@@ -68,15 +74,11 @@ public class Chart extends ApplicationFrame
       return dataset;
    }
    
-   public void addDataset( AgentStatus status )
+   public void addStatus( AgentStatus status )
    {
 	   double timeInMilliseconds = (status.getTimestamp().getMillis() - startDate.getMillis()) / 1000.0;
 	   received.add(timeInMilliseconds, status.getStatistics().getMessagesReceived());
 	   sent.add(timeInMilliseconds, status.getStatistics().getMessagesSent());
-	   
-	      this.pack( );          
-	      RefineryUtilities.centerFrameOnScreen( this );          
-	      this.setVisible( true ); 
    }
 
    public static void main( String[ ] args ) 
@@ -88,6 +90,6 @@ public class Chart extends ApplicationFrame
 	   statistics.setMessagesReceived(12);
 	   statistics.setMessagesSent(10);
 	   status.setStatistics(statistics);
-	   chart.addDataset(status);
+	   chart.addStatus(status);
    }
 }

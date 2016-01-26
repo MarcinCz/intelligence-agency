@@ -20,12 +20,12 @@ public class ChartsManager
    public void handleNewStatus( AgentStatus status )
    {
 	   if (charts.containsKey(status.getSenderId()))
-		   charts.get(status.getSenderId()).addDataset(status);
+		   charts.get(status.getSenderId()).addStatus(status);
 	   else
 	   {
 		   Chart newChart = new Chart( status.getSenderId(), startDate );
 		   charts.put(status.getSenderId(), newChart );
-		   charts.get(status.getSenderId()).addDataset(status);
+		   charts.get(status.getSenderId()).addStatus(status);
 	   }
    }
 }
