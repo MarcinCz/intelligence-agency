@@ -1,14 +1,9 @@
 package pl.edu.pw.wsd.agency.agent;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.jws.HandlerChain;
 
 import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorReceiveAgentCertificates;
 import pl.edu.pw.wsd.agency.agent.behaviour.SupervisorRequestAgentCertificates;
@@ -16,7 +11,6 @@ import pl.edu.pw.wsd.agency.agent.behaviour.supervisor.SupervisorReceiveAgentSta
 import pl.edu.pw.wsd.agency.agent.behaviour.supervisor.SupervisorRequestAgentStatuses;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.ReceiveAgentsLocationBehaviour;
 import pl.edu.pw.wsd.agency.agent.behaviour.transmitter.RequestAgentsLocationBehaviour;
-import pl.edu.pw.wsd.agency.charts.Chart;
 import pl.edu.pw.wsd.agency.charts.ChartsManager;
 import pl.edu.pw.wsd.agency.config.SupervisorConfiguration;
 import pl.edu.pw.wsd.agency.location.MessageId;
@@ -82,24 +76,6 @@ public class SupervisorAgent extends PhysicalAgent {
 			}
 		}
 	}
-
-	private void SaveStatus(AgentStatus agentStatus) {
-		FileWriter out;
-		FileWriter out2;
-		try {
-			out = new FileWriter( agentStatus.getSenderId() + "_R.txt", true);
-			out.write( agentStatus.getTimestamp() + " , " + agentStatus.getStatistics().getMessagesReceived());
-			out2 = new FileWriter( agentStatus.getSenderId() + "_S.txt", true);
-			out2.write( agentStatus.getTimestamp() + " , " + agentStatus.getStatistics().getMessagesSent());
-			out.close();
-			out2.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 
 	public Map<String, AgentStatus> getAgentStatuses() {
 		return agentStatuses;

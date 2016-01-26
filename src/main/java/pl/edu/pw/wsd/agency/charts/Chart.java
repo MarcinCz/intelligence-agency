@@ -1,26 +1,23 @@
 package pl.edu.pw.wsd.agency.charts;
 
-import org.jfree.chart.ChartPanel;
-
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.util.Date;
 
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
-import org.joda.time.DateTime;
-
-import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
-import pl.edu.pw.wsd.agency.message.content.AgentStatus;
-
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
+import org.jfree.ui.RefineryUtilities;
+import org.joda.time.DateTime;
+
+import pl.edu.pw.wsd.agency.message.content.AgentStatistics;
+import pl.edu.pw.wsd.agency.message.content.AgentStatus;
 
 public class Chart extends ApplicationFrame 
 {
