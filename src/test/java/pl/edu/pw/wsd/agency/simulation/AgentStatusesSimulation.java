@@ -41,7 +41,6 @@ public class AgentStatusesSimulation {
     @SuppressWarnings("serial")
     @Before
     public void setup() {
-
         clientAgent = new ClientAgent(new PropertiesClientAgentConfiguration("statusesSimulation/ClientAgent.properties"));
         transmitterAgent1 = new TransmitterAgent(new PropertiesTransmitterConfiguration("statusesSimulation/transmitterAgent1.properties"));
         transmitterAgent2 = new TransmitterAgent(new PropertiesTransmitterConfiguration("statusesSimulation/transmitterAgent2.properties"));
